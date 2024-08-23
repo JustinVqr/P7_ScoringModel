@@ -1,0 +1,34 @@
+# Ignorer les artefacts générés par MLflow
+mlruns/
+
+# Ignorer les logs
+logs/
+
+# Ignorer les fichiers de modèles sauvegardés
+models/
+
+# Ignorer les caches Python
+__pycache__/
+*.py[cod]
+
+# Ignorer les fichiers de données brutes volumineuses
+data/raw/
+data/*.csv
+data/*.json
+
+# Ignorer les fichiers temporaires de Jupyter
+.ipynb_checkpoints/
+
+# Ignorer les fichiers temporaires générés par l'IDE
+.vscode/
+.idea/
+
+# Ignorer les fichiers et dossiers spécifiques à Heroku (si applicable)
+*.log
+*.env
+venv/
+.env
+
+# Ignorer les fichiers spécifiques à l'OS
+.DS_Store   # MacOS
+Thumbs.db   # Windows
