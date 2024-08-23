@@ -1,74 +1,26 @@
-import os
-from fastapi import FastAPI, HTTPException
-import pandas as pd
-import pickle
-from pydantic import BaseModel
+import streamlit as st
+import requests
 
-# 
-# --- Chargement du modèle et des données preprocessées ---
-#
+# URL de votre API FastAPI (que vous hébergerez également sur Heroku)
+API_URL = "https://votre-app.herokuapp.com/predict"
 
-# Chemin du modèle pré-entraîné
-model_path = os.path.join(os.path.dirname(__file__), "best_model.pkl")
-credit_clf_final = pickle.load(open(model_path, 'rb'))
+st.title("Prédiction de Défaut de Paiement")
+st.write("Entrez l'identifiant du client pour obtenir une prédiction.")
 
-# Chargement des données preprocessées (processed_data.csv)
-data_path = os.path.join(os.path.dirname(__file__), "processed_data.csv")
-data = pd.read_csv(data_path, sep=";", index_col="SK_ID_CURR")
+# Entrée de l'identifiant client
+client_id = st.number_input("Identifiant Client", min_value=100001, max_value=999999, step=1)
 
-# 
-# --- Initialisation de FastAPI ---
-#
-app = FastAPI()
+# Lorsqu'un utilisateur soumet l'identifiant, envoyez une requête à l'API
+if st.button("Obtenir la Prédiction"):
+    # Requête POST à l'API avec l'identifiant du client
+    response = requests.post(API_URL, json={"SK_ID_CURR": int(client_id)})
 
-# 
-# --- Création de la classe d'entrée (identifiant client) ---
-#
-
-# Classe définissant l'entrée de l'API (l'identifiant du client)
-class ClientID(BaseModel):
-    SK_ID_CURR: int
-
-# 
-# --- Création de la classe de prédiction (sortie) ---
-#
-
-# Classe définissant le format de sortie de la prédiction (cible)
-class Client_Target(BaseModel):
-    prediction: int  # Prédiction binaire : 0 ou 1
-    probability: float  # Probabilité associée à la prédiction
-
-# 
-# --- Endpoint GET pour afficher un message de bienvenue ---
-#
-
-@app.get("/")
-def read_root():
-    return {"message": "Bienvenue sur l'API de scoring"}
-
-# 
-# --- Requête POST pour obtenir la prédiction à partir de l'identifiant client ---
-#
-
-@app.post("/predict", response_model=Client_Target)
-def model_predict(client: ClientID):
-    """Effectue une prédiction à partir de l'identifiant du client"""
-    
-    # Vérification si l'identifiant client existe dans les données preprocessées
-    if client.SK_ID_CURR not in data.index:
-        raise HTTPException(status_code=404, detail="Client ID not found")
-
-    # Récupération des données du client
-    client_data = data.loc[client.SK_ID_CURR].values.reshape(1, -1)
-
-    # Calcul de la probabilité de défaut de paiement
-    probability = float(credit_clf_final.predict_proba(client_data)[:, 1])
-
-    # Prédiction binaire basée sur un seuil de probabilité de 0.4
-    prediction = int(probability >= 0.4)
-
-    # Retourne la prédiction et la probabilité
-    return {
-        'prediction': prediction,
-        'probability': probability
-    }
+    # Vérifier si la requête a réussi
+    if response.status_code == 200:
+        # Récupération de la prédiction et affichage
+        prediction_data = response.json()
+        st.write(f"Prédiction : {prediction_data['prediction']}")
+        st.write(f"Probabilité : {prediction_data['probability']}")
+    else:
+        # Afficher un message d'erreur si l'API ne renvoie pas de succès
+        st.write("Erreur : Impossible de récupérer les données pour cet identifiant.")
