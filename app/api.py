@@ -8,11 +8,12 @@ from scripts.P7_data_preprocessing_fct import preprocess_data, data_prep
 # Initialisation de l'application FastAPI
 app = FastAPI()
 
-# Chemin d'accès au dossier contenant les fichiers de données brutes
-DATA_FOLDER = r"C:\Users\justi\OneDrive\Cours - Travail\DATA SCIENCE\Formation - DataScientist\Projet n°7\P7_Model_Scoring\data\raw"
+# Chemin d'accès aux dossiers contenant les fichiers de données
+RAW_DATA_FOLDER = r"C:\Users\justi\OneDrive\Cours - Travail\DATA SCIENCE\Formation - DataScientist\Projet n°7\P7_Model_Scoring\data\raw"
+PREPROCESSED_DATA_FOLDER = r"C:\Users\justi\OneDrive\Cours - Travail\DATA SCIENCE\Formation - DataScientist\Projet n°7\P7_Model_Scoring\data\preprocessed"
 
 # Nom du fichier où seront stockées les données prétraitées
-PROCESSED_DATA_FILE = 'processed_data.csv'  # Fichier CSV qui contient les données prétraitées
+PROCESSED_DATA_FILE = os.path.join(PREPROCESSED_DATA_FOLDER, 'processed_data.csv')  # Sauvegarder les données prétraitées dans le dossier `preprocessed`
 
 # Charger le modèle entraîné lors du démarrage de l'application
 with open('app/model/best_model.pkl', 'rb') as f:
@@ -21,14 +22,17 @@ with open('app/model/best_model.pkl', 'rb') as f:
 # Prétraitement des données lors du démarrage de l'application
 @app.on_event("startup")
 def startup_event():
+    # Créer le dossier `preprocessed` s'il n'existe pas déjà
+    os.makedirs(PREPROCESSED_DATA_FOLDER, exist_ok=True)
+
     # Vérifier si les données prétraitées existent déjà
     if not os.path.exists(PROCESSED_DATA_FILE):
         print("Prétraitement des données...")
 
         # Appel à la fonction de préparation des données (qui traite plusieurs fichiers CSV)
-        df_final = data_prep(path=DATA_FOLDER, debug=False)
+        df_final = data_prep(path=RAW_DATA_FOLDER, debug=False)
 
-        # Sauvegarde des données prétraitées dans un fichier CSV
+        # Sauvegarde des données prétraitées dans un fichier CSV dans le dossier `preprocessed`
         df_final.to_csv(PROCESSED_DATA_FILE, index_label='SK_ID_CURR', sep=";")
         print("Données prétraitées et stockées.")
     else:
