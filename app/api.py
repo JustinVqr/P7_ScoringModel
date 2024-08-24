@@ -1,15 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import pandas as pd
-from sqlalchemy import create_engine
 from scripts.P7_data_preprocessing_fct import preprocessing_pipeline  # Importer la fonction de prétraitement
 from app.model import best_model  # Charger le modèle
 
 app = FastAPI()
 
-# Configuration de la base de données (ex: PostgreSQL)
-DATABASE_URL = "postgresql://user:password@localhost/dbname"
-engine = create_engine(DATABASE_URL)
+# Chemin vers le fichier CSV contenant les données des clients
+DATA_FILE = "data/clients_data.csv"  # Ajustez le chemin en fonction de l'emplacement de votre fichier
 
 # Modèle de données attendu par l'API
 class ClientID(BaseModel):
@@ -18,13 +16,15 @@ class ClientID(BaseModel):
 @app.post("/predict")
 def predict(client_id: ClientID):
     try:
-        # Requête pour récupérer les données du client
-        query = f"SELECT * FROM clients_table WHERE SK_ID_CURR = {client_id.SK_ID_CURR}"
-        client_data = pd.read_sql(query, con=engine)
+        # Lire les données du fichier CSV
+        clients_data = pd.read_csv(DATA_FILE)
+
+        # Filtrer les données du client en fonction de l'ID
+        client_data = clients_data[clients_data['SK_ID_CURR'] == client_id.SK_ID_CURR]
 
         # Vérifier si les données du client existent
         if client_data.empty:
-            raise HTTPException(status_code=404, detail="ID client non trouvé dans la base de données")
+            raise HTTPException(status_code=404, detail="ID client non trouvé dans les données")
 
         # Appliquer le prétraitement aux données du client
         processed_data = preprocessing_pipeline(client_data)
