@@ -34,32 +34,39 @@ def execute_noAPI(df, index_client, model):
     col2.metric("Difficultés Prédites", str(np.where(predict_target == 0, 'NON', 'OUI'))[2:-2])
     col3.metric("Probabilité", predict_proba.round(2))
 
-# Fonction avec API pour afficher la prédiction via une requête à une API externe
-def execute_API(df):
-    """
-    Cette fonction génère deux colonnes dans l'interface Streamlit montrant la prédiction du défaut de paiement pour un client spécifique.
-    Une requête à une API externe est réalisée.
 
-    Entrée :
-    df : un dictionnaire avec les 62 caractéristiques et leurs valeurs
+# --- Interface Streamlit pour saisir l'ID client ---
+st.title("Prédiction du défaut de paiement")
 
-    Sortie :
-    2 colonnes affichant la cible prédite (Difficultés) et la probabilité
-    """
+# Saisie de l'ID client
+sk_id_curr = st.text_input("Entrez l'ID du client pour obtenir la prédiction :")
 
-    st.subheader('Difficultés du client : ')
-    
-    # Requête POST à l'API pour obtenir la prédiction
-    request = requests.post(url="https://app-scoring-9b1eba6236e9.herokuapp.com/", data=json.dumps(df))
-    
-    # Extraction des résultats de la réponse API
-    prediction = request.json()["prediction"]
-    probability = round(request.json()["probability"], 2)
+# Bouton pour lancer la prédiction
+if st.button("Obtenir la prédiction via l'API"):
+    if sk_id_curr:
+        # Préparer la requête à l'API
+        api_url = "http://localhost:8000/predict"  # URL de l'API FastAPI, à adapter selon votre configuration
+        client_id = {"SK_ID_CURR": int(sk_id_curr)}  # Créer un dictionnaire avec l'ID client
+        
+        try:
+            # Envoi de la requête POST à l'API
+            response = requests.post(api_url, json=client_id)
+            
+            # Vérification du statut de la réponse
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Affichage des résultats
+                st.write(f"Prédiction : {'Oui' if result['prediction'] == 1 else 'Non'}")
+                st.write(f"Probabilité de défaut : {result['probability'] * 100:.2f}%")
+            else:
+                st.error(f"Erreur : {response.json()['detail']}")
+        
+        except Exception as e:
+            st.error(f"Erreur lors de la requête à l'API : {e}")
+    else:
+        st.error("Veuillez entrer un ID client valide.")
 
-    # Affichage des résultats dans deux colonnes
-    col1, col2 = st.columns(2)
-    col1.metric("Difficultés Prédites", str(np.where(prediction == 0, 'NON', 'OUI')))
-    col2.metric("Probabilité de défaut", probability)
 
 # Fonction pour générer un graphique SHAP montrant l'importance des caractéristiques
 def shap_plot(explainer, df, index_client=0):

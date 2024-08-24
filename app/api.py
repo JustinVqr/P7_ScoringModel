@@ -1,41 +1,39 @@
 from fastapi import FastAPI, HTTPException
-import pickle
+from pydantic import BaseModel
 import pandas as pd
+from sqlalchemy import create_engine
+from scripts.P7_data_preprocessing_fct import preprocessing_pipeline  # Importer la fonction de prétraitement
+from app.model import best_model  # Charger le modèle
 
 app = FastAPI()
 
-# Charger le modèle
-with open('app/model/best_model.pkl', 'rb') as f:
-    model = pickle.load(f)
+# Configuration de la base de données (ex: PostgreSQL)
+DATABASE_URL = "postgresql://user:password@localhost/dbname"
+engine = create_engine(DATABASE_URL)
 
-# Charger le pipeline de prétraitement
-with open('app/model/preprocessing_pipeline.pkl', 'rb') as f:
-    preprocessing_pipeline = pickle.load(f)
-
-# Chemin vers le dataset contenant les données clients
-DATA_FILE = "app/data/processed_data.csv"
+# Modèle de données attendu par l'API
+class ClientID(BaseModel):
+    SK_ID_CURR: int
 
 @app.post("/predict")
-def predict(SK_ID_CURR: int):
+def predict(client_id: ClientID):
     try:
-        # Charger les données clients depuis le fichier CSV
-        client_data = pd.read_csv(DATA_FILE, sep=";", index_col='SK_ID_CURR')
+        # Requête pour récupérer les données du client
+        query = f"SELECT * FROM clients_table WHERE SK_ID_CURR = {client_id.SK_ID_CURR}"
+        client_data = pd.read_sql(query, con=engine)
 
-        # Vérifier si l'ID du client existe dans les données
-        if SK_ID_CURR not in client_data.index:
-            raise HTTPException(status_code=404, detail="ID client non trouvé dans le dataset")
+        # Vérifier si les données du client existent
+        if client_data.empty:
+            raise HTTPException(status_code=404, detail="ID client non trouvé dans la base de données")
 
-        # Extraire les données du client
-        client_features = client_data.loc[[SK_ID_CURR]]
-
-        # Appliquer le prétraitement
-        processed_data = preprocessing_pipeline.transform(client_features)
+        # Appliquer le prétraitement aux données du client
+        processed_data = preprocessing_pipeline(client_data)
 
         # Faire la prédiction
-        prediction = model.predict(processed_data)
-        probability = model.predict_proba(processed_data)[0][1]
+        prediction = best_model.predict(processed_data)
+        probability = best_model.predict_proba(processed_data)[0][1]
 
-        # Retourner la prédiction et la probabilité
+        # Retourner les résultats
         return {"prediction": int(prediction[0]), "probability": float(probability)}
 
     except Exception as e:
