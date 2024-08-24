@@ -7,7 +7,7 @@ from app.model import best_model  # Charger le modèle
 app = FastAPI()
 
 # Chemin vers le fichier CSV contenant les données des clients
-DATA_FILE = "data/clients_data.csv"  # Ajustez le chemin en fonction de l'emplacement de votre fichier
+DATA_FILE = "data/preprocessed/preprocessed_data.csv"  # Chemin ajusté en fonction de l'emplacement de votre fichier
 
 # Modèle de données attendu par l'API
 class ClientID(BaseModel):
