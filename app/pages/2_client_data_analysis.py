@@ -1,5 +1,5 @@
 import streamlit as st
-from P7_App_FrontEnd import execute_noAPI, plot_client, nan_values  # Importation explicite des fonctions
+from P7_App_FrontEnd import execute_noAPI, plot_client, nan_values
 
 # Configuration de la page Streamlit
 st.set_page_config(
@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="2) Clients info"
 )
 
-# Vérifiez que les données sont disponibles dans session_state
+# Vérifiez que les données sont disponibles dans le session state
 if 'df_train' in st.session_state and 'Credit_clf_final' in st.session_state and 'explainer' in st.session_state:
     df_train = st.session_state.df_train
     Credit_clf_final = st.session_state.Credit_clf_final
