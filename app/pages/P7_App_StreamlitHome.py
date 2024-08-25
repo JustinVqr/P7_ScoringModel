@@ -52,34 +52,48 @@ if page == "Accueil":
             
             # Fonction pour télécharger et lire les fichiers CSV depuis Dropbox
             def download_and_load_csv(url):
-                response = requests.get(url)
-                response.raise_for_status()  # Vérifie s'il y a des erreurs de téléchargement
-                csv_data = StringIO(response.text)
-                return pd.read_csv(csv_data, sep=';', index_col="SK_ID_CURR", encoding='utf-8')
+                try:
+                    response = requests.get(url)
+                    response.raise_for_status()  # Vérifie s'il y a des erreurs de téléchargement
+                    st.write(f"Téléchargement réussi: {url}")
+                    st.write(f"Statut de la réponse: {response.status_code}")
+                    st.write(f"Premier caractère de la réponse: {response.text[:200]}")  # Affiche un aperçu du contenu
+                    
+                    csv_data = StringIO(response.text)
+                    return pd.read_csv(csv_data, sep=';', index_col="SK_ID_CURR", encoding='utf-8')
+                except requests.exceptions.RequestException as e:
+                    st.error(f"Erreur de téléchargement des données depuis {url} : {e}")
+                    return None
 
             # Chargement des datasets depuis Dropbox
             df_train = download_and_load_csv(train_url)
             df_new = download_and_load_csv(test_url)
             
+            # Vérifiez si les DataFrames sont correctement chargés
+            if df_train is None or df_new is None:
+                st.error("Erreur lors du chargement des données.")
+                return None, None
+            
             return df_train, df_new
 
         df_train, df_new = loading_data()
 
-        st.write("1) Chargement des données")
+        if df_train is not None and df_new is not None:
+            st.write("1) Chargement des données")
 
-        st.write("2) Chargement du modèle")
-        # Chargement du modèle depuis le répertoire local
-        model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
-        with open(model_path, 'rb') as model_file:
-            Credit_clf_final = pickle.load(model_file)
+            st.write("2) Chargement du modèle")
+            # Chargement du modèle depuis le répertoire local
+            model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
+            with open(model_path, 'rb') as model_file:
+                Credit_clf_final = pickle.load(model_file)
 
-        st.write("3) Chargement de l'explainer (Shap)")
-        explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
+            st.write("3) Chargement de l'explainer (Shap)")
+            explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
 
-        st.write("4) Sauvegarde des variables de session")
-        st.session_state.df_train = df_train
-        st.session_state.df_new = df_new
-        st.session_state.Credit_clf_final = Credit_clf_final
-        st.session_state.explainer = explainer
+            st.write("4) Sauvegarde des variables de session")
+            st.session_state.df_train = df_train
+            st.session_state.df_new = df_new
+            st.session_state.Credit_clf_final = Credit_clf_final
+            st.session_state.explainer = explainer
 
-        st.success('Chargement terminé !')
+            st.success('Chargement terminé !')
