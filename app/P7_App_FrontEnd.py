@@ -45,7 +45,7 @@ sk_id_curr = st.text_input("Entrez l'ID du client pour obtenir la prédiction :"
 if st.button("Obtenir la prédiction via l'API"):
     if sk_id_curr:
         # Préparer la requête à l'API
-        api_url = "http://localhost:8000/predict"  # URL de l'API FastAPI, à adapter selon votre configuration
+        api_url = "https://app-scoring-p7-b4207842daea.herokuapp.com/predict"  # URL de l'API FastAPI, à adapter selon votre configuration
         client_id = {"SK_ID_CURR": int(sk_id_curr)}  # Créer un dictionnaire avec l'ID client
         
         try:
