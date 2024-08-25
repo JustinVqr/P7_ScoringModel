@@ -7,7 +7,8 @@ import pickle
 st.set_page_config(
     layout='wide',  # Disposition large de la page
     initial_sidebar_state='expanded',  # La barre latérale est étendue par défaut
-    page_title="Accueil")  # Titre de la page
+    page_title="Accueil"  # Titre de la page
+)
 
 # --- Système de navigation ---
 st.sidebar.title("Navigation")
@@ -42,10 +43,14 @@ if page == "Accueil":
     with st.spinner('initialisation...'):
         @st.cache
         def loading_data():
-            chemin_train = r"C:\Users\justi\OneDrive\Cours - Travail\DATA SCIENCE\Formation - DataScientist\Projet n°7\Projet n°7_Scoring\df_train.csv.zip"
-            df_train = pd.read_csv(chemin_train, compression="zip", sep=';', index_col="SK_ID_CURR")
-            chemin_test = r"C:\Users\justi\OneDrive\Cours - Travail\DATA SCIENCE\Formation - DataScientist\Projet n°7\Projet n°7_Scoring\df_test.csv.zip"
-            df_new = pd.read_csv(chemin_test, compression="zip", sep=';', index_col="SK_ID_CURR")
+            # Lien Dropbox pour les fichiers
+            train_url = "https://www.dropbox.com/scl/fi/iqw80pyid2z79f40n0m8p/preprocessed_data.csv?rlkey=mvd2bz9s1hkaxdg51giv5thvm&st=nnqiv93s&dl=1"
+            test_url = "https://www.dropbox.com/s/r1p43l7ad230zjg/df_test.csv.zip?dl=1"
+            
+            # Chargement des DataFrames depuis Dropbox
+            df_train = pd.read_csv(train_url, sep=',', index_col="SK_ID_CURR")
+            df_new = pd.read_csv(test_url, compression="zip", sep=';', index_col="SK_ID_CURR")
+            
             return df_train, df_new
 
         df_train, df_new = loading_data()
@@ -53,8 +58,9 @@ if page == "Accueil":
         st.write("1) Chargement des données")
         st.write("2) Chargement du modèle")
         
-        model_path = r"C:\Users\justi\OneDrive\Cours - Travail\DATA SCIENCE\Formation - DataScientist\Projet n°7\Projet n°7_Scoring\best_model.pkl"
-        Credit_clf_final = pickle.load(open(model_path, 'rb'))
+        # Lien Dropbox pour le modèle (veuillez ajouter votre modèle sur Dropbox et utiliser son lien)
+        model_url = "https://www.dropbox.com/s/your_dropbox_model_path.pkl?dl=1"
+        Credit_clf_final = pickle.load(open(model_url, 'rb'))
 
         st.write("3) Chargement de l'explainer (Shap)")
         explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
