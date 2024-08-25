@@ -1,13 +1,12 @@
 from fastapi import FastAPI, HTTPException, Form
 from pydantic import BaseModel
 import pandas as pd
-from scripts.P7_data_preprocessing_fct import preprocessing_pipeline  # Importer la fonction de prétraitement
 from app.model import best_model  # Charger le modèle
 from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 
-# Chemin vers le fichier CSV contenant les données des clients
+# Chemin vers le fichier CSV contenant les données des clients prétraitées
 DATA_FILE = "data/preprocessed/preprocessed_data.csv"  # Chemin ajusté vers les données prétraitées
 
 # Modèle de données pour l'API
@@ -47,12 +46,9 @@ def predict(client_id: int = Form(...)):
         if client_data.empty:
             raise HTTPException(status_code=404, detail="ID client non trouvé dans les données")
 
-        # Appliquer le prétraitement aux données du client
-        processed_data = preprocessing_pipeline(client_data)
-
-        # Faire la prédiction
-        prediction = best_model.predict(processed_data)
-        probability = best_model.predict_proba(processed_data)[0][1]
+        # Faire la prédiction (sans appliquer de prétraitement)
+        prediction = best_model.predict(client_data.drop(columns=['SK_ID_CURR']))  # Supposant que 'SK_ID_CURR' n'est pas utilisé par le modèle
+        probability = best_model.predict_proba(client_data.drop(columns=['SK_ID_CURR']))[0][1]
 
         # Retourner les résultats sous forme HTML
         return f"""
