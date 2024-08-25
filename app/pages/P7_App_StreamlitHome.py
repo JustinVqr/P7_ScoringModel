@@ -54,15 +54,20 @@ if page == "Accueil":
             def download_and_load_csv(url):
                 try:
                     response = requests.get(url)
-                    response.raise_for_status()  # Vérifie s'il y a des erreurs de téléchargement
-                    st.write(f"Téléchargement réussi: {url}")
-                    st.write(f"Statut de la réponse: {response.status_code}")
-                    st.write(f"Premier caractère de la réponse: {response.text[:200]}")  # Affiche un aperçu du contenu
                     
+                    # Vérification manuelle du code de statut HTTP
+                    if response.status_code != 200:
+                        st.error(f"Échec du téléchargement depuis {url}. Statut: {response.status_code}")
+                        return None
+                    
+                    # Affiche un aperçu du contenu pour débogage
+                    st.write(f"Premier caractère de la réponse: {response.text[:200]}")  
+                    
+                    # Charger les données en DataFrame
                     csv_data = StringIO(response.text)
                     return pd.read_csv(csv_data, sep=';', index_col="SK_ID_CURR", encoding='utf-8')
-                except requests.exceptions.RequestException as e:
-                    st.error(f"Erreur de téléchargement des données depuis {url} : {e}")
+                except Exception as e:
+                    st.error(f"Erreur lors du téléchargement ou du chargement des données depuis {url} : {e}")
                     return None
 
             # Chargement des datasets depuis Dropbox
