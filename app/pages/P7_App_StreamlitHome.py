@@ -47,8 +47,8 @@ if page == "Accueil":
         @st.cache
         def loading_data():
             # Liens Dropbox pour les datasets
-            train_url = "https://www.dropbox.com/scl/fi/6ya6hk9y2ds3bpa3ygvze/df_train.csv?rlkey=izkzxuf5k5l55el4240dltzee&st=uc651jru&dl=1"
-            test_url = "https://www.dropbox.com/scl/fi/bz27bvds2bbi89tkbee2f/df_new.csv?rlkey=p3dvtbh4dupugqq44f07ds7s0&st=e7rsatfb&dl=1"
+            train_url = "https://www.dropbox.com/scl/fi/1utyp2vxauxizvs96dbnv/df_train.csv?rlkey=5y0srv1wu9muzoa2yezu472kn&st=tosffzn8&dl=1"
+            test_url = "https://www.dropbox.com/scl/fi/5ihks3eng4kws0zfqwdkw/df_new.csv?rlkey=m2kd4iv4abb67w546p75ulrgk&st=dj744do8&dl=1"
             
             # Fonction pour télécharger et lire les fichiers CSV depuis Dropbox
             def download_and_load_csv(url):
