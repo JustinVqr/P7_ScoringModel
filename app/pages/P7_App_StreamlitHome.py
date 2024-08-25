@@ -49,8 +49,8 @@ if page == "Accueil":
             test_url = "https://www.dropbox.com/scl/fi/bz27bvds2bbi89tkbee2f/df_new.csv?rlkey=p3dvtbh4dupugqq44f07ds7s0&st=e7rsatfb&dl=0"
             
             # Chargement des datasets depuis Dropbox
-            df_train = pd.read_csv(train_url, sep=',', index_col="SK_ID_CURR", encoding='utf-8')
-            df_new = pd.read_csv(test_url, sep=',', index_col="SK_ID_CURR", encoding='utf-8')
+            df_train = pd.read_csv(train_url, sep=',', index_col="SK_ID_CURR", encoding='utf-8', error_bad_lines=False)
+            df_new = pd.read_csv(test_url, sep=',', index_col="SK_ID_CURR", encoding='utf-8', error_bad_lines=False)
             
             return df_train, df_new
 
