@@ -1,17 +1,13 @@
 from fastapi import FastAPI, HTTPException, Form
-from pydantic import BaseModel
-import pandas as pd
-from app.model import best_model  # Charger le modèle
 from fastapi.responses import HTMLResponse
+import pandas as pd
+from model.P7_script_model_inf import make_prediction  # Importer la fonction d'inférence
 
 app = FastAPI()
 
 # Chemin vers le fichier CSV contenant les données des clients prétraitées
 DATA_FILE = "data/preprocessed/preprocessed_data.csv"  # Chemin ajusté vers les données prétraitées
-
-# Modèle de données pour l'API
-class ClientID(BaseModel):
-    SK_ID_CURR: int
+clients_data = pd.read_csv(DATA_FILE)  # Charger les données une fois au démarrage de l'application
 
 @app.get("/", response_class=HTMLResponse)
 def home():
@@ -20,12 +16,29 @@ def home():
     <html>
         <head>
             <title>Prédiction du score client</title>
+            <script>
+                async function fetchSuggestions() {
+                    let query = document.getElementById('client_id').value;
+                    if (query.length > 0) {
+                        let response = await fetch(`/suggest_ids?q=${query}`);
+                        let data = await response.json();
+                        let suggestions = document.getElementById('suggestions');
+                        suggestions.innerHTML = '';
+                        data.forEach(id => {
+                            let option = document.createElement('option');
+                            option.value = id;
+                            suggestions.appendChild(option);
+                        });
+                    }
+                }
+            </script>
         </head>
         <body>
             <h1>Prédiction du score client</h1>
             <form action="/predict/" method="post">
                 <label for="client_id">ID Client :</label>
-                <input type="number" id="client_id" name="client_id" required>
+                <input type="text" id="client_id" name="client_id" list="suggestions" oninput="fetchSuggestions()" required>
+                <datalist id="suggestions"></datalist>
                 <button type="submit">Prédire</button>
             </form>
         </body>
@@ -33,12 +46,15 @@ def home():
     """
     return html_content
 
+@app.get("/suggest_ids", response_class=HTMLResponse)
+def suggest_ids(q: str):
+    # Filtrer les IDs clients qui correspondent à la requête
+    matching_ids = clients_data[clients_data['SK_ID_CURR'].astype(str).str.startswith(q)]['SK_ID_CURR'].unique()
+    return matching_ids.tolist()
+
 @app.post("/predict/")
 def predict(client_id: int = Form(...)):
     try:
-        # Lire les données du fichier CSV prétraité
-        clients_data = pd.read_csv(DATA_FILE)
-
         # Filtrer les données du client en fonction de l'ID
         client_data = clients_data[clients_data['SK_ID_CURR'] == client_id]
 
@@ -46,9 +62,11 @@ def predict(client_id: int = Form(...)):
         if client_data.empty:
             raise HTTPException(status_code=404, detail="ID client non trouvé dans les données")
 
-        # Faire la prédiction (sans appliquer de prétraitement)
-        prediction = best_model.predict(client_data.drop(columns=['SK_ID_CURR']))  # Supposant que 'SK_ID_CURR' n'est pas utilisé par le modèle
-        probability = best_model.predict_proba(client_data.drop(columns=['SK_ID_CURR']))[0][1]
+        # Préparer les données pour la prédiction (supposons que 'SK_ID_CURR' n'est pas utilisé pour la prédiction)
+        input_data = client_data.drop(columns=['SK_ID_CURR']).values.flatten().tolist()
+
+        # Faire la prédiction
+        prediction = make_prediction(input_data)
 
         # Retourner les résultats sous forme HTML
         return f"""
@@ -60,7 +78,6 @@ def predict(client_id: int = Form(...)):
                 <h1>Résultat de la Prédiction</h1>
                 <p>ID Client : {client_id}</p>
                 <p>Prédiction : {int(prediction[0])}</p>
-                <p>Probabilité : {float(probability)}</p>
                 <a href="/">Faire une autre prédiction</a>
             </body>
         </html>

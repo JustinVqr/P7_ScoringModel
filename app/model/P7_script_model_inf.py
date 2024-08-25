@@ -5,7 +5,7 @@ import numpy as np
 with open('app/model/best_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
-def faire_prediction(input_data):
+def make_prediction(input_data):
     """
     Fonction pour faire des prédictions avec le modèle chargé.
     :param input_data: array-like, shape (n_samples, n_features)
