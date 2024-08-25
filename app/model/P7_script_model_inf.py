@@ -11,6 +11,6 @@ def make_prediction(input_data):
     :param input_data: array-like, shape (n_samples, n_features)
     :return: valeurs prédites
     """
-    input_data = np.array(input_data).reshape(1, -1)  # Redimensionner les données si nécessaire
+    input_data = np.array(input_data).reshape(1, -1)
     prediction = model.predict(input_data)
     return prediction

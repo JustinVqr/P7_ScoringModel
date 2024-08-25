@@ -1,28 +1,51 @@
-from fastapi import FastAPI, HTTPException
-import pandas as pd
+from fastapi import FastAPI
+import numpy as np
+from pydantic import BaseModel
 import pickle
 
+# Charger le modèle sauvegardé
+with open('app/model/best_model.pkl', 'rb') as file:
+    model = pickle.load(file)
+
+# Initialisation de FastAPI
 app = FastAPI()
 
-# Charger les données des clients
-df_clients = pd.read_csv("app/data/preprocessed/preprocessed_data.csv")
+# Classe de données client (basée sur les champs requis)
+class ClientData(BaseModel):
+    AMT_CREDIT: float
+    AMT_ANNUITY: float
+    AMT_GOODS_PRICE: float
+    DAYS_BIRTH: int
+    FLAG_OWN_CAR: int
+    # Ajoutez les autres champs ici selon votre modèle...
 
-# Charger le modèle pré-entraîné
-with open("app/model/best_model.pkl", "rb") as f:
-    model = pickle.load(f)
+# Fonction pour faire des prédictions
+def make_prediction(input_data):
+    input_data = np.array(input_data).reshape(1, -1)
+    prediction = model.predict(input_data)
+    return prediction
 
-@app.get("/predict/{client_id}")
-def make_prediction(client_id: int):
-    # Vérifier si l'ID client existe dans les données
-    client_data = df_clients[df_clients['client_id'] == client_id]
-    if client_data.empty:
-        raise HTTPException(status_code=404, detail="Client not found")
+# Message d'accueil
+@app.get("/")
+def read_root():
+    return {"message": "Bonjour, vous êtes bien sur l'application de scoring, hébergée sur Heroku. "
+                       "Cette API permet de prédire la probabilité de défaut de paiement pour un client "
+                       "en fonction de ses caractéristiques. Envoyez une requête POST à /predict pour obtenir une prédiction."}
+
+# Route FastAPI pour les prédictions
+@app.post("/predict")
+def predict(client_data: ClientData):
+    # Convertir les données en liste pour les utiliser avec le modèle
+    input_data = [
+        client_data.AMT_CREDIT,
+        client_data.AMT_ANNUITY,
+        client_data.AMT_GOODS_PRICE,
+        client_data.DAYS_BIRTH,
+        client_data.FLAG_OWN_CAR,
+        # Ajoutez les autres champs ici...
+    ]
     
-    # Extraire les caractéristiques du client pour la prédiction
-    client_features = client_data.drop(columns=["client_id"]).values
-
-    # Faire une prédiction
-    prediction = model.predict(client_features)
-
-    # Retourner l'ID client et la prédiction
-    return {"client_id": client_id, "prediction": prediction[0]}
+    # Faire la prédiction
+    prediction = make_prediction(input_data)
+    
+    return {"prediction": int(prediction[0])}
