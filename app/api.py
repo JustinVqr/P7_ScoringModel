@@ -5,7 +5,7 @@ import pickle
 app = FastAPI()
 
 # Charger les données des clients
-df_clients = pd.read_csv("app/data/clients_data.csv")
+df_clients = pd.read_csv("app/data/preprocessed/preprocessed_data.csv")
 
 # Charger le modèle pré-entraîné
 with open("app/model/best_model.pkl", "rb") as f:
