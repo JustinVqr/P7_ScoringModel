@@ -3,6 +3,8 @@ import pandas as pd
 import shap
 import pickle
 import os
+import requests
+from io import StringIO
 
 # Configuration de la page d'accueil
 st.set_page_config(
@@ -45,12 +47,19 @@ if page == "Accueil":
         @st.cache
         def loading_data():
             # Liens Dropbox pour les datasets
-            train_url = "https://www.dropbox.com/scl/fi/6ya6hk9y2ds3bpa3ygvze/df_train.csv?rlkey=izkzxuf5k5l55el4240dltzee&st=uc651jru&dl=0"
-            test_url = "https://www.dropbox.com/scl/fi/bz27bvds2bbi89tkbee2f/df_new.csv?rlkey=p3dvtbh4dupugqq44f07ds7s0&st=e7rsatfb&dl=0"
+            train_url = "https://www.dropbox.com/scl/fi/6ya6hk9y2ds3bpa3ygvze/df_train.csv?rlkey=izkzxuf5k5l55el4240dltzee&st=uc651jru&dl=1"
+            test_url = "https://www.dropbox.com/scl/fi/bz27bvds2bbi89tkbee2f/df_new.csv?rlkey=p3dvtbh4dupugqq44f07ds7s0&st=e7rsatfb&dl=1"
             
+            # Fonction pour télécharger et lire les fichiers CSV depuis Dropbox
+            def download_and_load_csv(url):
+                response = requests.get(url)
+                response.raise_for_status()  # Vérifie s'il y a des erreurs de téléchargement
+                csv_data = StringIO(response.text)
+                return pd.read_csv(csv_data, sep=';', index_col="SK_ID_CURR", encoding='utf-8')
+
             # Chargement des datasets depuis Dropbox
-            df_train = pd.read_csv(train_url, sep=';', index_col="SK_ID_CURR", encoding='utf-8', error_bad_lines=False)
-            df_new = pd.read_csv(test_url, sep=';', index_col="SK_ID_CURR", encoding='utf-8', error_bad_lines=False)
+            df_train = download_and_load_csv(train_url)
+            df_new = download_and_load_csv(test_url)
             
             return df_train, df_new
 
