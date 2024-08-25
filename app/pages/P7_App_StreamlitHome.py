@@ -65,7 +65,7 @@ if page == "Accueil":
                     
                     # Charger les données en DataFrame
                     csv_data = StringIO(response.text)
-                    return pd.read_csv(csv_data, sep=';', index_col="SK_ID_CURR", encoding='utf-8')
+                    return pd.read_csv(csv_data, sep=',', index_col="SK_ID_CURR", encoding='utf-8')
                 except Exception as e:
                     st.error(f"Erreur lors du téléchargement ou du chargement des données depuis {url} : {e}")
                     return None
