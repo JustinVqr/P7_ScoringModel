@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import shap
 import pickle
+import os
 
 # Configuration de la page d'accueil
 st.set_page_config(
@@ -40,27 +41,28 @@ if page == "Accueil":
 
     st.subheader("Chargement de l'application :")
 
-    with st.spinner('initialisation...'):
+    with st.spinner('Initialisation...'):
         @st.cache
         def loading_data():
-            # Lien Dropbox pour les fichiers
-            train_url = "https://www.dropbox.com/scl/fi/iqw80pyid2z79f40n0m8p/preprocessed_data.csv?rlkey=mvd2bz9s1hkaxdg51giv5thvm&st=nnqiv93s&dl=1"
-            test_url = "https://www.dropbox.com/s/r1p43l7ad230zjg/df_test.csv.zip?dl=1"
+            # Liens Dropbox pour les datasets
+            train_url = "https://www.dropbox.com/scl/fi/hqi479h0u1sqsenntpwf3/df_train.csv?rlkey=2abpboj1j6yscnb962cmg1i5z&st=2wxedxor&dl=0"
+            test_url = "https://www.dropbox.com/scl/fi/ephtmppzbzpffcngqqtcn/df_new.csv?rlkey=wwogh1k4h9lovp7vlhsy9dgoc&st=2we60x5h&dl=0"
             
-            # Chargement des DataFrames depuis Dropbox
+            # Chargement des datasets depuis Dropbox
             df_train = pd.read_csv(train_url, sep=',', index_col="SK_ID_CURR")
-            df_new = pd.read_csv(test_url, compression="zip", sep=';', index_col="SK_ID_CURR")
+            df_new = pd.read_csv(test_url, sep=',', index_col="SK_ID_CURR")
             
             return df_train, df_new
 
         df_train, df_new = loading_data()
 
         st.write("1) Chargement des données")
+
         st.write("2) Chargement du modèle")
-        
-        # Lien Dropbox pour le modèle (veuillez ajouter votre modèle sur Dropbox et utiliser son lien)
-        model_url = "https://www.dropbox.com/s/your_dropbox_model_path.pkl?dl=1"
-        Credit_clf_final = pickle.load(open(model_url, 'rb'))
+        # Chargement du modèle depuis le répertoire local
+        model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
+        with open(model_path, 'rb') as model_file:
+            Credit_clf_final = pickle.load(model_file)
 
         st.write("3) Chargement de l'explainer (Shap)")
         explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
@@ -72,14 +74,3 @@ if page == "Accueil":
         st.session_state.explainer = explainer
 
         st.success('Chargement terminé !')
-
-# --- Page "Analyse des clients" ---
-elif page == "Analyse des clients":
-    st.title("Analyse des clients")
-    # Ajoutez ici votre code pour analyser les données des clients connus.
-    # Vous pouvez afficher des tableaux, des graphiques, etc.
-
-# --- Page "Prédiction" ---
-elif page == "Prédiction":
-    st.title("Prédiction pour de nouveaux clients")
-    # Ajoutez ici votre code pour prédire les défauts de paiement pour de nouveaux clients via l'API
