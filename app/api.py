@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.responses import HTMLResponse
 import pandas as pd
-from model.P7_script_model_inf import make_prediction  # Importer la fonction d'inférence
+from app.model.P7_script_model_inf import make_prediction
+
 
 app = FastAPI()
 
