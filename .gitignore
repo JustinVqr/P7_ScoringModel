@@ -12,9 +12,9 @@ __pycache__/
 *.py[cod]
 
 # Ignorer les fichiers de données brutes volumineuses
-data/raw/
-data/*.csv
-data/*.json
+#data/raw/
+#data/*.csv
+#data/*.json
 
 # Ignorer les fichiers temporaires de Jupyter
 .ipynb_checkpoints/
