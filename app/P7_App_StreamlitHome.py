@@ -85,13 +85,18 @@ if page == "Accueil":
                             Credit_clf_final = joblib.load(model_path)
                             st.write("Modèle chargé avec succès.")
 
+                            # Vérifiez si la colonne TARGET existe avant de la supprimer
+                            if "TARGET" in df_client.columns:
+                                X_client = df_client.drop(columns="TARGET").fillna(0)
+                            else:
+                                X_client = df_client.fillna(0)
+
                             # Faire la prédiction pour le client
-                            X_client = df_client.drop(columns="TARGET").fillna(0)
                             prediction_proba = Credit_clf_final.predict_proba(X_client)[:, 1]
                             prediction = Credit_clf_final.predict(X_client)
 
                             # Afficher les résultats
-                            st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
+                            st.write(f"Prédiction : {'Oui' si prediction[0] == 1 else 'Non'}")
                             st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
 
                             # Calculer et afficher les valeurs SHAP uniquement pour ce client
