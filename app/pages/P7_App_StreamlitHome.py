@@ -44,7 +44,7 @@ if page == "Accueil":
     st.subheader("Chargement de l'application :")
 
     with st.spinner('Initialisation...'):
-        @st.cache
+        @st.cache_data
         def loading_data():
             # Liens Dropbox pour les datasets
             train_url = "https://www.dropbox.com/scl/fi/1utyp2vxauxizvs96dbnv/df_train.csv?rlkey=5y0srv1wu9muzoa2yezu472kn&st=tosffzn8&dl=1"
@@ -60,10 +60,7 @@ if page == "Accueil":
                         st.error(f"Échec du téléchargement depuis {url}. Statut: {response.status_code}")
                         return None
                     
-                    # Affiche un aperçu du contenu pour débogage
-                    st.write(f"Premier caractère de la réponse: {response.text[:200]}")  
-                    
-                    # Charger les données en DataFrame
+                    # Chargement des données en DataFrame
                     csv_data = StringIO(response.text)
                     return pd.read_csv(csv_data, sep=',', index_col="SK_ID_CURR", encoding='utf-8')
                 except Exception as e:

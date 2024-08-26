@@ -32,3 +32,4 @@ venv/
 # Ignorer les fichiers spécifiques à l'OS
 .DS_Store   # MacOS
 Thumbs.db   # Windows
+notebooks/df_mod.csv
