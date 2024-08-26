@@ -1,4 +1,8 @@
 import streamlit as st
+
+# Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 from app.component.P7_App_FrontEnd import *
 
 # Configuration de la page Streamlit
