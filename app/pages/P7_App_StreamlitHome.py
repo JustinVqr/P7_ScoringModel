@@ -1,16 +1,16 @@
 import streamlit as st
 import pandas as pd
 import shap
-import joblib  # Remplacer pickle par joblib
+import joblib
 import os
 import requests
 from io import StringIO
 
 # Configuration de la page d'accueil
 st.set_page_config(
-    layout='wide',  # Disposition large de la page
-    initial_sidebar_state='expanded',  # La barre latérale est étendue par défaut
-    page_title="Accueil"  # Titre de la page
+    layout='wide',
+    initial_sidebar_state='expanded',
+    page_title="Accueil"
 )
 
 # --- Système de navigation ---
@@ -32,7 +32,7 @@ if page == "Accueil":
 
     with col2:
         st.write(" ")
-        st.write(" ")  # Espaces vides pour centrer le texte
+        st.write(" ")
         st.subheader("Contenu de l'application :")
         st.markdown("""
          Cette application comporte trois pages :
@@ -55,12 +55,10 @@ if page == "Accueil":
                 try:
                     response = requests.get(url)
                     
-                    # Vérification manuelle du code de statut HTTP
                     if response.status_code != 200:
                         st.error(f"Échec du téléchargement depuis {url}. Statut: {response.status_code}")
                         return None
                     
-                    # Chargement des données en DataFrame
                     csv_data = StringIO(response.text)
                     return pd.read_csv(csv_data, sep=',', index_col="SK_ID_CURR", encoding='utf-8')
                 except Exception as e:
@@ -70,13 +68,13 @@ if page == "Accueil":
             # Chargement des datasets depuis Dropbox
             df_train = download_and_load_csv(train_url)
             df_new = download_and_load_csv(test_url)
-            
-            # Vérifiez si les DataFrames sont correctement chargés
-            if df_train is None or df_new is None:
+
+            if df_train is not None and df_new is not None:
+                st.write("Données chargées avec succès.")
+                return df_train, df_new
+            else:
                 st.error("Erreur lors du chargement des données.")
                 return None, None
-            
-            return df_train, df_new
 
         df_train, df_new = loading_data()
 
@@ -84,11 +82,10 @@ if page == "Accueil":
             st.write("1) Chargement des données")
 
             st.write("2) Chargement du modèle")
-            # Chargement du modèle depuis le répertoire local avec joblib
             model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
             if os.path.exists(model_path):
                 try:
-                    Credit_clf_final = joblib.load(model_path)  # Utiliser joblib pour charger le modèle
+                    Credit_clf_final = joblib.load(model_path)
                     st.write("Modèle chargé avec succès.")
                 except Exception as e:
                     st.error(f"Erreur lors du chargement du modèle : {e}")
@@ -96,7 +93,11 @@ if page == "Accueil":
                 st.error(f"Le fichier {model_path} n'existe pas.")
 
             st.write("3) Chargement de l'explainer (Shap)")
-            explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
+            try:
+                explainer = shap.KernelExplainer(Credit_clf_final.predict_proba, df_train.drop(columns="TARGET").fillna(0))
+                st.write("Explainer chargé avec succès.")
+            except Exception as e:
+                st.error(f"Erreur lors du chargement de l'explainer : {e}")
 
             st.write("4) Sauvegarde des variables de session")
             st.session_state.df_train = df_train
