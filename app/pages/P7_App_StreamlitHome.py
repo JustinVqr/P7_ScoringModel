@@ -28,7 +28,7 @@ if page == "Accueil":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.image("https://raw.githubusercontent.com/JustinVqr/Projet7_Scoring_OC/App_Scoring/app_scoring/frontend_App_P7/images/logo.png")
+        st.image("https://raw.githubusercontent.com/JustinVqr/P7_ScoringModel/main/app/images/logo.png")
 
     with col2:
         st.write(" ")
