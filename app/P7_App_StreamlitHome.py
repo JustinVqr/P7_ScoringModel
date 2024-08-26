@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import requests
 from io import StringIO
+import os
+import joblib
+import shap
+import matplotlib.pyplot as plt
 
 # Configuration de la page d'accueil
 st.set_page_config(
@@ -115,7 +119,7 @@ if page == "Accueil":
                         prediction = Credit_clf_final.predict(X_client)
 
                         # Afficher les résultats
-                        st.write(f"Prédiction : {'Oui' si prediction[0] == 1 else 'Non'}")
+                        st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
                         st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
 
                         # Calculer et afficher les valeurs SHAP uniquement pour ce client
