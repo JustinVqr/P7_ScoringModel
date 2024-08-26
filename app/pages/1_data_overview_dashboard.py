@@ -72,8 +72,6 @@ with tab1:
         """)
 
 # --- Onglet 2 : Présentation des caractéristiques ---
-# Les 62 caractéristiques sont présentées en deux colonnes avec 31 graphiques chacune.
-# Pour les caractéristiques binaires : diagramme en barres montrant la fréquence des valeurs par classe (TARGET)
 # Pour les autres caractéristiques : Box plot coloré par classe (TARGET)
 with tab2:
     cola, colb = st.columns(2)  # Création de deux colonnes pour l'affichage des graphiques

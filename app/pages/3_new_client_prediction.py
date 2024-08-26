@@ -1,5 +1,5 @@
 import streamlit as st
-from P7_App_FrontEnd import *
+from app.component.P7_App_FrontEnd import *
 
 # Configuration de la page Streamlit
 st.set_page_config(page_title="3) Nouvelle Prédiction")  # Titre de la page de l'application

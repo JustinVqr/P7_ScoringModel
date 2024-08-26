@@ -1,5 +1,5 @@
 import streamlit as st
-from P7_App_FrontEnd import execute_noAPI, plot_client, nan_values
+from app.component.P7_App_FrontEnd import execute_noAPI, plot_client, nan_values
 
 # Configuration de la page Streamlit
 st.set_page_config(
