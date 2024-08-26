@@ -21,7 +21,7 @@ page = st.sidebar.selectbox("Choisissez une page", ["Accueil", "Analyse des clie
 # Fonction pour télécharger et charger df_train depuis l'URL
 @st.cache_data
 def load_df_train():
-    url = "https://www.dropbox.com/scl/fi/59fn2h9mapw69flpnccz6/df_train.csv?rlkey=dq6qvlj4dxnswqdegyadjfnqs&st=snvt2aue&dl=0"
+    url = "https://www.dropbox.com/scl/fi/59fn2h9mapw69flpnccz6/df_train.csv?rlkey=dq6qvlj4dxnswqdegyadjfnqs&st=snvt2aue&dl=1"
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -38,7 +38,7 @@ def load_df_train():
 # Fonction pour télécharger et charger df_new à partir d'un client ID spécifique
 @st.cache_data
 def load_client_data(client_id):
-    url = "https://www.dropbox.com/scl/fi/5ihks3eng4kws0zfqwdkw/df_new.csv?rlkey=m2kd4iv4abb67w546p75ulrgk&st=9s9n6ees&dl=0"
+    url = "https://www.dropbox.com/scl/fi/5ihks3eng4kws0zfqwdkw/df_new.csv?rlkey=m2kd4iv4abb67w546p75ulrgk&st=9s9n6ees&dl=1"
     try:
         response = requests.get(url)
         if response.status_code == 200:
