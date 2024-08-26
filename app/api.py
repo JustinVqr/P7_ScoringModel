@@ -10,7 +10,7 @@ with open('app/model/best_model.pkl', 'rb') as file:
 # Initialisation de FastAPI
 app = FastAPI()
 
-# Classe de données client (basée sur les champs requis)
+# Classe de données client (avec des valeurs par défaut pour certains champs)
 class ClientData(BaseModel):
     PAYMENT_RATE: float
     EXT_SOURCE_2: float
@@ -45,72 +45,72 @@ class ClientData(BaseModel):
     INCOME_CREDIT_PERC: float
     INSTAL_DAYS_ENTRY_PAYMENT_SUM: float
     PREV_APP_CREDIT_PERC_MIN: float
-    NAME_CONTRACT_TYPE_Cashloans: bool
-    REGION_RATING_CLIENT_W_CITY: int
-    OCCUPATION_TYPE_Drivers: bool
-    NAME_EDUCATION_TYPE_Highereducation: bool
-    BURO_CREDIT_TYPE_Mortgage_MEAN: float
-    APPROVED_CNT_PAYMENT_SUM: float
-    DAYS_REGISTRATION: float
-    POS_SK_DPD_DEF_MEAN: float
-    BURO_MONTHS_BALANCE_SIZE_SUM: float
-    PREV_NAME_YIELD_GROUP_high_MEAN: float
-    PREV_NAME_YIELD_GROUP_low_action_MEAN: float
-    APPROVED_APP_CREDIT_PERC_MAX: float
-    REGION_POPULATION_RELATIVE: float
-    PREV_APP_CREDIT_PERC_MEAN: float
-    INSTAL_NUM_INSTALMENT_VERSION_NUNIQUE: float
-    BURO_AMT_CREDIT_SUM_LIMIT_SUM: float
-    BURO_AMT_CREDIT_SUM_MAX: float
-    INSTAL_DBD_MAX: float
-    NAME_FAMILY_STATUS_Married: bool
-    PREV_NAME_PAYMENT_TYPE_XNA_MEAN: float
-    BURO_DAYS_CREDIT_MEAN: float
-    FLAG_OWN_CAR: int
-    BURO_CREDIT_TYPE_Microloan_MEAN: float
-    APPROVED_DAYS_DECISION_MAX: float
-    BURO_AMT_CREDIT_SUM_DEBT_SUM: float
-    INSTAL_PAYMENT_PERC_MEAN: float
-    PREV_NAME_CLIENT_TYPE_New_MEAN: float
-    INSTAL_AMT_PAYMENT_MEAN: float
-    BURO_AMT_CREDIT_SUM_OVERDUE_MEAN: float
-    INSTAL_DBD_MEAN: float
-    BURO_AMT_CREDIT_SUM_MEAN: float
-    INCOME_PER_PERSON: float
-    BURO_DAYS_CREDIT_ENDDATE_MEAN: float
-    AMT_REQ_CREDIT_BUREAU_QRT: float
-    INSTAL_PAYMENT_DIFF_SUM: float
-    BURO_CREDIT_ACTIVE_Active_MEAN: float
-    POS_MONTHS_BALANCE_MEAN: float
-    PREV_CNT_PAYMENT_SUM: float
-    PREV_DAYS_DECISION_MIN: float
-    PREV_DAYS_DECISION_MEAN: float
-    INSTAL_DBD_SUM: float
-    PREV_PRODUCT_COMBINATION_CashStreetlow_MEAN: float
-    APPROVED_AMT_ANNUITY_MAX: float
-    APPROVED_AMT_CREDIT_MAX: float
-    PREV_NAME_GOODS_CATEGORY_Furniture_MEAN: float
-    HOUR_APPR_PROCESS_START: int
-    OCCUPATION_TYPE_Laborers: bool
-    APPROVED_AMT_APPLICATION_MIN: float
-    POS_NAME_CONTRACT_STATUS_Active_MEAN: float
-    SK_ID_CURR_1: int
-    PREV_PRODUCT_COMBINATION_POSindustrywithinterest_MEAN: float
-    POS_NAME_CONTRACT_STATUS_Completed_MEAN: float
-    NAME_INCOME_TYPE_Working: bool
-    PREV_NAME_GOODS_CATEGORY_XNA_MEAN: float
-    DEF_60_CNT_SOCIAL_CIRCLE: float
-    FLAG_DOCUMENT_3: int
-    APPROVED_AMT_CREDIT_MIN: float
-    PREV_AMT_ANNUITY_MIN: float
-    INSTAL_DPD_MAX: float
-    INSTAL_PAYMENT_DIFF_MAX: float
-    DEF_30_CNT_SOCIAL_CIRCLE: float
-    BURO_CREDIT_TYPE_Carloan_MEAN: float
-    POS_SK_DPD_DEF_MAX: float
-    APPROVED_HOUR_APPR_PROCESS_START_MAX: float
-    ORGANIZATION_TYPE_Construction: bool
-    PREV_CHANNEL_TYPE_Channelofcorporatesales_MEAN: float
+    NAME_CONTRACT_TYPE_Cashloans: bool = False
+    REGION_RATING_CLIENT_W_CITY: int = 0
+    OCCUPATION_TYPE_Drivers: bool = False
+    NAME_EDUCATION_TYPE_Highereducation: bool = False
+    BURO_CREDIT_TYPE_Mortgage_MEAN: float = 0.0
+    APPROVED_CNT_PAYMENT_SUM: float = 0.0
+    DAYS_REGISTRATION: float = 0.0
+    POS_SK_DPD_DEF_MEAN: float = 0.0
+    BURO_MONTHS_BALANCE_SIZE_SUM: float = 0.0
+    PREV_NAME_YIELD_GROUP_high_MEAN: float = 0.0
+    PREV_NAME_YIELD_GROUP_low_action_MEAN: float = 0.0
+    APPROVED_APP_CREDIT_PERC_MAX: float = 0.0
+    REGION_POPULATION_RELATIVE: float = 0.0
+    PREV_APP_CREDIT_PERC_MEAN: float = 0.0
+    INSTAL_NUM_INSTALMENT_VERSION_NUNIQUE: float = 0.0
+    BURO_AMT_CREDIT_SUM_LIMIT_SUM: float = 0.0
+    BURO_AMT_CREDIT_SUM_MAX: float = 0.0
+    INSTAL_DBD_MAX: float = 0.0
+    NAME_FAMILY_STATUS_Married: bool = False
+    PREV_NAME_PAYMENT_TYPE_XNA_MEAN: float = 0.0
+    BURO_DAYS_CREDIT_MEAN: float = 0.0
+    FLAG_OWN_CAR: int = 0
+    BURO_CREDIT_TYPE_Microloan_MEAN: float = 0.0
+    APPROVED_DAYS_DECISION_MAX: float = 0.0
+    BURO_AMT_CREDIT_SUM_DEBT_SUM: float = 0.0
+    INSTAL_PAYMENT_PERC_MEAN: float = 0.0
+    PREV_NAME_CLIENT_TYPE_New_MEAN: float = 0.0
+    INSTAL_AMT_PAYMENT_MEAN: float = 0.0
+    BURO_AMT_CREDIT_SUM_OVERDUE_MEAN: float = 0.0
+    INSTAL_DBD_MEAN: float = 0.0
+    BURO_AMT_CREDIT_SUM_MEAN: float = 0.0
+    INCOME_PER_PERSON: float = 0.0
+    BURO_DAYS_CREDIT_ENDDATE_MEAN: float = 0.0
+    AMT_REQ_CREDIT_BUREAU_QRT: float = 0.0
+    INSTAL_PAYMENT_DIFF_SUM: float = 0.0
+    BURO_CREDIT_ACTIVE_Active_MEAN: float = 0.0
+    POS_MONTHS_BALANCE_MEAN: float = 0.0
+    PREV_CNT_PAYMENT_SUM: float = 0.0
+    PREV_DAYS_DECISION_MIN: float = 0.0
+    PREV_DAYS_DECISION_MEAN: float = 0.0
+    INSTAL_DBD_SUM: float = 0.0
+    PREV_PRODUCT_COMBINATION_CashStreetlow_MEAN: float = 0.0
+    APPROVED_AMT_ANNUITY_MAX: float = 0.0
+    APPROVED_AMT_CREDIT_MAX: float = 0.0
+    PREV_NAME_GOODS_CATEGORY_Furniture_MEAN: float = 0.0
+    HOUR_APPR_PROCESS_START: int = 0
+    OCCUPATION_TYPE_Laborers: bool = False
+    APPROVED_AMT_APPLICATION_MIN: float = 0.0
+    POS_NAME_CONTRACT_STATUS_Active_MEAN: float = 0.0
+    SK_ID_CURR_1: int = 0
+    PREV_PRODUCT_COMBINATION_POSindustrywithinterest_MEAN: float = 0.0
+    POS_NAME_CONTRACT_STATUS_Completed_MEAN: float = 0.0
+    NAME_INCOME_TYPE_Working: bool = False
+    PREV_NAME_GOODS_CATEGORY_XNA_MEAN: float = 0.0
+    DEF_60_CNT_SOCIAL_CIRCLE: float = 0.0
+    FLAG_DOCUMENT_3: int = 0
+    APPROVED_AMT_CREDIT_MIN: float = 0.0
+    PREV_AMT_ANNUITY_MIN: float = 0.0
+    INSTAL_DPD_MAX: float = 0.0
+    INSTAL_PAYMENT_DIFF_MAX: float = 0.0
+    DEF_30_CNT_SOCIAL_CIRCLE: float = 0.0
+    BURO_CREDIT_TYPE_Carloan_MEAN: float = 0.0
+    POS_SK_DPD_DEF_MAX: float = 0.0
+    APPROVED_HOUR_APPR_PROCESS_START_MAX: float = 0.0
+    ORGANIZATION_TYPE_Construction: bool = False
+    PREV_CHANNEL_TYPE_Channelofcorporatesales_MEAN: float = 0.0
 
 # Fonction pour faire des prédictions
 def make_prediction(input_data):
