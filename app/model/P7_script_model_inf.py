@@ -1,9 +1,9 @@
-import pickle
+import joblib
 import numpy as np
 
 # Charger le modèle sauvegardé
 with open('app/model/best_model.pkl', 'rb') as file:
-    model = pickle.load(file)
+    model = joblib.load(file)
 
 def make_prediction(input_data):
     """
