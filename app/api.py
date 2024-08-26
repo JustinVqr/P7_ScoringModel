@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 import numpy as np
 from pydantic import BaseModel
-import pickle
+import joblib
 
 # Charger le modèle sauvegardé
 with open('app/model/best_model.pkl', 'rb') as file:
-    model = pickle.load(file)
+    model = joblib.load(file)
 
 # Initialisation de FastAPI
 app = FastAPI()
