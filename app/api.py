@@ -125,7 +125,6 @@ def read_root():
                        "Cette API permet de prédire la probabilité de défaut de paiement pour un client "
                        "en fonction de ses caractéristiques. Envoyez une requête POST à /predict pour obtenir une prédiction."}
 
-# Route FastAPI pour les prédictions
 @app.post("/predict")
 def predict(client_data: ClientData):
     # Convertir les données en liste pour les utiliser avec le modèle
@@ -183,4 +182,55 @@ def predict(client_data: ClientData):
         client_data.INSTAL_DBD_MAX,
         client_data.NAME_FAMILY_STATUS_Married,
         client_data.PREV_NAME_PAYMENT_TYPE_XNA_MEAN,
-        client
+        client_data.BURO_DAYS_CREDIT_MEAN,
+        client_data.FLAG_OWN_CAR,
+        client_data.BURO_CREDIT_TYPE_Microloan_MEAN,
+        client_data.APPROVED_DAYS_DECISION_MAX,
+        client_data.BURO_AMT_CREDIT_SUM_DEBT_SUM,
+        client_data.INSTAL_PAYMENT_PERC_MEAN,
+        client_data.PREV_NAME_CLIENT_TYPE_New_MEAN,
+        client_data.INSTAL_AMT_PAYMENT_MEAN,
+        client_data.BURO_AMT_CREDIT_SUM_OVERDUE_MEAN,
+        client_data.INSTAL_DBD_MEAN,
+        client_data.BURO_AMT_CREDIT_SUM_MEAN,
+        client_data.INCOME_PER_PERSON,
+        client_data.BURO_DAYS_CREDIT_ENDDATE_MEAN,
+        client_data.AMT_REQ_CREDIT_BUREAU_QRT,
+        client_data.INSTAL_PAYMENT_DIFF_SUM,
+        client_data.BURO_CREDIT_ACTIVE_Active_MEAN,
+        client_data.POS_MONTHS_BALANCE_MEAN,
+        client_data.PREV_CNT_PAYMENT_SUM,
+        client_data.PREV_DAYS_DECISION_MIN,
+        client_data.PREV_DAYS_DECISION_MEAN,
+        client_data.INSTAL_DBD_SUM,
+        client_data.PREV_PRODUCT_COMBINATION_CashStreetlow_MEAN,
+        client_data.APPROVED_AMT_ANNUITY_MAX,
+        client_data.APPROVED_AMT_CREDIT_MAX,
+        client_data.PREV_NAME_GOODS_CATEGORY_Furniture_MEAN,
+        client_data.HOUR_APPR_PROCESS_START,
+        client_data.OCCUPATION_TYPE_Laborers,
+        client_data.APPROVED_AMT_APPLICATION_MIN,
+        client_data.POS_NAME_CONTRACT_STATUS_Active_MEAN,
+        client_data.SK_ID_CURR_1,
+        client_data.PREV_PRODUCT_COMBINATION_POSindustrywithinterest_MEAN,
+        client_data.POS_NAME_CONTRACT_STATUS_Completed_MEAN,
+        client_data.NAME_INCOME_TYPE_Working,
+        client_data.PREV_NAME_GOODS_CATEGORY_XNA_MEAN,
+        client_data.DEF_60_CNT_SOCIAL_CIRCLE,
+        client_data.FLAG_DOCUMENT_3,
+        client_data.APPROVED_AMT_CREDIT_MIN,
+        client_data.PREV_AMT_ANNUITY_MIN,
+        client_data.INSTAL_DPD_MAX,
+        client_data.INSTAL_PAYMENT_DIFF_MAX,
+        client_data.DEF_30_CNT_SOCIAL_CIRCLE,
+        client_data.BURO_CREDIT_TYPE_Carloan_MEAN,
+        client_data.POS_SK_DPD_DEF_MAX,
+        client_data.APPROVED_HOUR_APPR_PROCESS_START_MAX,
+        client_data.ORGANIZATION_TYPE_Construction,
+        client_data.PREV_CHANNEL_TYPE_Channelofcorporatesales_MEAN
+    ]  # Assurez-vous de fermer la liste ici.
+
+    # Faire la prédiction
+    prediction = make_prediction(input_data)
+
+    return {"prediction": int(prediction[0])}

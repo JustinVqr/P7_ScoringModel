@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import shap
-import pickle
+import joblib  # Remplacer pickle par joblib
 import os
 import requests
 from io import StringIO
@@ -84,10 +84,9 @@ if page == "Accueil":
             st.write("1) Chargement des données")
 
             st.write("2) Chargement du modèle")
-            # Chargement du modèle depuis le répertoire local
+            # Chargement du modèle depuis le répertoire local avec joblib
             model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
-            with open(model_path, 'rb') as model_file:
-                Credit_clf_final = pickle.load(model_file)
+            Credit_clf_final = joblib.load(model_path)  # Utiliser joblib pour charger le modèle
 
             st.write("3) Chargement de l'explainer (Shap)")
             explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
