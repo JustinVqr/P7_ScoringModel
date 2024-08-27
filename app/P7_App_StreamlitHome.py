@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 from io import StringIO
 import os
-import pickle
+import joblib
 import shap
 import matplotlib.pyplot as plt
 
@@ -47,7 +47,7 @@ def load_model_and_explainer(df_train):
     # Charger le modèle
     model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
     if os.path.exists(model_path):
-        Credit_clf_final = pickle.load(open(model_path, 'rb'))
+        Credit_clf_final = joblib.load(open(model_path, 'rb'))
     else:
         st.error(f"Le fichier {model_path} n'existe pas.")
         return None, None
