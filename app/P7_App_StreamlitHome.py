@@ -52,14 +52,12 @@ def load_model_and_explainer(df_train):
             Credit_clf_final = joblib.load(model_path)
             st.write("Modèle chargé avec succès.")
             
-            # Vérifiez si le modèle est un modèle basé sur des arbres de décision
-            if isinstance(Credit_clf_final, (shap.models.Tree, shap.models.XGBoost, shap.models.LightGBM)):
-                st.write("Création de l'explicateur SHAP pour un modèle d'arbres...")
-                # Créez l'explicateur SHAP pour un modèle basé sur des arbres
+            # Tentons d'utiliser TreeExplainer, si une erreur survient, basculons sur KernelExplainer
+            try:
+                st.write("Tentative de création de l'explicateur SHAP avec TreeExplainer...")
                 explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
-            else:
-                # Utilisation de KernelExplainer pour les autres types de modèles
-                st.write("Modèle non basé sur des arbres détecté. Utilisation de KernelExplainer.")
+            except Exception as e:
+                st.write("TreeExplainer non compatible, utilisation de KernelExplainer à la place.")
                 explainer = shap.KernelExplainer(Credit_clf_final.predict, df_train.drop(columns="TARGET").fillna(0))
             
             return Credit_clf_final, explainer
@@ -70,7 +68,7 @@ def load_model_and_explainer(df_train):
         st.error(f"Le fichier {model_path} n'existe pas.")
         return None, None
 
-# Usage dans l'application Streamlit
+# Utilisation dans l'application Streamlit
 if not st.session_state.get("load_state"):
     df_train, df_new = load_data()  # Assurez-vous que les données sont chargées
     if df_train is not None and df_new is not None:
