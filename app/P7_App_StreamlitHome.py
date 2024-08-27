@@ -3,9 +3,10 @@ import pandas as pd
 import requests
 from io import StringIO
 import os
-import joblib
+import pickle
 import shap
 import matplotlib.pyplot as plt
+
 
 # Configuration de la page d'accueil
 st.set_page_config(
@@ -18,54 +19,64 @@ st.set_page_config(
 st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Choisissez une page", ["Accueil", "Analyse des clients", "Prédiction"])
 
-# Fonction pour télécharger et charger df_train depuis l'URL
+# --- Initialisation de l'état de session ---
+if "load_state" not in st.session_state:
+    st.session_state.load_state = False
+
+# --- Fonction pour télécharger et charger les données depuis Dropbox ---
 @st.cache_data
-def load_df_train():
-    url = "https://www.dropbox.com/scl/fi/59fn2h9mapw69flpnccz6/df_train.csv?rlkey=dq6qvlj4dxnswqdegyadjfnqs&st=snvt2aue&dl=1"
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            csv_data = StringIO(response.text)
-            df_train = pd.read_csv(csv_data, sep=',', encoding='utf-8')
-            return df_train
+def load_data():
+    url_train = "https://www.dropbox.com/scl/fi/59fn2h9mapw69flpnccz6/df_train.csv?rlkey=dq6qvlj4dxnswqdegyadjfnqs&st=snvt2aue&dl=1"
+    url_new = "https://www.dropbox.com/scl/fi/2mylh9bshf5jkzg6n9m7t/df_new.csv?rlkey=m82n87j6hr9en1utkt7a8qsv4&st=k6kj1pm5&dl=1"
+    
+    response_train = requests.get(url_train)
+    response_new = requests.get(url_new)
+    
+    if response_train.status_code == 200 and response_new.status_code == 200:
+        df_train = pd.read_csv(StringIO(response_train.text), sep=',', encoding='utf-8')
+        df_new = pd.read_csv(StringIO(response_new.text), sep=',', index_col="SK_ID_CURR", encoding='utf-8')
+        return df_train, df_new
+    else:
+        st.error(f"Erreur de téléchargement : Statut {response_train.status_code}, {response_new.status_code}")
+        return None, None
+
+
+# --- Chargement des ressources au démarrage ---
+@st.cache_resource
+def load_model_and_explainer(df_train):
+    # Charger le modèle
+    model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
+    if os.path.exists(model_path):
+        Credit_clf_final = pickle.load(open(model_path, 'rb'))
+    else:
+        st.error(f"Le fichier {model_path} n'existe pas.")
+        return None, None
+    
+    # Créer l'explicateur SHAP optimisé pour les modèles basés sur les arbres
+    explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
+    return Credit_clf_final, explainer
+
+
+# Chargement initial des données et du modèle si l'état n'est pas déjà chargé
+if not st.session_state.load_state:
+    with st.spinner('Chargement des données et du modèle...'):
+        df_train, df_new = load_data()
+        if df_train is not None and df_new is not None:
+            Credit_clf_final, explainer = load_model_and_explainer(df_train)
+            if Credit_clf_final and explainer:
+                st.session_state.df_train = df_train
+                st.session_state.df_new = df_new
+                st.session_state.Credit_clf_final = Credit_clf_final
+                st.session_state.explainer = explainer
+                st.session_state.load_state = True
+                st.success('Chargement terminé !')
         else:
-            st.error(f"Erreur de téléchargement : Statut {response.status_code}")
-            return None
-    except Exception as e:
-        st.error(f"Erreur lors du téléchargement des données : {e}")
-        return None
-
-# Fonction pour télécharger et charger df_new à partir d'un client ID spécifique
-@st.cache_data
-def load_client_data(client_id):
-    url = "https://www.dropbox.com/scl/fi/2mylh9bshf5jkzg6n9m7t/df_new.csv?rlkey=m82n87j6hr9en1utkt7a8qsv4&st=k6kj1pm5&dl=1"
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            csv_data = StringIO(response.text)
-            df_new = pd.read_csv(csv_data, sep=',', index_col="SK_ID_CURR", encoding='utf-8')
-            # Sélectionner uniquement les données du client spécifique
-            if client_id in df_new.index:
-                return df_new.loc[[client_id]]
-            else:
-                st.error("Client ID non trouvé.")
-                return None
-        else:
-            st.error(f"Erreur de téléchargement : Statut {response.status_code}")
-            return None
-    except Exception as e:
-        st.error(f"Erreur lors du téléchargement des données : {e}")
-        return None
-
-# Initialisation de df_train dans session_state si non déjà présent
-if 'df_train' not in st.session_state:
-    st.session_state.df_train = load_df_train()
-
-# Vérification du chargement de df_train
-if st.session_state.df_train is not None:
-    st.write("Données df_train chargées avec succès.")
+            st.error("Erreur lors du chargement des données.")
 else:
-    st.error("Erreur lors du chargement des données df_train.")
+    df_train = st.session_state.df_train
+    df_new = st.session_state.df_new
+    Credit_clf_final = st.session_state.Credit_clf_final
+    explainer = st.session_state.explainer
 
 # Page d'accueil
 if page == "Accueil":
@@ -97,42 +108,29 @@ if page == "Accueil":
         if sk_id_curr:
             try:
                 client_id = int(sk_id_curr)
-                df_client = load_client_data(client_id)
-
-                if df_client is not None:
+                if client_id in df_new.index:
+                    df_client = df_new.loc[[client_id]]
                     st.write("Données du client chargées avec succès.")
                     
-                    # Charger le modèle
-                    model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
-                    if os.path.exists(model_path):
-                        Credit_clf_final = joblib.load(model_path)
-                        st.write("Modèle chargé avec succès.")
+                    # Préparation des données du client
+                    X_client = df_client.fillna(0)
 
-                        # Vérifiez si la colonne TARGET existe avant de la supprimer
-                        if "TARGET" in df_client.columns:
-                            X_client = df_client.drop(columns="TARGET").fillna(0)
-                        else:
-                            X_client = df_client.fillna(0)
+                    # Faire la prédiction pour le client
+                    prediction_proba = Credit_clf_final.predict_proba(X_client)[:, 1]
+                    prediction = Credit_clf_final.predict(X_client)
 
-                        # Faire la prédiction pour le client
-                        prediction_proba = Credit_clf_final.predict_proba(X_client)[:, 1]
-                        prediction = Credit_clf_final.predict(X_client)
+                    # Afficher les résultats
+                    st.write(f"Prédiction : {'Oui' si prediction[0] == 1 sinon 'Non'}")
+                    st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
 
-                        # Afficher les résultats
-                        st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
-                        st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
-
-                        # Calculer et afficher les valeurs SHAP uniquement pour ce client
-                        explainer = shap.KernelExplainer(Credit_clf_final.predict_proba, X_client)
-                        shap_values = explainer.shap_values(X_client)
-                        st.write("Valeurs SHAP calculées.")
-                        shap.initjs()
-                        shap.force_plot(explainer.expected_value[1], shap_values[1], X_client, matplotlib=True)
-                        st.pyplot(bbox_inches='tight')
-
-                    else:
-                        st.error(f"Le fichier {model_path} n'existe pas.")
-
+                    # Calculer et afficher les valeurs SHAP pour ce client
+                    shap_values = explainer.shap_values(X_client)
+                    st.write("Valeurs SHAP calculées.")
+                    shap.initjs()
+                    shap.force_plot(explainer.expected_value[1], shap_values[1], X_client, matplotlib=True)
+                    st.pyplot(bbox_inches='tight')
+                else:
+                    st.error("Client ID non trouvé.")
             except Exception as e:
                 st.error(f"Erreur lors de la requête de prédiction : {e}")
         else:
