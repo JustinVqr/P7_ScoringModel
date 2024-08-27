@@ -38,7 +38,7 @@ def load_df_train():
 # Fonction pour télécharger et charger df_new à partir d'un client ID spécifique
 @st.cache_data
 def load_client_data(client_id):
-    url = "https://www.dropbox.com/scl/fi/5ihks3eng4kws0zfqwdkw/df_new.csv?rlkey=m2kd4iv4abb67w546p75ulrgk&st=9s9n6ees&dl=1"
+    url = "https://www.dropbox.com/scl/fi/2mylh9bshf5jkzg6n9m7t/df_new.csv?rlkey=m82n87j6hr9en1utkt7a8qsv4&st=k6kj1pm5&dl=1"
     try:
         response = requests.get(url)
         if response.status_code == 200:
