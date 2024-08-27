@@ -6,6 +6,7 @@ import os
 import joblib
 import shap
 import matplotlib.pyplot as plt
+import IPython
 
 # Configuration de la page d'accueil
 st.set_page_config(
