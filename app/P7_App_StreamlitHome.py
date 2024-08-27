@@ -38,7 +38,7 @@ def load_df_train():
 # Fonction pour télécharger et charger df_new à partir d'un client ID spécifique
 @st.cache_data
 def load_client_data(client_id):
-    url = "https://www.dropbox.com/scl/fi/2mylh9bshf5jkzg6n9m7t/df_new.csv?rlkey=m82n87j6hr9en1utkt7a8qsv4&st=0zc92hpg&dl=1"
+    url = "https://www.dropbox.com/scl/fi/2mylh9bshf5jkzg6n9m7t/df_new.csv?rlkey=m82n87j6hr9en1utkt7a8qsv4&st=k6kj1pm5&dl=1"
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -46,7 +46,6 @@ def load_client_data(client_id):
             df_new = pd.read_csv(csv_data, sep=',', index_col="SK_ID_CURR", encoding='utf-8')
             # Sélectionner uniquement les données du client spécifique
             if client_id in df_new.index:
-                st.write("Données `df_new` chargées avec succès.")  # Ajout du message de succès pour df_new
                 return df_new.loc[[client_id]]
             else:
                 st.error("Client ID non trouvé.")
@@ -64,9 +63,9 @@ if 'df_train' not in st.session_state:
 
 # Vérification du chargement de df_train
 if st.session_state.df_train is not None:
-    st.write("Données `df_train` chargées avec succès.")
+    st.write("Données df_train chargées avec succès.")
 else:
-    st.error("Erreur lors du chargement des données `df_train`.")
+    st.error("Erreur lors du chargement des données df_train.")
 
 # Page d'accueil
 if page == "Accueil":
