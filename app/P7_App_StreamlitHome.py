@@ -42,80 +42,71 @@ def load_data():
 
 
 # --- Chargement des ressources au démarrage ---
-@st.cache_resource
+
 def load_model_and_explainer(df_train):
-    # Charger le modèle
     model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
+    
     if os.path.exists(model_path):
-        Credit_clf_final = joblib.load(open(model_path, 'rb'))
+        try:
+            # Utilisez joblib pour charger le modèle
+            Credit_clf_final = joblib.load(model_path)
+            st.write("Modèle chargé avec succès.")
+            
+            # Vérifiez si le modèle est un modèle basé sur des arbres de décision
+            if isinstance(Credit_clf_final, (shap.models.Tree, shap.models.XGBoost, shap.models.LightGBM)):
+                st.write("Création de l'explicateur SHAP pour un modèle d'arbres...")
+                # Créez l'explicateur SHAP pour un modèle basé sur des arbres
+                explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
+            else:
+                # Utilisation de KernelExplainer pour les autres types de modèles
+                st.write("Modèle non basé sur des arbres détecté. Utilisation de KernelExplainer.")
+                explainer = shap.KernelExplainer(Credit_clf_final.predict, df_train.drop(columns="TARGET").fillna(0))
+            
+            return Credit_clf_final, explainer
+        except Exception as e:
+            st.error(f"Erreur lors du chargement du modèle ou de l'explicateur : {e}")
+            return None, None
     else:
         st.error(f"Le fichier {model_path} n'existe pas.")
         return None, None
-    
-    # Créer l'explicateur SHAP optimisé pour les modèles basés sur les arbres
-    explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
-    return Credit_clf_final, explainer
 
-
-# Chargement initial des données et du modèle si l'état n'est pas déjà chargé
-if not st.session_state.load_state:
-    with st.spinner('Chargement des données et du modèle...'):
-        df_train, df_new = load_data()
-        if df_train is not None and df_new is not None:
-            Credit_clf_final, explainer = load_model_and_explainer(df_train)
-            if Credit_clf_final and explainer:
-                st.session_state.df_train = df_train
-                st.session_state.df_new = df_new
-                st.session_state.Credit_clf_final = Credit_clf_final
-                st.session_state.explainer = explainer
-                st.session_state.load_state = True
-                st.success('Chargement terminé !')
+# Usage dans l'application Streamlit
+if not st.session_state.get("load_state"):
+    df_train, df_new = load_data()  # Assurez-vous que les données sont chargées
+    if df_train is not None and df_new is not None:
+        # Chargement du modèle et de l'explicateur SHAP
+        Credit_clf_final, explainer = load_model_and_explainer(df_train)
+        
+        if Credit_clf_final and explainer:
+            st.session_state.Credit_clf_final = Credit_clf_final
+            st.session_state.explainer = explainer
+            st.session_state.df_train = df_train
+            st.session_state.df_new = df_new
+            st.session_state.load_state = True
+            st.success("Modèle et explicateur SHAP chargés avec succès.")
         else:
-            st.error("Erreur lors du chargement des données.")
+            st.error("Échec du chargement du modèle ou de l'explicateur.")
 else:
-    df_train = st.session_state.df_train
-    df_new = st.session_state.df_new
     Credit_clf_final = st.session_state.Credit_clf_final
     explainer = st.session_state.explainer
+    df_train = st.session_state.df_train
+    df_new = st.session_state.df_new
 
-# Page d'accueil
-if page == "Accueil":
-    st.title("Prêt à dépenser")
-    st.subheader("Application de support à la décision pour l'octroi de prêts")
-    st.write("""Cette application assiste le chargé de prêt dans sa décision d'octroyer un prêt à un client.""")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.image("https://raw.githubusercontent.com/JustinVqr/P7_ScoringModel/main/app/images/logo.png")
-
-    with col2:
-        st.subheader("Contenu de l'application :")
-        st.markdown("""
-        Cette application comporte trois pages :
-        1) Informations générales sur la base de données et le modèle
-        2) Analyse des clients connus
-        3) Prédiction des défauts de paiement pour de nouveaux clients via une API
-        """)
-
-    st.subheader("Chargement de l'application :")
-
-    # Saisie de l'ID du client
+# Continuer avec votre logique de prédiction et d'affichage des valeurs SHAP
+if page == "Prédiction":
+    # Entrez l'ID du client
     sk_id_curr = st.text_input("Entrez l'ID du client pour obtenir la prédiction :")
-
-    # Bouton pour lancer la prédiction
+    
     if st.button("Obtenir la prédiction"):
-        if sk_id_curr:
+        if sk_id_curr and Credit_clf_final and explainer:
             try:
                 client_id = int(sk_id_curr)
+                
                 if client_id in df_new.index:
                     df_client = df_new.loc[[client_id]]
-                    st.write("Données du client chargées avec succès.")
-                    
-                    # Préparation des données du client
                     X_client = df_client.fillna(0)
 
-                    # Faire la prédiction pour le client
+                    # Faire la prédiction
                     prediction_proba = Credit_clf_final.predict_proba(X_client)[:, 1]
                     prediction = Credit_clf_final.predict(X_client)
 
@@ -123,7 +114,7 @@ if page == "Accueil":
                     st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
                     st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
 
-                    # Calculer et afficher les valeurs SHAP pour ce client
+                    # Calculer les valeurs SHAP pour ce client
                     shap_values = explainer.shap_values(X_client)
                     st.write("Valeurs SHAP calculées.")
                     shap.initjs()
@@ -132,6 +123,6 @@ if page == "Accueil":
                 else:
                     st.error("Client ID non trouvé.")
             except Exception as e:
-                st.error(f"Erreur lors de la requête de prédiction : {e}")
+                st.error(f"Erreur lors de la prédiction : {e}")
         else:
-            st.error("Veuillez entrer un ID client valide.")
+            st.error("Veuillez entrer un ID client valide et assurez-vous que le modèle est chargé.")
