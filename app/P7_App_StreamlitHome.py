@@ -108,7 +108,7 @@ if page == "Prédiction":
                     prediction = Credit_clf_final.predict(X_client)
 
                     # Afficher les résultats
-                    st.write(f"Prédiction : {'Oui' si prediction[0] == 1 else 'Non'}")
+                    st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
                     st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
 
                     # Calculer les valeurs SHAP pour ce client
