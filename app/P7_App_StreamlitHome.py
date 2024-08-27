@@ -90,7 +90,6 @@ else:
     df_train = st.session_state.df_train
     df_new = st.session_state.df_new
 
-# Continuer avec votre logique de prédiction et d'affichage des valeurs SHAP
 if page == "Prédiction":
     # Entrez l'ID du client
     sk_id_curr = st.text_input("Entrez l'ID du client pour obtenir la prédiction :")
@@ -109,18 +108,24 @@ if page == "Prédiction":
                     prediction = Credit_clf_final.predict(X_client)
 
                     # Afficher les résultats
-                    st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
+                    st.write(f"Prédiction : {'Oui' si prediction[0] == 1 else 'Non'}")
                     st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
 
                     # Calculer les valeurs SHAP pour ce client
                     shap_values = explainer.shap_values(X_client)
                     st.write("Valeurs SHAP calculées.")
                     shap.initjs()
-                    shap.force_plot(explainer.expected_value[1], shap_values[1], X_client, matplotlib=True)
+
+                    # Utilisation correcte de shap.force_plot
+                    # Pour un classificateur binaire, shap_values est une liste, on accède à la classe positive
+                    expected_value = explainer.expected_value[1] if isinstance(explainer.expected_value, list) else explainer.expected_value
+                    shap.force_plot(expected_value, shap_values[1][0], X_client, matplotlib=True)
                     st.pyplot(bbox_inches='tight')
+
                 else:
                     st.error("Client ID non trouvé.")
             except Exception as e:
                 st.error(f"Erreur lors de la prédiction : {e}")
         else:
             st.error("Veuillez entrer un ID client valide et assurez-vous que le modèle est chargé.")
+
