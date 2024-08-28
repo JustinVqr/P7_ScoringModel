@@ -13,7 +13,7 @@ st.set_page_config(layout='wide', initial_sidebar_state='expanded', page_title="
 
 # Menu de navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.selectbox("Choisissez une page", ["Accueil", "Analyse des clients", "Prédiction"])
+page = st.sidebar.selectbox("Choisissez une page", ["Accueil", "Données", "Analyse des clients", "Prédiction"])
 
 # --- Initialisation de l'état de session ---
 if "load_state" not in st.session_state:
