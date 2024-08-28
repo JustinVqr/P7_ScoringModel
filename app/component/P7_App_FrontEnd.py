@@ -66,7 +66,7 @@ def execute_API(df):
     
     # Effectuez la requête
     request = requests.post(
-        url="https://app-scoring-p7-b4207842daea.herokuapp.com/",
+        url="https://app-scoring-p7-b4207842daea.herokuapp.com/predict",
         data=json.dumps(df),
         headers={"Content-Type": "application/json"}
     )
