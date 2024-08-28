@@ -1,5 +1,6 @@
 import streamlit as st
 import sys
+import os
 
 # Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
