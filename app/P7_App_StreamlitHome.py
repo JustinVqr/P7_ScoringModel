@@ -7,7 +7,6 @@ import joblib
 import shap
 import matplotlib.pyplot as plt
 
-
 # Configuration de la page d'accueil
 st.set_page_config(
     layout='wide',
@@ -42,22 +41,21 @@ def load_data():
 
 
 # --- Chargement des ressources au démarrage ---
-
 def load_model_and_explainer(df_train):
     model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
     
     if os.path.exists(model_path):
         try:
-            # Utilisez joblib pour charger le modèle
+            # Chargement du modèle avec joblib
             Credit_clf_final = joblib.load(model_path)
             st.write("Modèle chargé avec succès.")
             
-            # Tentons d'utiliser TreeExplainer, si une erreur survient, basculons sur KernelExplainer
+            # Tentative de création de l'explicateur SHAP avec TreeExplainer
             try:
                 st.write("Tentative de création de l'explicateur SHAP avec TreeExplainer...")
                 explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
             except Exception as e:
-                st.write("TreeExplainer non compatible, utilisation de KernelExplainer à la place.")
+                st.write(f"TreeExplainer non compatible : {e}. Utilisation de KernelExplainer à la place.")
                 explainer = shap.KernelExplainer(Credit_clf_final.predict, df_train.drop(columns="TARGET").fillna(0))
             
             return Credit_clf_final, explainer
@@ -116,11 +114,12 @@ if page == "Prédiction":
                     st.write("Valeurs SHAP calculées.")
                     shap.initjs()
 
-                    # Utilisation correcte de shap.force_plot
-                    # Pour un classificateur binaire, shap_values est une liste, on accède à la classe positive
+                    # Afficher le graphique SHAP (force_plot)
                     expected_value = explainer.expected_value[1] if isinstance(explainer.expected_value, list) else explainer.expected_value
-                    shap.force_plot(expected_value, shap_values[1][0], X_client, matplotlib=True)
-                    st.pyplot(bbox_inches='tight')
+                    shap_plot = shap.force_plot(expected_value, shap_values[1][0], X_client)
+
+                    # Affichage dans Streamlit
+                    st.pyplot(shap.force_plot(expected_value, shap_values[1][0], X_client, matplotlib=True))
 
                 else:
                     st.error("Client ID non trouvé.")
@@ -128,4 +127,3 @@ if page == "Prédiction":
                 st.error(f"Erreur lors de la prédiction : {e}")
         else:
             st.error("Veuillez entrer un ID client valide et assurez-vous que le modèle est chargé.")
-
