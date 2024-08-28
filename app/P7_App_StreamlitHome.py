@@ -26,14 +26,14 @@ if "load_state" not in st.session_state:
 # --- Fonction pour télécharger et charger les données depuis Dropbox ---
 @st.cache_data
 def load_data():
-    url_train = "https://www.dropbox.com/scl/fi/59fn2h9mapw69flpnccz6/df_train.csv?rlkey=dq6qvlj4dxnswqdegyadjfnqs&st=snvt2aue&dl=1"
+    url_train = "https://www.dropbox.com/scl/fi/9oc8a12r2pnanhzj2r6gu/df_train.csv?rlkey=zdcao9gluupqkd3ljxwnm1pv6&st=mm5480h6&dl=1"
     url_new = "https://www.dropbox.com/scl/fi/2mylh9bshf5jkzg6n9m7t/df_new.csv?rlkey=m82n87j6hr9en1utkt7a8qsv4&st=k6kj1pm5&dl=1"
     
     response_train = requests.get(url_train)
     response_new = requests.get(url_new)
     
     if response_train.status_code == 200 and response_new.status_code == 200:
-        df_train = pd.read_csv(StringIO(response_train.text), sep=',', encoding='utf-8')
+        df_train = pd.read_csv(StringIO(response_train.text), sep=',', index_col="SK_ID_CURR", encoding='utf-8')
         df_new = pd.read_csv(StringIO(response_new.text), sep=',', index_col="SK_ID_CURR", encoding='utf-8')
         return df_train, df_new
     else:
