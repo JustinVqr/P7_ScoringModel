@@ -6,6 +6,7 @@ import os
 import joblib
 import shap
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 # Configuration de la page d'accueil
 st.set_page_config(
@@ -39,6 +40,18 @@ def load_data():
         st.error(f"Erreur de téléchargement : Statut {response_train.status_code}, {response_new.status_code}")
         return None, None
 
+# --- Fonction pour échantillonner stratifié ---
+def stratified_sampling(df, target_column='TARGET', sample_size=0.1):
+    """
+    Effectue un échantillonnage stratifié sur le DataFrame en fonction de la classe cible.
+    
+    :param df: DataFrame à échantillonner.
+    :param target_column: Colonne de la classe cible pour stratification.
+    :param sample_size: Proportion d'échantillonnage (ex: 0.1 pour 10%).
+    :return: DataFrame échantillonné.
+    """
+    df_sampled, _ = train_test_split(df, test_size=1-sample_size, stratify=df[target_column], random_state=42)
+    return df_sampled
 
 # --- Chargement des ressources au démarrage ---
 def load_model_and_explainer(df_train):
@@ -69,14 +82,19 @@ def load_model_and_explainer(df_train):
 # Utilisation dans l'application Streamlit
 if not st.session_state.get("load_state"):
     df_train, df_new = load_data()  # Assurez-vous que les données sont chargées
+    
     if df_train is not None and df_new is not None:
+        # Appliquer un échantillonnage stratifié sur le df_train
+        st.write("Échantillonnage stratifié du df_train...")
+        df_train_sampled = stratified_sampling(df_train, sample_size=0.1)  # 10% du dataset initial
+        
         # Chargement du modèle et de l'explicateur SHAP
-        Credit_clf_final, explainer = load_model_and_explainer(df_train)
+        Credit_clf_final, explainer = load_model_and_explainer(df_train_sampled)
         
         if Credit_clf_final and explainer:
             st.session_state.Credit_clf_final = Credit_clf_final
             st.session_state.explainer = explainer
-            st.session_state.df_train = df_train
+            st.session_state.df_train = df_train_sampled
             st.session_state.df_new = df_new
             st.session_state.load_state = True
             st.success("Modèle et explicateur SHAP chargés avec succès.")
