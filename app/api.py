@@ -94,7 +94,6 @@ class ClientData(BaseModel):
     OCCUPATION_TYPE_Laborers: bool = False
     APPROVED_AMT_APPLICATION_MIN: float = 0.0
     POS_NAME_CONTRACT_STATUS_Active_MEAN: float = 0.0
-    SK_ID_CURR_1: int = 0
     PREV_PRODUCT_COMBINATION_POSindustrywithinterest_MEAN: float = 0.0
     POS_NAME_CONTRACT_STATUS_Completed_MEAN: float = 0.0
     NAME_INCOME_TYPE_Working: bool = False
@@ -211,7 +210,6 @@ def predict(client_data: ClientData):
         client_data.OCCUPATION_TYPE_Laborers,
         client_data.APPROVED_AMT_APPLICATION_MIN,
         client_data.POS_NAME_CONTRACT_STATUS_Active_MEAN,
-        client_data.SK_ID_CURR_1,
         client_data.PREV_PRODUCT_COMBINATION_POSindustrywithinterest_MEAN,
         client_data.POS_NAME_CONTRACT_STATUS_Completed_MEAN,
         client_data.NAME_INCOME_TYPE_Working,
