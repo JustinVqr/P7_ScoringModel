@@ -14,32 +14,39 @@ st.set_page_config(
     page_title="2) Clients info"
 )
 
-# Vérifiez que les données sont disponibles dans le session state
-if 'df_train' in st.session_state and 'Credit_clf_final' in st.session_state and 'explainer' in st.session_state:
-    df_train = st.session_state.df_train
-    Credit_clf_final = st.session_state.Credit_clf_final
-    explainer = st.session_state.explainer
-    
-    # Affichage de l'en-tête principal
-    st.header("Analyse du défaut de paiement des clients connus")
+# Vérification que les données sont disponibles dans le session state
+if 'df_train' not in st.session_state or 'Credit_clf_final' not in st.session_state or 'explainer' not in st.session_state:
+    st.error("Les données nécessaires ne sont pas disponibles dans l'état de session. Veuillez charger les données sur la page d'accueil.")
+    st.stop()
 
-    # Configuration de la barre latérale
-    st.sidebar.header('Tableau de bord')
-    st.sidebar.subheader('Sélection de l\'ID du client')
+# Chargement des données depuis l'état de session
+df_train = st.session_state.df_train
+Credit_clf_final = st.session_state.Credit_clf_final
+explainer = st.session_state.explainer
 
-    # Boîte de saisie pour l'ID du client
-    index_client = st.sidebar.number_input(
-        "Entrer l'ID du client (ex : 100002)",
-        format="%d",
-        value=100002
-    )
+# Affichage de l'en-tête principal
+st.header("Analyse du défaut de paiement des clients connus")
 
-    # Bouton d'exécution
-    run_btn = st.sidebar.button('Voir les données du client')
+# Configuration de la barre latérale
+st.sidebar.header('Tableau de bord')
+st.sidebar.subheader('Sélection de l\'ID du client')
 
-    if run_btn:
-        # Vérification de la présence de l'ID dans df_train
-        if index_client in df_train.index:
+# Boîte de saisie pour l'ID du client
+index_client = st.sidebar.number_input(
+    "Entrer l'ID du client (ex : 100002)",
+    format="%d",
+    value=100002
+)
+
+# Bouton d'exécution
+run_btn = st.sidebar.button('Voir les données du client')
+
+# Action déclenchée par le bouton
+if run_btn:
+    # Vérification de la présence de l'ID dans df_train
+    if index_client in df_train.index:
+        # Appel des fonctions de traitement du client
+        try:
             execute_noAPI(df_train, index_client, Credit_clf_final)
             plot_client(
                 df_train.drop(columns='TARGET').fillna(0),  # Gestion des NaN
@@ -48,7 +55,7 @@ if 'df_train' in st.session_state and 'Credit_clf_final' in st.session_state and
                 index_client=index_client
             )
             nan_values(df_train.drop(columns='TARGET'), index_client=index_client)
-        else:
-            st.sidebar.error("Client non présent dans la base de données")
-else:
-    st.error("Les données nécessaires ne sont pas disponibles dans l'état de session.")
+        except Exception as e:
+            st.error(f"Une erreur s'est produite lors de l'affichage des données du client : {e}")
+    else:
+        st.sidebar.error("Client non présent dans la base de données")
