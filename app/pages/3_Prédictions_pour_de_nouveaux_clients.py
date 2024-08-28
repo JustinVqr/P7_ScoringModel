@@ -11,7 +11,7 @@ from app.component.P7_App_FrontEnd import *
 st.set_page_config(page_title="3) Nouvelle Prédiction")  # Titre de la page de l'application
 
 # Option pour supprimer les avertissements de dépréciation concernant pyplot
-st.set_option('deprecation.showPyplotGlobalUse', False)
+#st.set_option('deprecation.showPyplotGlobalUse', False)
 
 #
 # --- Récupération des données depuis la page d'accueil ---
