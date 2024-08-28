@@ -111,11 +111,13 @@ class ClientData(BaseModel):
     ORGANIZATION_TYPE_Construction: bool = False
     PREV_CHANNEL_TYPE_Channelofcorporatesales_MEAN: float = 0.0
 
-# Fonction pour faire des prédictions
 def make_prediction(input_data):
     input_data = np.array(input_data).reshape(1, -1)
+    # Prédiction
     prediction = model.predict(input_data)
-    return prediction
+    # Probabilité associée à la classe prédite (si applicable)
+    probability = model.predict_proba(input_data)
+    return prediction, probability
 
 # Message d'accueil
 @app.get("/")
@@ -226,9 +228,9 @@ def predict(client_data: ClientData):
         client_data.APPROVED_HOUR_APPR_PROCESS_START_MAX,
         client_data.ORGANIZATION_TYPE_Construction,
         client_data.PREV_CHANNEL_TYPE_Channelofcorporatesales_MEAN
-    ]  # Assurez-vous de fermer la liste ici.
+    ]
 
-    # Faire la prédiction
-    prediction = make_prediction(input_data)
+    # Faire la prédiction et obtenir les probabilités
+    prediction, probability = make_prediction(input_data)
 
-    return {"prediction": int(prediction[0])}
+    return {"prediction": int(prediction[0]), "probability": float(probability[0][1])}
