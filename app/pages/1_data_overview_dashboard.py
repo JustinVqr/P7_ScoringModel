@@ -121,7 +121,7 @@ with tab3:
 
     # Importance des caractéristiques
     st.subheader("Importance des caractéristiques du modèle LightGBM")
-    st.image("image/Plot_importance.png")  # Affichage d'une image de l'importance des caractéristiques
+    st.image("../images/Plot_importance.png")  # Affichage d'une image de l'importance des caractéristiques
 
     # Paramètres optimisés du modèle
     st.subheader("Paramètres (optimisés avec Optuna)")
@@ -138,6 +138,6 @@ with tab3:
     st.subheader("Courbe ROC et matrice de confusion sur un jeu de test")
     col1, col2 = st.columns(2)
     with col1:
-        st.image("image/Test_ROC_AUC.png")  # Affichage de la courbe ROC
+        st.image("../images/Test_ROC_AUC.png")  # Affichage de la courbe ROC
     with col2:
-        st.image("image/Test_confusion_matrix.png")  # Affichage de la matrice de confusion
+        st.image("../images/Test_confusion_matrix.png")  # Affichage de la matrice de confusion
