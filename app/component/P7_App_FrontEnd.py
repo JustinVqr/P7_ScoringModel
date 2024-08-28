@@ -61,30 +61,37 @@ if st.button("Obtenir la prédiction via l'API"):
     else:
         st.error("Veuillez entrer un ID client valide.")
 
-
-
 def execute_API(df):
-    """ This function generates two columns in streamlit framework showing the prediction of loan default for a specific client.
-    To do it, an API request is performed !
-
-    input :
-    df > a dict with the 62 features and their value
-
-    output :
-    2 columns with the predicted target (Difficulties) and the probability
-    """
-
     st.subheader('Client difficulties : ')
+    
+    # Effectuez la requête
     request = requests.post(
         url="https://app-scoring-p7-b4207842daea.herokuapp.com/",
-        data=json.dumps(df))
-    prediction = request.json()["prediction"]
-    probability = round(request.json()["probability"], 2)
+        data=json.dumps(df),
+        headers={"Content-Type": "application/json"}
+    )
+    
+    # Vérifiez d'abord si la requête a réussi
+    if request.status_code == 200:
+        response_json = request.json()  # Obtenez la réponse JSON
+        
+        # Affichez la réponse JSON complète pour diagnostic
+        st.write(response_json)
+        
+        # Maintenant, assurez-vous que les clés sont présentes
+        if "prediction" in response_json and "probability" in response_json:
+            prediction = response_json["prediction"]
+            probability = round(response_json["probability"], 2)
+            
+            # Affichez les résultats
+            col1, col2 = st.columns(2)
+            col1.metric("Predicted Difficulties", str(np.where(prediction == 0, 'NO', 'YES')))
+            col2.metric("Probability of default", probability)
+        else:
+            st.error("Les clés 'prediction' ou 'probability' sont manquantes dans la réponse.")
+    else:
+        st.error(f"Erreur avec la requête API : {request.status_code}")
 
-    col1, col2 = st.columns(2)
-    col1.metric("Predicted Difficulties", str(
-        np.where(prediction == 0, 'NO', 'YES')))
-    col2.metric("Probability of default", probability)
 
 
 def shap_plot(explainer, df, index_client=0):
