@@ -49,7 +49,7 @@ def load_model_and_explainer(df_train):
             Credit_clf_final = joblib.load(model_path)
             st.write("Modèle chargé avec succès.")
             try:
-                # Réduction des échantillons de fond à 50 en utilisant KMeans
+                # Réduction des échantillons de fond à 100 en utilisant KMeans
                 background_data = shap.kmeans(df_train.drop(columns="TARGET").fillna(0), K=50)
                 explainer = shap.TreeExplainer(Credit_clf_final, background_data)
             except Exception as e:
@@ -62,6 +62,7 @@ def load_model_and_explainer(df_train):
     else:
         st.error(f"Le fichier {model_path} n'existe pas.")
         return None, None
+
 
 # --- Fonction pour afficher la page d'accueil ---
 def show_home_page():
