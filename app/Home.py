@@ -65,10 +65,19 @@ def load_model_and_explainer(df_train):
 def show_home_page():
     st.title("Accueil")
     st.write("Bienvenue dans l'application d'aide à la décision de prêt.")
+    st.write("""Cette application aide l'agent de prêt dans sa décision d'accorder un prêt à un client.
+     Pour ce faire, un algorithme de machine learning est utilisé pour prédire les difficultés d'un client à rembourser le prêt.
+     Pour plus de transparence, cette application fournit également des informations pour expliquer l'algorithme et les prédictions.""")
+    # --- Logo ---
+with col1:
+    st.image("images/logo.png")
 
 # --- Fonction pour afficher la page d'analyse des clients ---
 def show_analysis_page():
     st.title("Analyse des clients")
+   
+col1, col2 = st.columns(2)
+
     # Code pour l'analyse des clients
 
 # --- Fonction pour afficher la page de prédiction ---
