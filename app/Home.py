@@ -48,12 +48,15 @@ def load_model_and_explainer(df_train):
         try:
             Credit_clf_final = joblib.load(model_path)
             st.write("Modèle chargé avec succès.")
+            background_data = None  # Initialisation de la variable background_data
             try:
                 # Réduction des échantillons de fond à 100
                 background_data = shap.sample(df_train.drop(columns="TARGET").fillna(0), K=100)
                 explainer = shap.TreeExplainer(Credit_clf_final, background_data)
             except Exception as e:
                 st.write(f"TreeExplainer non compatible : {e}. Utilisation de KernelExplainer.")
+                if background_data is None:
+                    background_data = df_train.drop(columns="TARGET").fillna(0)
                 explainer = shap.KernelExplainer(Credit_clf_final.predict, background_data)
             return Credit_clf_final, explainer
         except Exception as e:
@@ -70,7 +73,7 @@ def show_home_page():
     st.write("Bienvenue dans l'application d'aide à la décision de prêt.")
     st.write("""Cette application aide l'agent de prêt dans sa décision d'accorder un prêt à un client.
      Pour ce faire, un algorithme de machine learning est utilisé pour prédire les difficultés d'un client à rembourser le prêt.
-     Pour plus de transparence, celle-ci fournit également des informations pour expliquer l'algorithme et les prédictions, dans la prédiction effectuée sur le client.""")
+     Pour plus de transparence, celle-ci fournit également des informations pour expliquer l'algorithme et les prédictions, selon les caractéristiques du client étudié.""")
     
     # --- Logo ---
     col1, col2 = st.columns(2)  # Définition des colonnes
