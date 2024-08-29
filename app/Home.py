@@ -41,20 +41,20 @@ def stratified_sampling(df, target_column='TARGET', sample_size=0.1):
     df_sampled, _ = train_test_split(df, test_size=1-sample_size, stratify=df[target_column], random_state=42)
     return df_sampled
 
-# --- Chargement du modèle et de l'explainer ---
-def load_model_and_explainer(df_train):
+# --- Fonction pour charger le modèle et l'explainer SHAP ---
+@st.cache_data
+def get_explainer(model, df_train_sampled):
+    background_data = shap.kmeans(df_train_sampled.drop(columns="TARGET").fillna(0), K=50)
+    explainer = shap.TreeExplainer(model, background_data)
+    return explainer
+
+def load_model_and_explainer(df_train_sampled):
     model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
     if os.path.exists(model_path):
         try:
             Credit_clf_final = joblib.load(model_path)
             st.write("Modèle chargé avec succès.")
-            try:
-                # Réduction des échantillons de fond à 100 en utilisant KMeans
-                background_data = shap.kmeans(df_train.drop(columns="TARGET").fillna(0), K=50)
-                explainer = shap.TreeExplainer(Credit_clf_final, background_data)
-            except Exception as e:
-                st.write(f"TreeExplainer non compatible : {e}. Utilisation de KernelExplainer.")
-                explainer = shap.KernelExplainer(Credit_clf_final.predict, df_train.drop(columns="TARGET").fillna(0))
+            explainer = get_explainer(Credit_clf_final, df_train_sampled)
             return Credit_clf_final, explainer
         except Exception as e:
             st.error(f"Erreur lors du chargement du modèle ou de l'explicateur : {e}")
@@ -117,7 +117,8 @@ def show_prediction_page():
 if not st.session_state.get("load_state"):
     df_train, df_new = load_data()
     if df_train is not None and df_new is not None:
-        df_train_sampled = stratified_sampling(df_train, sample_size=0.1)
+        # Réduire la taille de l'échantillon pour SHAP
+        df_train_sampled = stratified_sampling(df_train, sample_size=0.05)  # Par exemple, réduire à 5%
         Credit_clf_final, explainer = load_model_and_explainer(df_train_sampled)
         if Credit_clf_final and explainer:
             st.session_state.Credit_clf_final = Credit_clf_final
