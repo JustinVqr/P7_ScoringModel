@@ -49,10 +49,12 @@ def load_model_and_explainer(df_train):
             Credit_clf_final = joblib.load(model_path)
             st.write("Modèle chargé avec succès.")
             try:
-                explainer = shap.TreeExplainer(Credit_clf_final, df_train.drop(columns="TARGET").fillna(0))
+                # Réduction des échantillons de fond à 100
+                background_data = shap.sample(df_train.drop(columns="TARGET").fillna(0), K=100)
+                explainer = shap.TreeExplainer(Credit_clf_final, background_data)
             except Exception as e:
                 st.write(f"TreeExplainer non compatible : {e}. Utilisation de KernelExplainer.")
-                explainer = shap.KernelExplainer(Credit_clf_final.predict, df_train.drop(columns="TARGET").fillna(0))
+                explainer = shap.KernelExplainer(Credit_clf_final.predict, background_data)
             return Credit_clf_final, explainer
         except Exception as e:
             st.error(f"Erreur lors du chargement du modèle ou de l'explicateur : {e}")
@@ -60,6 +62,7 @@ def load_model_and_explainer(df_train):
     else:
         st.error(f"Le fichier {model_path} n'existe pas.")
         return None, None
+
 
 # --- Fonction pour afficher la page d'accueil ---
 def show_home_page():
