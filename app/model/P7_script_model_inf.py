@@ -17,13 +17,8 @@ def make_prediction(input_data, threshold=0.4):
     input_data = np.array(input_data).reshape(1, -1)
     probability = model.predict_proba(input_data)
     
-    # Vérification de la forme de la probabilité
-    if len(probability.shape) == 1:
-        # Cas où probability est un tableau 1D
-        probability_class_1 = probability[0]
-    else:
-        # Cas où probability est un tableau 2D
-        probability_class_1 = probability[0][1]
+    # Extraire la probabilité pour la classe positive (classe 1)
+    probability_class_1 = probability[0][1]
     
     # Utiliser le seuil pour déterminer la classe prédite
     prediction = (probability_class_1 >= threshold).astype(int)
