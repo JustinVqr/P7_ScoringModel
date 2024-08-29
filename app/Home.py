@@ -49,7 +49,7 @@ def load_model_and_explainer(df_train):
             Credit_clf_final = joblib.load(model_path)
             st.write("Modèle chargé avec succès.")
             try:
-                # Réduction des échantillons de fond à 100 en utilisant KMeans
+                # Réduction des échantillons de fond à 50 en utilisant KMeans
                 background_data = shap.kmeans(df_train.drop(columns="TARGET").fillna(0), K=50)
                 explainer = shap.TreeExplainer(Credit_clf_final, background_data)
             except Exception as e:
@@ -63,6 +63,22 @@ def load_model_and_explainer(df_train):
         st.error(f"Le fichier {model_path} n'existe pas.")
         return None, None
 
+# --- Logique de chargement initial ---
+if not st.session_state.load_state:
+    df_train, df_new = load_data()
+    if df_train is not None and df_new is not None:
+        df_train_sampled = stratified_sampling(df_train, sample_size=0.1)
+        Credit_clf_final, explainer = load_model_and_explainer(df_train_sampled)
+        if Credit_clf_final and explainer:
+            st.session_state.Credit_clf_final = Credit_clf_final
+            st.session_state.explainer = explainer
+            st.session_state.df_train = df_train_sampled
+            st.session_state.df_new = df_new
+            st.session_state.load_state = True
+            st.success("Modèle et explicateur SHAP chargés avec succès.")
+else:
+    df_train = st.session_state.df_train
+    df_new = st.session_state.df_new
 
 # --- Fonction pour afficher la page d'accueil ---
 def show_home_page():
@@ -77,12 +93,10 @@ def show_home_page():
     with col1:
         st.image("https://raw.githubusercontent.com/JustinVqr/P7_ScoringModel/main/app/images/logo.png")
 
-
 # --- Fonction pour afficher la page d'analyse des clients ---
 def show_analysis_page():
     st.title("Analyse des clients")
-   
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
     # Code pour l'analyse des clients
 
@@ -112,23 +126,6 @@ def show_prediction_page():
                 st.error(f"Erreur lors de la prédiction : {e}")
         else:
             st.error("Modèle non chargé ou ID client invalide.")
-
-# --- Logique de la page sélectionnée ---
-if not st.session_state.get("load_state"):
-    df_train, df_new = load_data()
-    if df_train is not None and df_new is not None:
-        df_train_sampled = stratified_sampling(df_train, sample_size=0.1)
-        Credit_clf_final, explainer = load_model_and_explainer(df_train_sampled)
-        if Credit_clf_final and explainer:
-            st.session_state.Credit_clf_final = Credit_clf_final
-            st.session_state.explainer = explainer
-            st.session_state.df_train = df_train_sampled
-            st.session_state.df_new = df_new
-            st.session_state.load_state = True
-            st.success("Modèle et explicateur SHAP chargés avec succès.")
-else:
-    df_train = st.session_state.df_train
-    df_new = st.session_state.df_new
 
 # Sélection de la page à afficher
 if page == "Accueil":
