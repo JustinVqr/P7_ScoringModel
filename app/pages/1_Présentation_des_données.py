@@ -75,7 +75,6 @@ with tab2:
             else:
                 # Box plot pour les autres caractéristiques
                 figInd = sns.boxplot(data=df_train, y=features, x='TARGET', showfliers=False)
-                figInd.set_xticklabels(["Non", "Oui"])
                 plt.close()
                 st.pyplot(figInd.figure)
 
@@ -90,7 +89,6 @@ with tab2:
                 st.pyplot(figInd.figure)
             else:
                 figInd = sns.boxplot(data=df_train, y=features, x='TARGET', showfliers=False)
-                figInd.set_xticklabels(["Non", "Oui"])
                 plt.close()
                 st.pyplot(figInd.figure)
 
