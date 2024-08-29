@@ -2,17 +2,18 @@ import streamlit as st
 import sys
 import os
 
-# Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
-from app.component.P7_App_FrontEnd import execute_noAPI, plot_client, nan_values
-
 # Configuration de la page Streamlit
 st.set_page_config(
     layout='wide',
     initial_sidebar_state='expanded',
     page_title="2) Clients info"
 )
+
+
+# Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+from app.component.P7_App_FrontEnd import execute_noAPI, plot_client, nan_values
 
 # Vérification que les données sont disponibles dans le session state
 if 'df_train' not in st.session_state or 'Credit_clf_final' not in st.session_state or 'explainer' not in st.session_state:
