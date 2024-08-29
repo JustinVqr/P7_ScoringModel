@@ -72,7 +72,7 @@ def show_home_page():
     # --- Logo ---
     col1, col2 = st.columns(2)  # Définition des colonnes
     with col1:
-        st.image("images/logo.png")
+        st.image("https://raw.githubusercontent.com/JustinVqr/P7_ScoringModel/main/app/images/logo.png")
 
 
 # --- Fonction pour afficher la page d'analyse des clients ---
