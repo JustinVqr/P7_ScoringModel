@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import numpy as np
 from pydantic import BaseModel
 import joblib
@@ -111,13 +111,18 @@ class ClientData(BaseModel):
     ORGANIZATION_TYPE_Construction: bool = False
     PREV_CHANNEL_TYPE_Channelofcorporatesales_MEAN: float = 0.0
 
-def make_prediction(input_data):
-    input_data = np.array(input_data).reshape(1, -1)
-    # Prédiction
-    prediction = model.predict(input_data)
-    # Probabilité associée à la classe prédite (si applicable)
-    probability = model.predict_proba(input_data)
-    return prediction, probability
+def make_prediction(input_data, threshold=0.4):
+    try:
+        input_data = np.array(input_data).reshape(1, -1)
+        probability = model.predict_proba(input_data)
+        
+        if probability is None or len(probability) == 0:
+            raise ValueError("Les probabilités ne sont pas disponibles pour cette entrée.")
+        
+        prediction = (probability[0][1] >= threshold).astype(int)
+        return prediction, probability
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la prédiction: {str(e)}")
 
 # Message d'accueil
 @app.get("/")
@@ -128,109 +133,115 @@ def read_root():
 
 @app.post("/predict")
 def predict(client_data: ClientData):
-    # Convertir les données en liste pour les utiliser avec le modèle
-    input_data = [
-        client_data.PAYMENT_RATE,
-        client_data.EXT_SOURCE_2,
-        client_data.EXT_SOURCE_3,
-        client_data.DAYS_BIRTH,
-        client_data.AMT_ANNUITY,
-        client_data.INSTAL_AMT_PAYMENT_SUM,
-        client_data.PREV_CNT_PAYMENT_MEAN,
-        client_data.AMT_CREDIT,
-        client_data.INSTAL_DPD_MEAN,
-        client_data.APPROVED_CNT_PAYMENT_MEAN,
-        client_data.AMT_GOODS_PRICE,
-        client_data.DAYS_ID_PUBLISH,
-        client_data.DAYS_EMPLOYED,
-        client_data.BURO_DAYS_CREDIT_MAX,
-        client_data.POS_MONTHS_BALANCE_SIZE,
-        client_data.INSTAL_DAYS_ENTRY_PAYMENT_MAX,
-        client_data.DAYS_LAST_PHONE_CHANGE,
-        client_data.INSTAL_AMT_PAYMENT_MIN,
-        client_data.BURO_DAYS_CREDIT_ENDDATE_MAX,
-        client_data.INSTAL_DAYS_ENTRY_PAYMENT_MEAN,
-        client_data.BURO_AMT_CREDIT_SUM_DEBT_MEAN,
-        client_data.APPROVED_AMT_ANNUITY_MEAN,
-        client_data.INSTAL_PAYMENT_DIFF_MEAN,
-        client_data.PREV_NAME_CONTRACT_STATUS_Refused_MEAN,
-        client_data.DAYS_EMPLOYED_PERC,
-        client_data.PREV_PRODUCT_COMBINATION_CashXSelllow_MEAN,
-        client_data.INSTAL_AMT_PAYMENT_MAX,
-        client_data.BURO_AMT_CREDIT_SUM_SUM,
-        client_data.ANNUITY_INCOME_PERC,
-        client_data.PREV_AMT_DOWN_PAYMENT_MAX,
-        client_data.INCOME_CREDIT_PERC,
-        client_data.INSTAL_DAYS_ENTRY_PAYMENT_SUM,
-        client_data.PREV_APP_CREDIT_PERC_MIN,
-        client_data.NAME_CONTRACT_TYPE_Cashloans,
-        client_data.REGION_RATING_CLIENT_W_CITY,
-        client_data.OCCUPATION_TYPE_Drivers,
-        client_data.NAME_EDUCATION_TYPE_Highereducation,
-        client_data.BURO_CREDIT_TYPE_Mortgage_MEAN,
-        client_data.APPROVED_CNT_PAYMENT_SUM,
-        client_data.DAYS_REGISTRATION,
-        client_data.POS_SK_DPD_DEF_MEAN,
-        client_data.BURO_MONTHS_BALANCE_SIZE_SUM,
-        client_data.PREV_NAME_YIELD_GROUP_high_MEAN,
-        client_data.PREV_NAME_YIELD_GROUP_low_action_MEAN,
-        client_data.APPROVED_APP_CREDIT_PERC_MAX,
-        client_data.REGION_POPULATION_RELATIVE,
-        client_data.PREV_APP_CREDIT_PERC_MEAN,
-        client_data.INSTAL_NUM_INSTALMENT_VERSION_NUNIQUE,
-        client_data.BURO_AMT_CREDIT_SUM_LIMIT_SUM,
-        client_data.BURO_AMT_CREDIT_SUM_MAX,
-        client_data.INSTAL_DBD_MAX,
-        client_data.NAME_FAMILY_STATUS_Married,
-        client_data.PREV_NAME_PAYMENT_TYPE_XNA_MEAN,
-        client_data.BURO_DAYS_CREDIT_MEAN,
-        client_data.FLAG_OWN_CAR,
-        client_data.BURO_CREDIT_TYPE_Microloan_MEAN,
-        client_data.APPROVED_DAYS_DECISION_MAX,
-        client_data.BURO_AMT_CREDIT_SUM_DEBT_SUM,
-        client_data.INSTAL_PAYMENT_PERC_MEAN,
-        client_data.PREV_NAME_CLIENT_TYPE_New_MEAN,
-        client_data.INSTAL_AMT_PAYMENT_MEAN,
-        client_data.BURO_AMT_CREDIT_SUM_OVERDUE_MEAN,
-        client_data.INSTAL_DBD_MEAN,
-        client_data.BURO_AMT_CREDIT_SUM_MEAN,
-        client_data.INCOME_PER_PERSON,
-        client_data.BURO_DAYS_CREDIT_ENDDATE_MEAN,
-        client_data.AMT_REQ_CREDIT_BUREAU_QRT,
-        client_data.INSTAL_PAYMENT_DIFF_SUM,
-        client_data.BURO_CREDIT_ACTIVE_Active_MEAN,
-        client_data.POS_MONTHS_BALANCE_MEAN,
-        client_data.PREV_CNT_PAYMENT_SUM,
-        client_data.PREV_DAYS_DECISION_MIN,
-        client_data.PREV_DAYS_DECISION_MEAN,
-        client_data.INSTAL_DBD_SUM,
-        client_data.PREV_PRODUCT_COMBINATION_CashStreetlow_MEAN,
-        client_data.APPROVED_AMT_ANNUITY_MAX,
-        client_data.APPROVED_AMT_CREDIT_MAX,
-        client_data.PREV_NAME_GOODS_CATEGORY_Furniture_MEAN,
-        client_data.HOUR_APPR_PROCESS_START,
-        client_data.OCCUPATION_TYPE_Laborers,
-        client_data.APPROVED_AMT_APPLICATION_MIN,
-        client_data.POS_NAME_CONTRACT_STATUS_Active_MEAN,
-        client_data.PREV_PRODUCT_COMBINATION_POSindustrywithinterest_MEAN,
-        client_data.POS_NAME_CONTRACT_STATUS_Completed_MEAN,
-        client_data.NAME_INCOME_TYPE_Working,
-        client_data.PREV_NAME_GOODS_CATEGORY_XNA_MEAN,
-        client_data.DEF_60_CNT_SOCIAL_CIRCLE,
-        client_data.FLAG_DOCUMENT_3,
-        client_data.APPROVED_AMT_CREDIT_MIN,
-        client_data.PREV_AMT_ANNUITY_MIN,
-        client_data.INSTAL_DPD_MAX,
-        client_data.INSTAL_PAYMENT_DIFF_MAX,
-        client_data.DEF_30_CNT_SOCIAL_CIRCLE,
-        client_data.BURO_CREDIT_TYPE_Carloan_MEAN,
-        client_data.POS_SK_DPD_DEF_MAX,
-        client_data.APPROVED_HOUR_APPR_PROCESS_START_MAX,
-        client_data.ORGANIZATION_TYPE_Construction,
-        client_data.PREV_CHANNEL_TYPE_Channelofcorporatesales_MEAN
-    ]
+    try:
+        input_data = [
+            client_data.PAYMENT_RATE,
+            client_data.EXT_SOURCE_2,
+            client_data.EXT_SOURCE_3,
+            client_data.DAYS_BIRTH,
+            client_data.AMT_ANNUITY,
+            client_data.INSTAL_AMT_PAYMENT_SUM,
+            client_data.PREV_CNT_PAYMENT_MEAN,
+            client_data.AMT_CREDIT,
+            client_data.INSTAL_DPD_MEAN,
+            client_data.APPROVED_CNT_PAYMENT_MEAN,
+            client_data.AMT_GOODS_PRICE,
+            client_data.DAYS_ID_PUBLISH,
+            client_data.DAYS_EMPLOYED,
+            client_data.BURO_DAYS_CREDIT_MAX,
+            client_data.POS_MONTHS_BALANCE_SIZE,
+            client_data.INSTAL_DAYS_ENTRY_PAYMENT_MAX,
+            client_data.DAYS_LAST_PHONE_CHANGE,
+            client_data.INSTAL_AMT_PAYMENT_MIN,
+            client_data.BURO_DAYS_CREDIT_ENDDATE_MAX,
+            client_data.INSTAL_DAYS_ENTRY_PAYMENT_MEAN,
+            client_data.BURO_AMT_CREDIT_SUM_DEBT_MEAN,
+            client_data.APPROVED_AMT_ANNUITY_MEAN,
+            client_data.INSTAL_PAYMENT_DIFF_MEAN,
+            client_data.PREV_NAME_CONTRACT_STATUS_Refused_MEAN,
+            client_data.DAYS_EMPLOYED_PERC,
+            client_data.PREV_PRODUCT_COMBINATION_CashXSelllow_MEAN,
+            client_data.INSTAL_AMT_PAYMENT_MAX,
+            client_data.BURO_AMT_CREDIT_SUM_SUM,
+            client_data.ANNUITY_INCOME_PERC,
+            client_data.PREV_AMT_DOWN_PAYMENT_MAX,
+            client_data.INCOME_CREDIT_PERC,
+            client_data.INSTAL_DAYS_ENTRY_PAYMENT_SUM,
+            client_data.PREV_APP_CREDIT_PERC_MIN,
+            client_data.NAME_CONTRACT_TYPE_Cashloans,
+            client_data.REGION_RATING_CLIENT_W_CITY,
+            client_data.OCCUPATION_TYPE_Drivers,
+            client_data.NAME_EDUCATION_TYPE_Highereducation,
+            client_data.BURO_CREDIT_TYPE_Mortgage_MEAN,
+            client_data.APPROVED_CNT_PAYMENT_SUM,
+            client_data.DAYS_REGISTRATION,
+            client_data.POS_SK_DPD_DEF_MEAN,
+            client_data.BURO_MONTHS_BALANCE_SIZE_SUM,
+            client_data.PREV_NAME_YIELD_GROUP_high_MEAN,
+            client_data.PREV_NAME_YIELD_GROUP_low_action_MEAN,
+            client_data.APPROVED_APP_CREDIT_PERC_MAX,
+            client_data.REGION_POPULATION_RELATIVE,
+            client_data.PREV_APP_CREDIT_PERC_MEAN,
+            client_data.INSTAL_NUM_INSTALMENT_VERSION_NUNIQUE,
+            client_data.BURO_AMT_CREDIT_SUM_LIMIT_SUM,
+            client_data.BURO_AMT_CREDIT_SUM_MAX,
+            client_data.INSTAL_DBD_MAX,
+            client_data.NAME_FAMILY_STATUS_Married,
+            client_data.PREV_NAME_PAYMENT_TYPE_XNA_MEAN,
+            client_data.BURO_DAYS_CREDIT_MEAN,
+            client_data.FLAG_OWN_CAR,
+            client_data.BURO_CREDIT_TYPE_Microloan_MEAN,
+            client_data.APPROVED_DAYS_DECISION_MAX,
+            client_data.BURO_AMT_CREDIT_SUM_DEBT_SUM,
+            client_data.INSTAL_PAYMENT_PERC_MEAN,
+            client_data.PREV_NAME_CLIENT_TYPE_New_MEAN,
+            client_data.INSTAL_AMT_PAYMENT_MEAN,
+            client_data.BURO_AMT_CREDIT_SUM_OVERDUE_MEAN,
+            client_data.INSTAL_DBD_MEAN,
+            client_data.BURO_AMT_CREDIT_SUM_MEAN,
+            client_data.INCOME_PER_PERSON,
+            client_data.BURO_DAYS_CREDIT_ENDDATE_MEAN,
+            client_data.AMT_REQ_CREDIT_BUREAU_QRT,
+            client_data.INSTAL_PAYMENT_DIFF_SUM,
+            client_data.BURO_CREDIT_ACTIVE_Active_MEAN,
+            client_data.POS_MONTHS_BALANCE_MEAN,
+            client_data.PREV_CNT_PAYMENT_SUM,
+            client_data.PREV_DAYS_DECISION_MIN,
+            client_data.PREV_DAYS_DECISION_MEAN,
+            client_data.INSTAL_DBD_SUM,
+            client_data.PREV_PRODUCT_COMBINATION_CashStreetlow_MEAN,
+            client_data.APPROVED_AMT_ANNUITY_MAX,
+            client_data.APPROVED_AMT_CREDIT_MAX,
+            client_data.PREV_NAME_GOODS_CATEGORY_Furniture_MEAN,
+            client_data.HOUR_APPR_PROCESS_START,
+            client_data.OCCUPATION_TYPE_Laborers,
+            client_data.APPROVED_AMT_APPLICATION_MIN,
+            client_data.POS_NAME_CONTRACT_STATUS_Active_MEAN,
+            client_data.PREV_PRODUCT_COMBINATION_POSindustrywithinterest_MEAN,
+            client_data.POS_NAME_CONTRACT_STATUS_Completed_MEAN,
+            client_data.NAME_INCOME_TYPE_Working,
+            client_data.PREV_NAME_GOODS_CATEGORY_XNA_MEAN,
+            client_data.DEF_60_CNT_SOCIAL_CIRCLE,
+            client_data.FLAG_DOCUMENT_3,
+            client_data.APPROVED_AMT_CREDIT_MIN,
+            client_data.PREV_AMT_ANNUITY_MIN,
+            client_data.INSTAL_DPD_MAX,
+            client_data.INSTAL_PAYMENT_DIFF_MAX,
+            client_data.DEF_30_CNT_SOCIAL_CIRCLE,
+            client_data.BURO_CREDIT_TYPE_Carloan_MEAN,
+            client_data.POS_SK_DPD_DEF_MAX,
+            client_data.APPROVED_HOUR_APPR_PROCESS_START_MAX,
+            client_data.ORGANIZATION_TYPE_Construction,
+            client_data.PREV_CHANNEL_TYPE_Channelofcorporatesales_MEAN
+        ]
 
-    # Faire la prédiction et obtenir les probabilités
-    prediction, probability = make_prediction(input_data, threshold=0.4)
+        # Faire la prédiction et obtenir les probabilités
+        prediction, probability = make_prediction(input_data, threshold=0.4)
 
-    return {"prediction": int(prediction[0]), "probability": float(probability[0][1])}
+        return {"prediction": int(prediction[0]), "probability": float(probability[0][1])}
+    
+    except HTTPException as e:
+        raise e
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la prédiction: {str(e)}")
