@@ -231,6 +231,6 @@ def predict(client_data: ClientData):
     ]
 
     # Faire la prédiction et obtenir les probabilités
-    prediction, probability = make_prediction(input_data)
+    prediction, probability = make_prediction(input_data, threshold=0.4)
 
     return {"prediction": int(prediction[0]), "probability": float(probability[0][1])}
