@@ -67,7 +67,7 @@ def show_home_page():
     st.write("Bienvenue dans l'application d'aide à la décision de prêt.")
     st.write("""Cette application aide l'agent de prêt dans sa décision d'accorder un prêt à un client.
      Pour ce faire, un algorithme de machine learning est utilisé pour prédire les difficultés d'un client à rembourser le prêt.
-     Pour plus de transparence, cette application fournit également des informations pour expliquer l'algorithme et les prédictions.""")
+     Pour plus de transparence, celle-ci fournit également des informations pour expliquer l'algorithme et les prédictions, dans la prédiction effectuée sur le client.""")
     
     # --- Logo ---
     col1, col2 = st.columns(2)  # Définition des colonnes

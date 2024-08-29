@@ -62,35 +62,35 @@ with tab2:
     
     cola, colb = st.columns(2)
     
-    # Affichage des 31 premières caractéristiques dans la première colonne
-    with cola:
-        for features in list(df_train.drop(columns='TARGET').columns)[:31]:
-            if df_train[features].nunique() == 2:
-                # Diagramme en barres pour les caractéristiques binaires
-                figInd = sns.barplot(df_train[['TARGET', features]].fillna(0).groupby('TARGET').value_counts(normalize=True).reset_index(),
-                                     x=features, y=0, hue="TARGET")
-                figInd.set_xticklabels(["Non", "Oui"])
-                plt.close()
-                st.pyplot(figInd.figure)
-            else:
-                # Box plot pour les autres caractéristiques
-                figInd = sns.boxplot(data=df_train, y=features, x='TARGET', showfliers=False)
-                plt.close()
-                st.pyplot(figInd.figure)
+# Affichage des 31 premières caractéristiques dans la première colonne
+with cola:
+    for features in list(df_train.drop(columns='TARGET').columns)[:31]:
+        if df_train[features].nunique() == 2:
+            figInd = sns.barplot(df_train[['TARGET', features]].fillna(0).groupby('TARGET').value_counts(normalize=True).reset_index(),
+                                 x=features, y=0, hue="TARGET")
+            figInd.set_xticks([0, 1])
+            figInd.set_xticklabels(["Non", "Oui"])
+            plt.close()
+            st.pyplot(figInd.figure)
+        else:
+            figInd = sns.boxplot(data=df_train, y=features, x='TARGET', showfliers=False)
+            plt.close()
+            st.pyplot(figInd.figure)
 
-    # Affichage des caractéristiques suivantes dans la deuxième colonne
-    with colb:
-        for features in list(df_train.drop(columns='TARGET').columns)[31:]:
-            if df_train[features].nunique() == 2:
-                figInd = sns.barplot(df_train[['TARGET', features]].fillna(0).groupby('TARGET').value_counts(normalize=True).reset_index(),
-                                     x=features, y=0, hue="TARGET")
-                figInd.set_xticklabels(["Non", "Oui"])
-                plt.close()
-                st.pyplot(figInd.figure)
-            else:
-                figInd = sns.boxplot(data=df_train, y=features, x='TARGET', showfliers=False)
-                plt.close()
-                st.pyplot(figInd.figure)
+# Affichage des caractéristiques suivantes dans la deuxième colonne
+with colb:
+    for features in list(df_train.drop(columns='TARGET').columns)[31:]:
+        if df_train[features].nunique() == 2:
+            figInd = sns.barplot(df_train[['TARGET', features]].fillna(0).groupby('TARGET').value_counts(normalize=True).reset_index(),
+                                 x=features, y=0, hue="TARGET")
+            figInd.set_xticks([0, 1])
+            figInd.set_xticklabels(["Non", "Oui"])
+            plt.close()
+            st.pyplot(figInd.figure)
+        else:
+            figInd = sns.boxplot(data=df_train, y=features, x='TARGET', showfliers=False)
+            plt.close()
+            st.pyplot(figInd.figure)
 
 # --- Onglet 3 : Présentation du modèle ---
 with tab3:
@@ -98,7 +98,7 @@ with tab3:
 
     # Importance des caractéristiques
     st.subheader("Importance des caractéristiques du modèle LightGBM")
-    st.image("../images/Plot_importance.png")
+    st.image("https://raw.githubusercontent.com/JustinVqr/P7_ScoringModel/main/app/images/Plot_importance.png")
 
     # Paramètres optimisés du modèle
     st.subheader("Paramètres (optimisés avec Optuna)")
@@ -118,6 +118,6 @@ with tab3:
     st.subheader("Courbe ROC et matrice de confusion sur un jeu de test")
     col1, col2 = st.columns(2)
     with col1:
-        st.image("../images/Test_ROC_AUC.png")
+        st.image("https://raw.githubusercontent.com/JustinVqr/P7_ScoringModel/main/app/images/Test_ROC_AUC.png")
     with col2:
-        st.image("../images/Test_confusion_matrix.png")
+        st.image("https://raw.githubusercontent.com/JustinVqr/P7_ScoringModel/main/app/images/Test_confusion_matrix.png")

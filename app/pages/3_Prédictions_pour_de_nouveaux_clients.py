@@ -2,13 +2,13 @@ import streamlit as st
 import sys
 import os
 
+# Configuration de la page Streamlit
+st.set_page_config(page_title="3) Nouvelle Prédiction")  # Titre de la page de l'application
+
 # Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from app.component.P7_App_FrontEnd import *
-
-# Configuration de la page Streamlit
-st.set_page_config(page_title="3) Nouvelle Prédiction")  # Titre de la page de l'application
 
 # Option pour supprimer les avertissements de dépréciation concernant pyplot
 #st.set_option('deprecation.showPyplotGlobalUse', False)
