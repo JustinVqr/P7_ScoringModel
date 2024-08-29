@@ -68,9 +68,12 @@ def show_home_page():
     st.write("""Cette application aide l'agent de prêt dans sa décision d'accorder un prêt à un client.
      Pour ce faire, un algorithme de machine learning est utilisé pour prédire les difficultés d'un client à rembourser le prêt.
      Pour plus de transparence, cette application fournit également des informations pour expliquer l'algorithme et les prédictions.""")
+    
     # --- Logo ---
-with col1:
-    st.image("images/logo.png")
+    col1, col2 = st.columns(2)  # Définition des colonnes
+    with col1:
+        st.image("images/logo.png")
+
 
 # --- Fonction pour afficher la page d'analyse des clients ---
 def show_analysis_page():
