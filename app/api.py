@@ -116,13 +116,20 @@ def make_prediction(input_data, threshold=0.4):
         input_data = np.array(input_data).reshape(1, -1)
         probability = model.predict_proba(input_data)
         
-        if probability is None or len(probability) == 0:
-            raise ValueError("Les probabilités ne sont pas disponibles pour cette entrée.")
+        # Vérification de la forme de la probabilité
+        if len(probability.shape) == 1:
+            # Cas où probability est un tableau 1D
+            probability_class_1 = probability[0]
+        else:
+            # Cas où probability est un tableau 2D
+            probability_class_1 = probability[0][1]
         
-        prediction = (probability[0][1] >= threshold).astype(int)
-        return prediction, probability
+        prediction = (probability_class_1 >= threshold).astype(int)
+        return prediction, probability_class_1
+    
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la prédiction: {str(e)}")
+
 
 # Message d'accueil
 @app.get("/")
