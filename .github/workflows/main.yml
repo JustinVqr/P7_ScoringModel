@@ -20,17 +20,14 @@ jobs:
         heroku_email: ${{secrets.HEROKU_EMAIL}}
         heroku_api_key: ${{secrets.HEROKU_API_KEY}}
         heroku_app_name: "app-scoring-p7"
-        appdir: "./app"  # Set the correct directory to 'app'
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11.9'
-        
+
     - name: Install dependencies and Deploy to Heroku
       run: |
-        cd app  # Change directory to 'app'
         python -m pip install --upgrade pip
-        pip install -r ../requirements.txt  # Adjust path for the requirements.txt file
+        pip install -r requirements.txt
         git push heroku HEAD:main
-
