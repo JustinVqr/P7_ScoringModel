@@ -2,7 +2,7 @@
 
 import pytest
 import numpy as np
-from app.model_inference import make_prediction
+from app.model.P7_script_model_inf import make_prediction
 
 @pytest.fixture
 def mock_input_data():
