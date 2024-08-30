@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from matplotlib.lines import Line2D
+import matplotlib.pyplot as plt
+import matplotlib.patches
+import matplotlib.colors
 
 # Fonction sans API pour afficher la prédiction et les probabilités de défaut de paiement pour un client spécifique
 def execute_noAPI(df, index_client, model):
