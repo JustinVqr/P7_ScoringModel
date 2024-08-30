@@ -1,5 +1,3 @@
-# pytests/test_model_inference.py
-
 import pytest
 import numpy as np
 from app.model.P7_script_model_inf import make_prediction
@@ -16,7 +14,7 @@ def test_make_prediction_positive_class(mock_input_data, monkeypatch):
             return np.array([[0.2, 0.8]])  # Classe 1 a une probabilité de 0.8
 
     # Utilisez monkeypatch pour remplacer le modèle original par le mock
-    monkeypatch.setattr('app.model_inference.model', MockModel())
+    monkeypatch.setattr('app.model.P7_script_model_inf.model', MockModel())
 
     prediction, probability = make_prediction(mock_input_data)
 
@@ -30,7 +28,7 @@ def test_make_prediction_negative_class(mock_input_data, monkeypatch):
             return np.array([[0.7, 0.3]])  # Classe 1 a une probabilité de 0.3
 
     # Utilisez monkeypatch pour remplacer le modèle original par le mock
-    monkeypatch.setattr('app.model_inference.model', MockModel())
+    monkeypatch.setattr('app.model.P7_script_model_inf.model', MockModel())
 
     prediction, probability = make_prediction(mock_input_data)
 
@@ -44,7 +42,7 @@ def test_make_prediction_with_different_threshold(mock_input_data, monkeypatch):
             return np.array([[0.6, 0.4]])  # Classe 1 a une probabilité de 0.4
 
     # Utilisez monkeypatch pour remplacer le modèle original par le mock
-    monkeypatch.setattr('app.model_inference.model', MockModel())
+    monkeypatch.setattr('app.model.P7_script_model_inf.model', MockModel())
 
     # Test avec un seuil plus bas
     prediction, probability = make_prediction(mock_input_data, threshold=0.5)
