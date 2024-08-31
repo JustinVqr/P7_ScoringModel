@@ -1,7 +1,7 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: win-64
-httpx==0.13.3
+httpx==0.24.1
 starlette==0.38.0
 matplotlib==3.9.2
 missingno==0.5.2
