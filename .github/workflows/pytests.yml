@@ -31,4 +31,7 @@ jobs:
     - name: Test with pytest and generate coverage report
       run: |
         export PYTHONPATH=$PYTHONPATH:$(pwd)
-        pytest --cov=app pytests/
+        pytest --cov=app --cov-report=term-missing --cov-report=xml --cov-report=html pytests/
+        # Le `--cov-report=term-missing` affiche les lignes non couvertes dans le terminal
+        # Le `--cov-report=xml` génère un rapport XML pour l'analyse automatisée
+        # Le `--cov-report=html` génère un rapport HTML que vous pouvez visualiser pour plus de détails
