@@ -19,4 +19,4 @@ requests==2.32.3
 pydantic==2.8.2
 ipython==8.26.0
 flake8==7.1.1
-pytests==8.3.2
+pytest
