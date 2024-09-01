@@ -3,7 +3,7 @@ import pandas as pd
 from io import StringIO
 from unittest.mock import patch, MagicMock
 import streamlit as st
-from app.pages.Home import load_data, stratified_sampling, load_model_and_explainer
+from app.Home import load_data, stratified_sampling, load_model_and_explainer
 
 # Test pour la fonction load_data
 @patch('requests.get')
