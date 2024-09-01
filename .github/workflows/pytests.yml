@@ -15,23 +15,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python 3.11.9
       uses: actions/setup-python@v3
       with:
         python-version: "3.11.9"
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements-ci.txt ]; then pip install -r requirements-ci.txt; fi
-        if [ -f requirements-pytests.txt ]; then pip install -r requirements-pytests.txt; fi
+        pip install -r requirements-pytests.txt
+
     - name: Lint with flake8
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
     - name: Test with pytest and generate coverage report
       run: |
         export PYTHONPATH=$PYTHONPATH:$(pwd)
-        pytest --cov=app --cov-report=term-missing --cov-report=xml --cov-report=html pytests/
-        # Le `--cov-report=term-missing` affiche les lignes non couvertes dans le terminal
-        # Le `--cov-report=xml` génère un rapport XML pour l'analyse automatisée
-        # Le `--cov-report=html` génère un rapport HTML que vous pouvez visualiser pour plus de détails
+        pytest -v --cov=app --cov-report=term-missing --cov-report=xml --cov-report=html pytests/
