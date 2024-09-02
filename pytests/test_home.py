@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 from io import StringIO
 from unittest.mock import patch, MagicMock
+from unittest import mock
 import streamlit as st
 from app.Home import load_data, stratified_sampling, load_model_and_explainer
 
