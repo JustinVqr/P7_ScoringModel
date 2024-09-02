@@ -35,14 +35,27 @@ def test_stratified_sampling():
     assert len(df_sampled) == 2, "Le dataframe échantillonné devrait contenir 2 lignes"
     assert df_sampled['TARGET'].value_counts().sum() == 2, "Le dataframe échantillonné doit avoir deux entrées"
 
+from unittest.mock import patch, MagicMock
+import pandas as pd
+import shap
+
 # Test pour la fonction load_model_and_explainer
 @patch('joblib.load')
 @patch('os.path.exists')
-def test_load_model_and_explainer(mock_exists, mock_load):
+@patch('shap.kmeans')
+@patch('shap.TreeExplainer')
+@patch('shap.KernelExplainer')
+def test_load_model_and_explainer(mock_kernel_explainer, mock_tree_explainer, mock_kmeans, mock_exists, mock_load):
     mock_exists.return_value = True
     
     mock_model = MagicMock()
     mock_load.return_value = mock_model
+    
+    mock_background_data = MagicMock()
+    mock_kmeans.return_value = mock_background_data
+    
+    mock_tree_exp = MagicMock()
+    mock_tree_explainer.return_value = mock_tree_exp
     
     data = {'SK_ID_CURR': [100001, 100002, 100003, 100004], 'TARGET': [1, 0, 1, 0]}
     df_train = pd.DataFrame(data)
@@ -52,9 +65,13 @@ def test_load_model_and_explainer(mock_exists, mock_load):
     assert model is not None, "Le modèle ne doit pas être None"
     assert explainer is not None, "L'explicateur ne doit pas être None"
 
-# Test pour la configuration de Streamlit
+
+## --- Initialisation de l'état de session --- 
 def test_initial_session_state():
-    if 'load_state' not in st.session_state:
-        st.session_state.load_state = False
-    
-    assert st.session_state.load_state == False, "L'état initial de load_state doit être False"
+    # Simuler un état de session vide
+    with mock.patch.dict(st.session_state, {}, clear=True):
+        if 'load_state' not in st.session_state:
+            st.session_state.load_state = False
+
+        assert st.session_state.load_state == False, "L'état initial de load_state doit être False"
+
