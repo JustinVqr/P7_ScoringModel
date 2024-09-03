@@ -37,3 +37,4 @@ notebooks/dfss.csv
 notebooks/dfsr.csv
 notebooks/dfad.csv
 **/*.png
+notebooks/best_model.pkl
