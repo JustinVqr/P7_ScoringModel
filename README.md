@@ -1,5 +1,5 @@
 # P7_ScoringModel
-Répertoire dédié à l'application de scoring dans le cadre du projet OC.
+Répertoire dédié à l'application de scoring dans le cadre du projet n°7, d'OpenClassRoom
 Projet MLops de Scoring avec LightGBM
 
 Description du projet
