@@ -10,7 +10,7 @@ with open('app/model/best_model.pkl', 'rb') as file:
 # Initialisation de FastAPI
 app = FastAPI()
 
-# Classe de données client (avec des valeurs par défaut pour certains champs)
+# Classe de données client avec la nouvelle liste de features
 class ClientData(BaseModel):
     Taux_Paiement: float
     Score_Externe_2: float
@@ -33,8 +33,8 @@ class ClientData(BaseModel):
     Max_Jours_Fin_Credit_Bureau: float
     Moyenne_Jours_Entree_Paiement: float
     Moyenne_Credit_Dette_Bureau: float
-    Moyenne_Annuite_Approuvee: float
     Moyenne_Diff_Paiement: float
+    Moyenne_Annuite_Approuvee: float
     Moyenne_Contrats_Refuses: float
     Pourcentage_Jours_Emploi: float
     Moyenne_Combinaison_Produits_CashXSelllow: float
@@ -45,7 +45,7 @@ class ClientData(BaseModel):
     Pourcentage_Revenu_Credit: float
     Somme_Jours_Entree_Paiement: float
     Min_Credit_Applications_Precedentes: float
-    Type_Contrat_Pretes_Espece: bool = False
+    Contrat_Type_Pret_Renouvelable: bool = False
     Evaluation_Regionale_Client_Ville: int = 0
     Type_Occupation_Chauffeurs: bool = False
     Niveau_Education_Superieur: bool = False
@@ -76,40 +76,12 @@ class ClientData(BaseModel):
     Moyenne_Credit_Retard_Bureau: float = 0.0
     Moyenne_Jours_Retard_Paiements_Installation: float = 0.0
     Moyenne_Credit_Bureau: float = 0.0
-    Revenu_Par_Personne: float = 0.0
-    Moyenne_Jours_Fin_Credit_Bureau: float = 0.0
-    Nombre_Demandes_Credit_Bureau_Trimestre: float = 0.0
-    Somme_Differences_Paiement: float = 0.0
     Moyenne_Credits_Actifs_Bureau: float = 0.0
-    Moyenne_Solde_Mensuel_POS: float = 0.0
+    Nombre_Demandes_Credit_Bureau_Trimestre: float = 0.0
     Somme_Paiements_Precedents: float = 0.0
-    Min_Jours_Decision_Precedents: float = 0.0
-    Moyenne_Jours_Decision_Precedents: float = 0.0
-    Somme_Jours_Retard_Paiements_Installation: float = 0.0
-    Moyenne_Combinaison_Produits_CashStreetlow: float = 0.0
-    Max_Annuite_Approuvee: float = 0.0
-    Max_Credit_Approuve: float = 0.0
-    Moyenne_Categorie_Biens_Precedente_Meubles: float = 0.0
-    Heure_Debut_Processus_Approbaton: int = 0
-    Type_Occupation_Ouvriers: bool = False
-    Min_Demande_Approuvee: float = 0.0
-    Moyenne_Statut_Contrat_POS_Actif: float = 0.0
-    Moyenne_Combinaison_Produits_POS_Industrie: float = 0.0
-    Moyenne_Statut_Contrat_POS_Complet: float = 0.0
-    Type_Revenu_Travailleur: bool = False
-    Moyenne_Categorie_Biens_Precedente_XNA: float = 0.0
-    Nombre_Defauts_Sociaux_60Jours: float = 0.0
-    Indicateur_Document_3: int = 0
-    Min_Credit_Approuve: float = 0.0
-    Min_Annuite_Precedente: float = 0.0
-    Max_Jours_Retard_Paiements_Installation: float = 0.0
-    Difference_Max_Paiement: float = 0.0
-    Nombre_Defauts_Sociaux_30Jours: float = 0.0
-    Moyenne_Type_Credit_Bureau_Pret_Automobile: float = 0.0
-    Max_DPD_Defaut_POS: float = 0.0
-    Heure_Max_Debut_Processus_Approbaton: float = 0.0
-    Type_Organisation_Construction: bool = False
-    Moyenne_Type_Canal_Precedent_Ventes_Entreprise: float = 0.0
+    Moyenne_Solde_Mensuel_POS: float = 0.0
+    Moyenne_Jours_Fin_Credit_Bureau: float = 0.0
+    Revenu_Par_Personne: float = 0.0
 
 def make_prediction(input_data, threshold=0.4):
     try:
@@ -159,8 +131,8 @@ def predict(client_data: ClientData):
             client_data.Max_Jours_Fin_Credit_Bureau,
             client_data.Moyenne_Jours_Entree_Paiement,
             client_data.Moyenne_Credit_Dette_Bureau,
-            client_data.Moyenne_Annuite_Approuvee,
             client_data.Moyenne_Diff_Paiement,
+            client_data.Moyenne_Annuite_Approuvee,
             client_data.Moyenne_Contrats_Refuses,
             client_data.Pourcentage_Jours_Emploi,
             client_data.Moyenne_Combinaison_Produits_CashXSelllow,
@@ -171,7 +143,7 @@ def predict(client_data: ClientData):
             client_data.Pourcentage_Revenu_Credit,
             client_data.Somme_Jours_Entree_Paiement,
             client_data.Min_Credit_Applications_Precedentes,
-            client_data.Type_Contrat_Pretes_Espece,
+            client_data.Contrat_Type_Pret_Renouvelable,
             client_data.Evaluation_Regionale_Client_Ville,
             client_data.Type_Occupation_Chauffeurs,
             client_data.Niveau_Education_Superieur,
@@ -202,40 +174,12 @@ def predict(client_data: ClientData):
             client_data.Moyenne_Credit_Retard_Bureau,
             client_data.Moyenne_Jours_Retard_Paiements_Installation,
             client_data.Moyenne_Credit_Bureau,
-            client_data.Revenu_Par_Personne,
-            client_data.Moyenne_Jours_Fin_Credit_Bureau,
-            client_data.Nombre_Demandes_Credit_Bureau_Trimestre,
-            client_data.Somme_Differences_Paiement,
             client_data.Moyenne_Credits_Actifs_Bureau,
-            client_data.Moyenne_Solde_Mensuel_POS,
+            client_data.Nombre_Demandes_Credit_Bureau_Trimestre,
             client_data.Somme_Paiements_Precedents,
-            client_data.Min_Jours_Decision_Precedents,
-            client_data.Moyenne_Jours_Decision_Precedents,
-            client_data.Somme_Jours_Retard_Paiements_Installation,
-            client_data.Moyenne_Combinaison_Produits_CashStreetlow,
-            client_data.Max_Annuite_Approuvee,
-            client_data.Max_Credit_Approuve,
-            client_data.Moyenne_Categorie_Biens_Precedente_Meubles,
-            client_data.Heure_Debut_Processus_Approbaton,
-            client_data.Type_Occupation_Ouvriers,
-            client_data.Min_Demande_Approuvee,
-            client_data.Moyenne_Statut_Contrat_POS_Actif,
-            client_data.Moyenne_Combinaison_Produits_POS_Industrie,
-            client_data.Moyenne_Statut_Contrat_POS_Complet,
-            client_data.Type_Revenu_Travailleur,
-            client_data.Moyenne_Categorie_Biens_Precedente_XNA,
-            client_data.Nombre_Defauts_Sociaux_60Jours,
-            client_data.Indicateur_Document_3,
-            client_data.Min_Credit_Approuve,
-            client_data.Min_Annuite_Precedente,
-            client_data.Max_Jours_Retard_Paiements_Installation,
-            client_data.Difference_Max_Paiement,
-            client_data.Nombre_Defauts_Sociaux_30Jours,
-            client_data.Moyenne_Type_Credit_Bureau_Pret_Automobile,
-            client_data.Max_DPD_Defaut_POS,
-            client_data.Heure_Max_Debut_Processus_Approbaton,
-            client_data.Type_Organisation_Construction,
-            client_data.Moyenne_Type_Canal_Precedent_Ventes_Entreprise
+            client_data.Moyenne_Solde_Mensuel_POS,
+            client_data.Moyenne_Jours_Fin_Credit_Bureau,
+            client_data.Revenu_Par_Personne
         ]
 
         # Faire la prédiction et obtenir les probabilités
