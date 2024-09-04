@@ -38,3 +38,7 @@ notebooks/dfsr.csv
 notebooks/dfad.csv
 **/*.png
 notebooks/best_model.pkl
+notebooks/df_new.csv
+notebooks/df_train.csv
+notebooks/P7_CorrespondanceTable.csv
+notebooks/Translation_Features.ipynb
