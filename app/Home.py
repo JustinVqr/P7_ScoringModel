@@ -22,8 +22,8 @@ if "load_state" not in st.session_state:
 # --- Fonction pour télécharger et charger les données ---
 @st.cache_data
 def load_data():
-    url_train = "https://www.dropbox.com/scl/fi/9oc8a12r2pnanhzj2r6gu/df_train.csv?rlkey=zdcao9gluupqkd3ljxwnm1pv6&st=mm5480h6&dl=1"
-    url_new = "https://www.dropbox.com/scl/fi/2mylh9bshf5jkzg6n9m7t/df_new.csv?rlkey=m82n87j6hr9en1utkt7a8qsv4&st=k6kj1pm5&dl=1"
+    url_train = "https://www.dropbox.com/scl/fi/6l8s6rzk8v3zjkuh3qhux/df_train.csv?rlkey=yxqmu6nudzer12tbw6lp1s4tx&st=8f9sn36e&dl=1"
+    url_new = "https://www.dropbox.com/scl/fi/h4ll4dxvtu5zwp1ffldrh/df_new.csv?rlkey=yitish4p3g6ixmx2158o6ofac&st=6fdy9rlb&dl=1"
     
     response_train = requests.get(url_train)
     response_new = requests.get(url_new)

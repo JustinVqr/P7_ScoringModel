@@ -4,7 +4,7 @@ from app.model.P7_script_model_inf import make_prediction
 
 @pytest.fixture
 def mock_input_data():
-    # Créez un jeu de données d'entrée simulé pour les tests
+    # Créer un jeu de données d'entrée simulé pour les tests
     return np.array([0.5, 1.2, -0.3, 2.1])
 
 def test_make_prediction_positive_class(mock_input_data, monkeypatch):
@@ -13,7 +13,7 @@ def test_make_prediction_positive_class(mock_input_data, monkeypatch):
         def predict_proba(self, input_data):
             return np.array([[0.2, 0.8]])  # Classe 1 a une probabilité de 0.8
 
-    # Utilisez monkeypatch pour remplacer le modèle original par le mock
+    # Utiliser monkeypatch pour remplacer le modèle original par le mock
     monkeypatch.setattr('app.model.P7_script_model_inf.model', MockModel())
 
     prediction, probability = make_prediction(mock_input_data)
@@ -27,7 +27,7 @@ def test_make_prediction_negative_class(mock_input_data, monkeypatch):
         def predict_proba(self, input_data):
             return np.array([[0.7, 0.3]])  # Classe 1 a une probabilité de 0.3
 
-    # Utilisez monkeypatch pour remplacer le modèle original par le mock
+    # Utiliser monkeypatch pour remplacer le modèle original par le mock
     monkeypatch.setattr('app.model.P7_script_model_inf.model', MockModel())
 
     prediction, probability = make_prediction(mock_input_data)
@@ -41,7 +41,7 @@ def test_make_prediction_with_different_threshold(mock_input_data, monkeypatch):
         def predict_proba(self, input_data):
             return np.array([[0.6, 0.4]])  # Classe 1 a une probabilité de 0.4
 
-    # Utilisez monkeypatch pour remplacer le modèle original par le mock
+    # Utiliser monkeypatch pour remplacer le modèle original par le mock
     monkeypatch.setattr('app.model.P7_script_model_inf.model', MockModel())
 
     # Test avec un seuil plus bas

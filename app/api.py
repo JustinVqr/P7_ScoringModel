@@ -12,104 +12,104 @@ app = FastAPI()
 
 # Classe de données client (avec des valeurs par défaut pour certains champs)
 class ClientData(BaseModel):
-    PAYMENT_RATE: float
-    EXT_SOURCE_2: float
-    EXT_SOURCE_3: float
-    DAYS_BIRTH: int
-    AMT_ANNUITY: float
-    INSTAL_AMT_PAYMENT_SUM: float
-    PREV_CNT_PAYMENT_MEAN: float
-    AMT_CREDIT: float
-    INSTAL_DPD_MEAN: float
-    APPROVED_CNT_PAYMENT_MEAN: float
-    AMT_GOODS_PRICE: float
-    DAYS_ID_PUBLISH: int
-    DAYS_EMPLOYED: float
-    BURO_DAYS_CREDIT_MAX: float
-    POS_MONTHS_BALANCE_SIZE: float
-    INSTAL_DAYS_ENTRY_PAYMENT_MAX: float
-    DAYS_LAST_PHONE_CHANGE: float
-    INSTAL_AMT_PAYMENT_MIN: float
-    BURO_DAYS_CREDIT_ENDDATE_MAX: float
-    INSTAL_DAYS_ENTRY_PAYMENT_MEAN: float
-    BURO_AMT_CREDIT_SUM_DEBT_MEAN: float
-    APPROVED_AMT_ANNUITY_MEAN: float
-    INSTAL_PAYMENT_DIFF_MEAN: float
-    PREV_NAME_CONTRACT_STATUS_Refused_MEAN: float
-    DAYS_EMPLOYED_PERC: float
-    PREV_PRODUCT_COMBINATION_CashXSelllow_MEAN: float
-    INSTAL_AMT_PAYMENT_MAX: float
-    BURO_AMT_CREDIT_SUM_SUM: float
-    ANNUITY_INCOME_PERC: float
-    PREV_AMT_DOWN_PAYMENT_MAX: float
-    INCOME_CREDIT_PERC: float
-    INSTAL_DAYS_ENTRY_PAYMENT_SUM: float
-    PREV_APP_CREDIT_PERC_MIN: float
-    NAME_CONTRACT_TYPE_Cashloans: bool = False
-    REGION_RATING_CLIENT_W_CITY: int = 0
-    OCCUPATION_TYPE_Drivers: bool = False
-    NAME_EDUCATION_TYPE_Highereducation: bool = False
-    BURO_CREDIT_TYPE_Mortgage_MEAN: float = 0.0
-    APPROVED_CNT_PAYMENT_SUM: float = 0.0
-    DAYS_REGISTRATION: float = 0.0
-    POS_SK_DPD_DEF_MEAN: float = 0.0
-    BURO_MONTHS_BALANCE_SIZE_SUM: float = 0.0
-    PREV_NAME_YIELD_GROUP_high_MEAN: float = 0.0
-    PREV_NAME_YIELD_GROUP_low_action_MEAN: float = 0.0
-    APPROVED_APP_CREDIT_PERC_MAX: float = 0.0
-    REGION_POPULATION_RELATIVE: float = 0.0
-    PREV_APP_CREDIT_PERC_MEAN: float = 0.0
-    INSTAL_NUM_INSTALMENT_VERSION_NUNIQUE: float = 0.0
-    BURO_AMT_CREDIT_SUM_LIMIT_SUM: float = 0.0
-    BURO_AMT_CREDIT_SUM_MAX: float = 0.0
-    INSTAL_DBD_MAX: float = 0.0
-    NAME_FAMILY_STATUS_Married: bool = False
-    PREV_NAME_PAYMENT_TYPE_XNA_MEAN: float = 0.0
-    BURO_DAYS_CREDIT_MEAN: float = 0.0
-    FLAG_OWN_CAR: int = 0
-    BURO_CREDIT_TYPE_Microloan_MEAN: float = 0.0
-    APPROVED_DAYS_DECISION_MAX: float = 0.0
-    BURO_AMT_CREDIT_SUM_DEBT_SUM: float = 0.0
-    INSTAL_PAYMENT_PERC_MEAN: float = 0.0
-    PREV_NAME_CLIENT_TYPE_New_MEAN: float = 0.0
-    INSTAL_AMT_PAYMENT_MEAN: float = 0.0
-    BURO_AMT_CREDIT_SUM_OVERDUE_MEAN: float = 0.0
-    INSTAL_DBD_MEAN: float = 0.0
-    BURO_AMT_CREDIT_SUM_MEAN: float = 0.0
-    INCOME_PER_PERSON: float = 0.0
-    BURO_DAYS_CREDIT_ENDDATE_MEAN: float = 0.0
-    AMT_REQ_CREDIT_BUREAU_QRT: float = 0.0
-    INSTAL_PAYMENT_DIFF_SUM: float = 0.0
-    BURO_CREDIT_ACTIVE_Active_MEAN: float = 0.0
-    POS_MONTHS_BALANCE_MEAN: float = 0.0
-    PREV_CNT_PAYMENT_SUM: float = 0.0
-    PREV_DAYS_DECISION_MIN: float = 0.0
-    PREV_DAYS_DECISION_MEAN: float = 0.0
-    INSTAL_DBD_SUM: float = 0.0
-    PREV_PRODUCT_COMBINATION_CashStreetlow_MEAN: float = 0.0
-    APPROVED_AMT_ANNUITY_MAX: float = 0.0
-    APPROVED_AMT_CREDIT_MAX: float = 0.0
-    PREV_NAME_GOODS_CATEGORY_Furniture_MEAN: float = 0.0
-    HOUR_APPR_PROCESS_START: int = 0
-    OCCUPATION_TYPE_Laborers: bool = False
-    APPROVED_AMT_APPLICATION_MIN: float = 0.0
-    POS_NAME_CONTRACT_STATUS_Active_MEAN: float = 0.0
-    PREV_PRODUCT_COMBINATION_POSindustrywithinterest_MEAN: float = 0.0
-    POS_NAME_CONTRACT_STATUS_Completed_MEAN: float = 0.0
-    NAME_INCOME_TYPE_Working: bool = False
-    PREV_NAME_GOODS_CATEGORY_XNA_MEAN: float = 0.0
-    DEF_60_CNT_SOCIAL_CIRCLE: float = 0.0
-    FLAG_DOCUMENT_3: int = 0
-    APPROVED_AMT_CREDIT_MIN: float = 0.0
-    PREV_AMT_ANNUITY_MIN: float = 0.0
-    INSTAL_DPD_MAX: float = 0.0
-    INSTAL_PAYMENT_DIFF_MAX: float = 0.0
-    DEF_30_CNT_SOCIAL_CIRCLE: float = 0.0
-    BURO_CREDIT_TYPE_Carloan_MEAN: float = 0.0
-    POS_SK_DPD_DEF_MAX: float = 0.0
-    APPROVED_HOUR_APPR_PROCESS_START_MAX: float = 0.0
-    ORGANIZATION_TYPE_Construction: bool = False
-    PREV_CHANNEL_TYPE_Channelofcorporatesales_MEAN: float = 0.0
+    Taux_Paiement: float
+    Score_Externe_2: float
+    Score_Externe_3: float
+    Jours_Depuis_Naissance: int
+    Montant_Annuite: float
+    Somme_Paiements: float
+    Moyenne_Paiements_Precedents: float
+    Montant_Credit: float
+    Moyenne_Jours_Retard_Paiements: float
+    Moyenne_Paiements_Approuves: float
+    Prix_Biens: float
+    Jours_Depuis_Publication_ID: int
+    Jours_Emploi: float
+    Max_Jours_Credit_Bureau: float
+    Taille_Solde_Mensuel_POS: float
+    Max_Jours_Entree_Paiement: float
+    Jours_Dernier_Changement_Telephone: float
+    Montant_Min_Paiement: float
+    Max_Jours_Fin_Credit_Bureau: float
+    Moyenne_Jours_Entree_Paiement: float
+    Moyenne_Credit_Dette_Bureau: float
+    Moyenne_Annuite_Approuvee: float
+    Moyenne_Diff_Paiement: float
+    Moyenne_Contrats_Refuses: float
+    Pourcentage_Jours_Emploi: float
+    Moyenne_Combinaison_Produits_CashXSelllow: float
+    Max_Paiement: float
+    Somme_Total_Credit_Bureau: float
+    Pourcentage_Annuite_Revenu: float
+    Max_Versement_Initial: float
+    Pourcentage_Revenu_Credit: float
+    Somme_Jours_Entree_Paiement: float
+    Min_Credit_Applications_Precedentes: float
+    Type_Contrat_Pretes_Espece: bool = False
+    Evaluation_Regionale_Client_Ville: int = 0
+    Type_Occupation_Chauffeurs: bool = False
+    Niveau_Education_Superieur: bool = False
+    Moyenne_Credit_Bureau_Hypotheque: float = 0.0
+    Somme_Paiements_Approuves: float = 0.0
+    Jours_Depuis_Enregistrement: float = 0.0
+    Moyenne_DPD_Defaut_POS: float = 0.0
+    Somme_Solde_Mensuel_Bureau_Credit: float = 0.0
+    Moyenne_Rendement_Precedent_Eleve: float = 0.0
+    Moyenne_Rendement_Precedent_Faible: float = 0.0
+    Pourcentage_Max_Credit_Approuve: float = 0.0
+    Population_Relative_Region: float = 0.0
+    Moyenne_Pourcentage_Credit_Applications_Precedentes: float = 0.0
+    Nombre_Versions_Echeancier_Installation: float = 0.0
+    Somme_Limites_Credit_Bureau: float = 0.0
+    Max_Credit_Bureau: float = 0.0
+    Max_Jours_Retard_Paiements_Installation: float = 0.0
+    Statut_Familial_Marie: bool = False
+    Moyenne_Type_Paiement_Precedent_XNA: float = 0.0
+    Moyenne_Jours_Credit_Bureau: float = 0.0
+    Indicateur_Possession_Voiture: int = 0
+    Moyenne_Type_Credit_Bureau_Microcredit: float = 0.0
+    Max_Jours_Decision_Approuvee: float = 0.0
+    Somme_Dettes_Credit_Bureau: float = 0.0
+    Moyenne_Pourcentage_Paiement_Installation: float = 0.0
+    Moyenne_Type_Client_Precedent_Nouveau: float = 0.0
+    Moyenne_Montant_Paiement: float = 0.0
+    Moyenne_Credit_Retard_Bureau: float = 0.0
+    Moyenne_Jours_Retard_Paiements_Installation: float = 0.0
+    Moyenne_Credit_Bureau: float = 0.0
+    Revenu_Par_Personne: float = 0.0
+    Moyenne_Jours_Fin_Credit_Bureau: float = 0.0
+    Nombre_Demandes_Credit_Bureau_Trimestre: float = 0.0
+    Somme_Differences_Paiement: float = 0.0
+    Moyenne_Credits_Actifs_Bureau: float = 0.0
+    Moyenne_Solde_Mensuel_POS: float = 0.0
+    Somme_Paiements_Precedents: float = 0.0
+    Min_Jours_Decision_Precedents: float = 0.0
+    Moyenne_Jours_Decision_Precedents: float = 0.0
+    Somme_Jours_Retard_Paiements_Installation: float = 0.0
+    Moyenne_Combinaison_Produits_CashStreetlow: float = 0.0
+    Max_Annuite_Approuvee: float = 0.0
+    Max_Credit_Approuve: float = 0.0
+    Moyenne_Categorie_Biens_Precedente_Meubles: float = 0.0
+    Heure_Debut_Processus_Approbaton: int = 0
+    Type_Occupation_Ouvriers: bool = False
+    Min_Demande_Approuvee: float = 0.0
+    Moyenne_Statut_Contrat_POS_Actif: float = 0.0
+    Moyenne_Combinaison_Produits_POS_Industrie: float = 0.0
+    Moyenne_Statut_Contrat_POS_Complet: float = 0.0
+    Type_Revenu_Travailleur: bool = False
+    Moyenne_Categorie_Biens_Precedente_XNA: float = 0.0
+    Nombre_Defauts_Sociaux_60Jours: float = 0.0
+    Indicateur_Document_3: int = 0
+    Min_Credit_Approuve: float = 0.0
+    Min_Annuite_Precedente: float = 0.0
+    Max_Jours_Retard_Paiements_Installation: float = 0.0
+    Difference_Max_Paiement: float = 0.0
+    Nombre_Defauts_Sociaux_30Jours: float = 0.0
+    Moyenne_Type_Credit_Bureau_Pret_Automobile: float = 0.0
+    Max_DPD_Defaut_POS: float = 0.0
+    Heure_Max_Debut_Processus_Approbaton: float = 0.0
+    Type_Organisation_Construction: bool = False
+    Moyenne_Type_Canal_Precedent_Ventes_Entreprise: float = 0.0
 
 def make_prediction(input_data, threshold=0.4):
     try:
@@ -138,104 +138,104 @@ def read_root():
 def predict(client_data: ClientData):
     try:
         input_data = [
-            client_data.PAYMENT_RATE,
-            client_data.EXT_SOURCE_2,
-            client_data.EXT_SOURCE_3,
-            client_data.DAYS_BIRTH,
-            client_data.AMT_ANNUITY,
-            client_data.INSTAL_AMT_PAYMENT_SUM,
-            client_data.PREV_CNT_PAYMENT_MEAN,
-            client_data.AMT_CREDIT,
-            client_data.INSTAL_DPD_MEAN,
-            client_data.APPROVED_CNT_PAYMENT_MEAN,
-            client_data.AMT_GOODS_PRICE,
-            client_data.DAYS_ID_PUBLISH,
-            client_data.DAYS_EMPLOYED,
-            client_data.BURO_DAYS_CREDIT_MAX,
-            client_data.POS_MONTHS_BALANCE_SIZE,
-            client_data.INSTAL_DAYS_ENTRY_PAYMENT_MAX,
-            client_data.DAYS_LAST_PHONE_CHANGE,
-            client_data.INSTAL_AMT_PAYMENT_MIN,
-            client_data.BURO_DAYS_CREDIT_ENDDATE_MAX,
-            client_data.INSTAL_DAYS_ENTRY_PAYMENT_MEAN,
-            client_data.BURO_AMT_CREDIT_SUM_DEBT_MEAN,
-            client_data.APPROVED_AMT_ANNUITY_MEAN,
-            client_data.INSTAL_PAYMENT_DIFF_MEAN,
-            client_data.PREV_NAME_CONTRACT_STATUS_Refused_MEAN,
-            client_data.DAYS_EMPLOYED_PERC,
-            client_data.PREV_PRODUCT_COMBINATION_CashXSelllow_MEAN,
-            client_data.INSTAL_AMT_PAYMENT_MAX,
-            client_data.BURO_AMT_CREDIT_SUM_SUM,
-            client_data.ANNUITY_INCOME_PERC,
-            client_data.PREV_AMT_DOWN_PAYMENT_MAX,
-            client_data.INCOME_CREDIT_PERC,
-            client_data.INSTAL_DAYS_ENTRY_PAYMENT_SUM,
-            client_data.PREV_APP_CREDIT_PERC_MIN,
-            client_data.NAME_CONTRACT_TYPE_Cashloans,
-            client_data.REGION_RATING_CLIENT_W_CITY,
-            client_data.OCCUPATION_TYPE_Drivers,
-            client_data.NAME_EDUCATION_TYPE_Highereducation,
-            client_data.BURO_CREDIT_TYPE_Mortgage_MEAN,
-            client_data.APPROVED_CNT_PAYMENT_SUM,
-            client_data.DAYS_REGISTRATION,
-            client_data.POS_SK_DPD_DEF_MEAN,
-            client_data.BURO_MONTHS_BALANCE_SIZE_SUM,
-            client_data.PREV_NAME_YIELD_GROUP_high_MEAN,
-            client_data.PREV_NAME_YIELD_GROUP_low_action_MEAN,
-            client_data.APPROVED_APP_CREDIT_PERC_MAX,
-            client_data.REGION_POPULATION_RELATIVE,
-            client_data.PREV_APP_CREDIT_PERC_MEAN,
-            client_data.INSTAL_NUM_INSTALMENT_VERSION_NUNIQUE,
-            client_data.BURO_AMT_CREDIT_SUM_LIMIT_SUM,
-            client_data.BURO_AMT_CREDIT_SUM_MAX,
-            client_data.INSTAL_DBD_MAX,
-            client_data.NAME_FAMILY_STATUS_Married,
-            client_data.PREV_NAME_PAYMENT_TYPE_XNA_MEAN,
-            client_data.BURO_DAYS_CREDIT_MEAN,
-            client_data.FLAG_OWN_CAR,
-            client_data.BURO_CREDIT_TYPE_Microloan_MEAN,
-            client_data.APPROVED_DAYS_DECISION_MAX,
-            client_data.BURO_AMT_CREDIT_SUM_DEBT_SUM,
-            client_data.INSTAL_PAYMENT_PERC_MEAN,
-            client_data.PREV_NAME_CLIENT_TYPE_New_MEAN,
-            client_data.INSTAL_AMT_PAYMENT_MEAN,
-            client_data.BURO_AMT_CREDIT_SUM_OVERDUE_MEAN,
-            client_data.INSTAL_DBD_MEAN,
-            client_data.BURO_AMT_CREDIT_SUM_MEAN,
-            client_data.INCOME_PER_PERSON,
-            client_data.BURO_DAYS_CREDIT_ENDDATE_MEAN,
-            client_data.AMT_REQ_CREDIT_BUREAU_QRT,
-            client_data.INSTAL_PAYMENT_DIFF_SUM,
-            client_data.BURO_CREDIT_ACTIVE_Active_MEAN,
-            client_data.POS_MONTHS_BALANCE_MEAN,
-            client_data.PREV_CNT_PAYMENT_SUM,
-            client_data.PREV_DAYS_DECISION_MIN,
-            client_data.PREV_DAYS_DECISION_MEAN,
-            client_data.INSTAL_DBD_SUM,
-            client_data.PREV_PRODUCT_COMBINATION_CashStreetlow_MEAN,
-            client_data.APPROVED_AMT_ANNUITY_MAX,
-            client_data.APPROVED_AMT_CREDIT_MAX,
-            client_data.PREV_NAME_GOODS_CATEGORY_Furniture_MEAN,
-            client_data.HOUR_APPR_PROCESS_START,
-            client_data.OCCUPATION_TYPE_Laborers,
-            client_data.APPROVED_AMT_APPLICATION_MIN,
-            client_data.POS_NAME_CONTRACT_STATUS_Active_MEAN,
-            client_data.PREV_PRODUCT_COMBINATION_POSindustrywithinterest_MEAN,
-            client_data.POS_NAME_CONTRACT_STATUS_Completed_MEAN,
-            client_data.NAME_INCOME_TYPE_Working,
-            client_data.PREV_NAME_GOODS_CATEGORY_XNA_MEAN,
-            client_data.DEF_60_CNT_SOCIAL_CIRCLE,
-            client_data.FLAG_DOCUMENT_3,
-            client_data.APPROVED_AMT_CREDIT_MIN,
-            client_data.PREV_AMT_ANNUITY_MIN,
-            client_data.INSTAL_DPD_MAX,
-            client_data.INSTAL_PAYMENT_DIFF_MAX,
-            client_data.DEF_30_CNT_SOCIAL_CIRCLE,
-            client_data.BURO_CREDIT_TYPE_Carloan_MEAN,
-            client_data.POS_SK_DPD_DEF_MAX,
-            client_data.APPROVED_HOUR_APPR_PROCESS_START_MAX,
-            client_data.ORGANIZATION_TYPE_Construction,
-            client_data.PREV_CHANNEL_TYPE_Channelofcorporatesales_MEAN
+            client_data.Taux_Paiement,
+            client_data.Score_Externe_2,
+            client_data.Score_Externe_3,
+            client_data.Jours_Depuis_Naissance,
+            client_data.Montant_Annuite,
+            client_data.Somme_Paiements,
+            client_data.Moyenne_Paiements_Precedents,
+            client_data.Montant_Credit,
+            client_data.Moyenne_Jours_Retard_Paiements,
+            client_data.Moyenne_Paiements_Approuves,
+            client_data.Prix_Biens,
+            client_data.Jours_Depuis_Publication_ID,
+            client_data.Jours_Emploi,
+            client_data.Max_Jours_Credit_Bureau,
+            client_data.Taille_Solde_Mensuel_POS,
+            client_data.Max_Jours_Entree_Paiement,
+            client_data.Jours_Dernier_Changement_Telephone,
+            client_data.Montant_Min_Paiement,
+            client_data.Max_Jours_Fin_Credit_Bureau,
+            client_data.Moyenne_Jours_Entree_Paiement,
+            client_data.Moyenne_Credit_Dette_Bureau,
+            client_data.Moyenne_Annuite_Approuvee,
+            client_data.Moyenne_Diff_Paiement,
+            client_data.Moyenne_Contrats_Refuses,
+            client_data.Pourcentage_Jours_Emploi,
+            client_data.Moyenne_Combinaison_Produits_CashXSelllow,
+            client_data.Max_Paiement,
+            client_data.Somme_Total_Credit_Bureau,
+            client_data.Pourcentage_Annuite_Revenu,
+            client_data.Max_Versement_Initial,
+            client_data.Pourcentage_Revenu_Credit,
+            client_data.Somme_Jours_Entree_Paiement,
+            client_data.Min_Credit_Applications_Precedentes,
+            client_data.Type_Contrat_Pretes_Espece,
+            client_data.Evaluation_Regionale_Client_Ville,
+            client_data.Type_Occupation_Chauffeurs,
+            client_data.Niveau_Education_Superieur,
+            client_data.Moyenne_Credit_Bureau_Hypotheque,
+            client_data.Somme_Paiements_Approuves,
+            client_data.Jours_Depuis_Enregistrement,
+            client_data.Moyenne_DPD_Defaut_POS,
+            client_data.Somme_Solde_Mensuel_Bureau_Credit,
+            client_data.Moyenne_Rendement_Precedent_Eleve,
+            client_data.Moyenne_Rendement_Precedent_Faible,
+            client_data.Pourcentage_Max_Credit_Approuve,
+            client_data.Population_Relative_Region,
+            client_data.Moyenne_Pourcentage_Credit_Applications_Precedentes,
+            client_data.Nombre_Versions_Echeancier_Installation,
+            client_data.Somme_Limites_Credit_Bureau,
+            client_data.Max_Credit_Bureau,
+            client_data.Max_Jours_Retard_Paiements_Installation,
+            client_data.Statut_Familial_Marie,
+            client_data.Moyenne_Type_Paiement_Precedent_XNA,
+            client_data.Moyenne_Jours_Credit_Bureau,
+            client_data.Indicateur_Possession_Voiture,
+            client_data.Moyenne_Type_Credit_Bureau_Microcredit,
+            client_data.Max_Jours_Decision_Approuvee,
+            client_data.Somme_Dettes_Credit_Bureau,
+            client_data.Moyenne_Pourcentage_Paiement_Installation,
+            client_data.Moyenne_Type_Client_Precedent_Nouveau,
+            client_data.Moyenne_Montant_Paiement,
+            client_data.Moyenne_Credit_Retard_Bureau,
+            client_data.Moyenne_Jours_Retard_Paiements_Installation,
+            client_data.Moyenne_Credit_Bureau,
+            client_data.Revenu_Par_Personne,
+            client_data.Moyenne_Jours_Fin_Credit_Bureau,
+            client_data.Nombre_Demandes_Credit_Bureau_Trimestre,
+            client_data.Somme_Differences_Paiement,
+            client_data.Moyenne_Credits_Actifs_Bureau,
+            client_data.Moyenne_Solde_Mensuel_POS,
+            client_data.Somme_Paiements_Precedents,
+            client_data.Min_Jours_Decision_Precedents,
+            client_data.Moyenne_Jours_Decision_Precedents,
+            client_data.Somme_Jours_Retard_Paiements_Installation,
+            client_data.Moyenne_Combinaison_Produits_CashStreetlow,
+            client_data.Max_Annuite_Approuvee,
+            client_data.Max_Credit_Approuve,
+            client_data.Moyenne_Categorie_Biens_Precedente_Meubles,
+            client_data.Heure_Debut_Processus_Approbaton,
+            client_data.Type_Occupation_Ouvriers,
+            client_data.Min_Demande_Approuvee,
+            client_data.Moyenne_Statut_Contrat_POS_Actif,
+            client_data.Moyenne_Combinaison_Produits_POS_Industrie,
+            client_data.Moyenne_Statut_Contrat_POS_Complet,
+            client_data.Type_Revenu_Travailleur,
+            client_data.Moyenne_Categorie_Biens_Precedente_XNA,
+            client_data.Nombre_Defauts_Sociaux_60Jours,
+            client_data.Indicateur_Document_3,
+            client_data.Min_Credit_Approuve,
+            client_data.Min_Annuite_Precedente,
+            client_data.Max_Jours_Retard_Paiements_Installation,
+            client_data.Difference_Max_Paiement,
+            client_data.Nombre_Defauts_Sociaux_30Jours,
+            client_data.Moyenne_Type_Credit_Bureau_Pret_Automobile,
+            client_data.Max_DPD_Defaut_POS,
+            client_data.Heure_Max_Debut_Processus_Approbaton,
+            client_data.Type_Organisation_Construction,
+            client_data.Moyenne_Type_Canal_Precedent_Ventes_Entreprise
         ]
 
         # Faire la prédiction et obtenir les probabilités

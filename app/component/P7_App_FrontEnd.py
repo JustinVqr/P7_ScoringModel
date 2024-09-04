@@ -67,26 +67,26 @@ if st.button("Obtenir la prédiction via l'API"):
 def execute_API(df):
     st.subheader('Client difficulties : ')
     
-    # Effectuez la requête
+    # Effectuer la requête
     request = requests.post(
         url="https://app-scoring-p7-b4207842daea.herokuapp.com/predict",
         data=json.dumps(df),
         headers={"Content-Type": "application/json"}
     )
     
-    # Vérifiez d'abord si la requête a réussi
+    # Vérifier si la requête a réussi
     if request.status_code == 200:
         response_json = request.json()  # Obtenez la réponse JSON
         
-        # Affichez la réponse JSON complète pour diagnostic
+        # Afficher la réponse JSON complète pour diagnostic
         st.write(response_json)
         
-        # Maintenant, assurez-vous que les clés sont présentes
+        # s'assurer que les clés sont présentes
         if "prediction" in response_json and "probability" in response_json:
             prediction = response_json["prediction"]
             probability = round(response_json["probability"], 2)
             
-            # Affichez les résultats
+            # Afficher les résultats
             col1, col2 = st.columns(2)
             col1.metric("Predicted Difficulties", str(np.where(prediction == 0, 'NO', 'YES')))
             col2.metric("Probability of default", probability)
