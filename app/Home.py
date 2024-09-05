@@ -125,7 +125,7 @@ def show_prediction_page():
                     
                     # Affichage de la prédiction et de la probabilité
                     st.write(f"Probabilité de défaut pour le client {client_id}: {client_prob * 100:.2f}%")
-                    st.write(f"Prédiction : {'Oui' si client_prediction == 1 else 'Non'} (Seuil: {seuil})")
+                    st.write(f"Prédiction : {'Oui' if client_prediction == 1 else 'Non'} (Seuil: {seuil})")
 
                     # Calcul des valeurs SHAP pour ce client
                     explainer = st.session_state.explainer
