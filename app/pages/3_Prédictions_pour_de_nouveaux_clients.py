@@ -47,13 +47,24 @@ with tab1:
             
             # Calculer les valeurs SHAP pour ce client
             X_client = df_new.loc[[index_client]].fillna(0)
+
+            # Vérifiez et convertissez les données au bon format si nécessaire
+            if not isinstance(X_client, pd.DataFrame):
+                X_client = pd.DataFrame(X_client)
+
+            # Affichez des informations pour vérifier le type des données
+            st.write(f"Type de X_client: {type(X_client)}")
+            st.write(f"Colonnes de X_client: {X_client.columns}")
+            st.write(X_client.head())  # Visualisez les premières lignes du DataFrame
+
+            # Calcul des valeurs SHAP
             shap_values_client = explainer.shap_values(X_client)
 
-            # Si shap_values_client est une liste, prendre la classe 1
+            # Si shap_values_client est une liste, prendre les valeurs pour la classe 1
             if isinstance(shap_values_client, list):
                 shap_values_client = shap_values_client[1]
 
-            # Afficher les résultats SHAP avec un waterfall plot
+            # Affichage des résultats SHAP avec un waterfall plot
             st.write("Valeurs SHAP pour ce client :")
             shap.initjs()
 
@@ -142,15 +153,19 @@ with tab2:
     if run_btn2:
         execute_API(data_client)
         data_client = pd.DataFrame(data_client, index=[0])
-        
-        # Calculer les valeurs SHAP pour ce nouveau client
+
+        # Vérifiez et convertissez les données au bon format si nécessaire
+        if not isinstance(data_client, pd.DataFrame):
+            data_client = pd.DataFrame(data_client)
+
+        # Calcul des valeurs SHAP
         shap_values_client = explainer.shap_values(data_client)
 
-        # Si shap_values_client est une liste, prendre la classe 1
+        # Si shap_values_client est une liste, prendre les valeurs pour la classe 1
         if isinstance(shap_values_client, list):
             shap_values_client = shap_values_client[1]
 
-        # Afficher les résultats SHAP avec un waterfall plot
+        # Affichage des résultats SHAP avec un waterfall plot
         st.write("Valeurs SHAP pour ce client :")
         shap.initjs()
 

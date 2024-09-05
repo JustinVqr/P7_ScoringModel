@@ -9,11 +9,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
 # Configuration de la page
-st.set_page_config(layout='wide', initial_sidebar_state='expanded', page_title="Accueil")
-
-# Menu de navigation
-st.sidebar.title("Navigation")
-page = st.sidebar.selectbox("Choisissez une page", ["Accueil", "Données", "Analyse des clients", "Prédiction"])
+st.set_page_config(layout='wide', page_title="Accueil")
 
 # --- Initialisation de l'état de session ---
 if "load_state" not in st.session_state:
@@ -111,7 +107,7 @@ def show_prediction_page():
                     # Prédiction du modèle
                     prediction_proba = st.session_state.Credit_clf_final.predict_proba(X_client)[:, 1]
                     prediction = st.session_state.Credit_clf_final.predict(X_client)
-                    st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
+                    st.write(f"Prédiction : {'Oui' si prediction[0] == 1 else 'Non'}")
                     st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
                     
                     # Utilisation de l'explicateur SHAP stocké dans st.session_state
@@ -134,6 +130,8 @@ def show_prediction_page():
             st.error("Modèle non chargé ou ID client invalide.")
 
 # Sélection de la page à afficher
+# Tu peux gérer cette partie via les URL ou directement à travers les fichiers `pages`.
+page = st.experimental_get_query_params().get("page", ["Accueil"])[0]
 if page == "Accueil":
     show_home_page()
 elif page == "Analyse des clients":
