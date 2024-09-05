@@ -111,7 +111,7 @@ def show_prediction_page():
                     # Prédiction du modèle
                     prediction_proba = st.session_state.Credit_clf_final.predict_proba(X_client)[:, 1]
                     prediction = st.session_state.Credit_clf_final.predict(X_client)
-                    st.write(f"Prédiction : {'Oui' si prediction[0] == 1 sinon 'Non'}")
+                    st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
                     st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
                     
                     # Utilisation de l'explicateur SHAP stocké dans st.session_state
