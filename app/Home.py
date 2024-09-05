@@ -1,3 +1,13 @@
+import streamlit as st
+import pandas as pd
+import requests
+from io import StringIO
+import os
+import joblib
+import shap
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
 # Configuration de la page
 st.set_page_config(layout='wide', initial_sidebar_state='expanded', page_title="Accueil")
 
@@ -124,3 +134,4 @@ elif page == "Analyse des clients":
     show_analysis_page()
 elif page == "Prédiction":
     show_prediction_page()
+
