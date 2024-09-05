@@ -7,7 +7,7 @@ import shap
 import json
 
 # Configuration de la page Streamlit
-st.set_page_config(page_title="3) Nouvelle Prédiction")
+st.set_page_config(page_title="3) Prédiction pour de nouveaux clients")
 
 # Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -28,9 +28,9 @@ with tab1:
     st.header("Prédiction pour un client avec ID")
     
     index_client = st.number_input(
-        "Entrez l'ID du client (ex : 100001, 100005)",
+        "Entrez l'ID du client (ex : 1, 2, 3, 5)",
         format="%d",
-        value=100001
+        value=1
     )
 
     run_btn = st.button(

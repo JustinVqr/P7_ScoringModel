@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from matplotlib.lines import Line2D
-import matplotlib.pyplot as plt
 import matplotlib.patches
 import matplotlib.colors
 
@@ -54,7 +53,7 @@ if st.button("Obtenir la prédiction via l'API"):
             # Vérification du statut de la réponse
             if response.status_code == 200:
                 result = response.json()
-                st.write(f"Prédiction : {'Oui' if result['prediction'] == 1 else 'Non'}")
+                st.write(f"Prédiction : {'Oui' si result['prediction'] == 1 else 'Non'}")
                 st.write(f"Probabilité de défaut : {result['probability'] * 100:.2f}%")
             else:
                 st.error(f"Erreur : {response.json()['detail']}")
@@ -96,254 +95,103 @@ def execute_API(df):
         st.error(f"Erreur avec la requête API : {request.status_code}")
 
 
-
 def shap_plot(explainer, df, index_client=0):
-    """ This function generates a plot of the main shap value.
+    """ 
+    This function generates a plot of the main shap value.
     It helps to understand the prediction on loan default for a specific client.
-
-
-    input :
-    explainer > the shap explainer
-    df > pandas dataframe with the 62 features and their value
-    index_client > index of the client
-
-    output :
-    Bar plot of the shap values, integrated in a streamlit figure
     """
+    try:
+        # Vérification du type des données avant de les passer à SHAP
+        st.write(f"Type des données passées à SHAP : {type(df)}")
+        st.write(f"Index du client : {index_client}")
 
-    # Plot shap values
-    # Default SHAP colors
-    default_pos_color = "#ff0051"
-    default_neg_color = "#008bfb"
+        # Vérification du contenu des données pour le client
+        st.write(f"Données pour le client : {df.fillna(0).loc[index_client]}")
+        
+        # Plot shap values
+        fig_shap = shap.plots.bar(
+            explainer(df.fillna(0).loc[index_client]),  # Cette ligne pourrait causer un problème
+            show=False)
+        
+        # Affichage du graphique dans Streamlit
+        st.pyplot(fig_shap)
+        plt.clf()
 
-    # Custom colors
-    negative_color = "#1f77b4"
-    positive_color = "#ff7f0e"
-
-    fig_shap = shap.plots.bar(
-        explainer(
-            df.fillna(0).loc[index_client]),
-        show=False)
-    # Change the colormap of the artists
-    for fc in plt.gcf().get_children():
-        # Ignore last Rectangle
-        for fcc in fc.get_children()[:-1]:
-            if (isinstance(fcc, matplotlib.patches.Rectangle)):
-                if (matplotlib.colors.to_hex(
-                        fcc.get_facecolor()) == default_pos_color):
-                    fcc.set_facecolor(positive_color)
-                elif (matplotlib.colors.to_hex(fcc.get_facecolor()) == default_neg_color):
-                    fcc.set_color(negative_color)
-            elif (isinstance(fcc, plt.Text)):
-                if (matplotlib.colors.to_hex(
-                        fcc.get_color()) == default_pos_color):
-                    fcc.set_color(positive_color)
-                elif (matplotlib.colors.to_hex(fcc.get_color()) == default_neg_color):
-                    fcc.set_color(negative_color)
-    st.pyplot(fig_shap)
-    plt.clf()
+    except Exception as e:
+        # Capturer et afficher toute erreur rencontrée lors de l'appel à SHAP
+        st.error(f"Erreur lors de la génération des valeurs SHAP : {e}")
 
 
 def plot_client(df, explainer, df_reference, index_client=0):
-    """ This function generates all the different plots to understand the prediction of loan default for a specific client
-    First, this function call the shap_plot function to generate the explainer plot.
-    then, it generate 6 plots (for the 6 main features affecting the prediction)
-
-    - for binary features (0/1), the plot is a barplot of the train dataframe showing the frequency (feature) within each class (TARGET)
-    - else : boxplots of the feature, with the client value (red dot) and vertical dashed lines showing the mean of each class (TARGET)
-
-
-    input :
-    df > pandas dataframe with the 62 features and their value
-    explainer > the shap explainer
-    df_reference > the training dataset used as a baseline for plots
-    index_client > index of the client
-
-    output :
-    1) the shap bar plot
-    2) 6 plots for the 6 most discriminative features
+    """ 
+    This function generates all the different plots to understand the prediction of loan default for a specific client.
     """
+    
+    try:
+        # Vérification du type de données et des colonnes avant d'appeler shap_plot
+        st.write(f"Type des données dans plot_client : {type(df)}")
+        st.write(f"Colonnes des données : {df.columns}")
+        
+        # --- Bar plot of the shap value for a specific client ---
+        shap_plot(explainer, df, index_client)
 
-    # ---Bar plot of the shap value for a specific client ---
-    shap_plot(explainer, df, index_client)
+    except Exception as e:
+        st.error(f"Erreur dans plot_client : {e}")
 
-    # --- Calcul of the shap_importance ---
-    shap_values = explainer.shap_values(df.fillna(0).loc[index_client])
-    shap_importance = pd.Series(
-        shap_values,
-        df.columns).abs().sort_values(
-        ascending=False)
+    # --- Calcul des 6 caractéristiques les plus discriminatives ---
+    try:
+        shap_values = explainer.shap_values(df.fillna(0).loc[index_client])
+        shap_importance = pd.Series(
+            shap_values,
+            df.columns).abs().sort_values(
+            ascending=False)
 
-    # --- 6 discriminative features ---
-    st.subheader('Explaination : Top 6 discriminative features')
+        # --- 6 discriminative features ---
+        st.subheader('Explaination : Top 6 discriminative features')
 
-    # The figures are divided in two streamlit columns, with 3 plots per
-    # columns
-    col1, col2 = st.columns(2)
-    with col1:
-        for features in list(shap_importance.index[:6])[:3]:
-            plt.figure(figsize=(5, 5))
-
-            # For binary features :
-            if df_reference[features].nunique() == 2:
-
-                # Bar plot sof the frequency per class :
-                figInd = sns.barplot(df_reference[['TARGET', features]].fillna(0).groupby(
-                    'TARGET').value_counts(normalize=True).reset_index(), x=features, y=0, hue='TARGET')
-                plt.ylabel('Freq of client')
-
-                # Addition of the client data (+ box with client ID):
-                plt.scatter(
-                    y=df[features].loc[index_client] +
-                    0.1,
-                    x=features,
-                    marker='o',
-                    s=100,
-                    color="r")
-                figInd.annotate(
-                    'Client ID:\n{}'.format(index_client), xy=(
-                        features, df[features].loc[index_client] + 0.1), xytext=(
-                        0, 40), textcoords='offset points', ha='center', va='bottom', bbox=dict(
-                        boxstyle="round", fc="w"), arrowprops=dict(
-                        arrowstyle="->"))
-                legend_handles, _= figInd.get_legend_handles_labels()
-                figInd.legend(legend_handles,['No','Yes'], title="LOAN DEFAULT")
-                st.pyplot(figInd.figure)
-                plt.close()
-
-            # For non binary features :
-            else:
-                figInd = sns.boxplot(
-                    data=df_reference,
-                    y=features,
-                    x='TARGET',
-                    showfliers=False,
-                    width=0.2)
-                plt.xlabel('LOAN DEFAULT')
-                figInd.set_xticklabels(["No", "Yes"])
-                                # Addition of the client data (+ box with client ID):
-                plt.scatter(y=df[features].loc[index_client],
-                            x=0.5, marker='o', s=100, color="r")
-
-                figInd.annotate(
-                    'Client ID:\n{}'.format(index_client), xy=(
-                        0.5, df[features].loc[index_client]), xytext=(
-                        0, 40), textcoords='offset points', ha='center', va='bottom', bbox=dict(
-                        boxstyle="round", fc="w"), arrowprops=dict(
-                        arrowstyle="->"))
-
-                # Addition of mean of each class + client:
-                figInd.axhline(y=df_reference[df_reference['TARGET'] == 0][features].mean(
-                ), zorder=0, linestyle='--', color="#1f77b4")
-                figInd.axhline(y=df_reference[df_reference['TARGET'] == 1][features].mean(
-                ), zorder=0, linestyle='--', color="#ff7f0e")
-
-                # Custom legend:
-                colors = ["#1f77b4", "#ff7f0e"]
-                lines = [
-                    Line2D(
-                        [0],
-                        [0],
-                        color=c,
-                        linewidth=1,
-                        linestyle='--') for c in colors]
-                labels = ["No Loan Default", "Loan Default"]
-                plt.legend(lines, labels, title="Mean value of clients:")
-                st.pyplot(figInd.figure)
-                plt.close()
-
-    with col2:
-        # Plot top 6 discriminant features
-        for features in list(shap_importance.index[:6])[3:]:
-            plt.figure(figsize=(5, 5))
-
-            # For binary features :
-            if df_reference[features].nunique() == 2:
-
-                # Bar plot sof the frequency per class :
-                figInd = sns.barplot(df_reference[['TARGET', features]].fillna(0).groupby(
-                    'TARGET').value_counts(normalize=True).reset_index(), x=features, y=0, hue='TARGET')
-                plt.ylabel('Freq of client')
-
-                # Addition of the client data (+ box with client ID):
-                plt.scatter(
-                    y=df[features].loc[index_client] +
-                    0.1,
-                    x=features,
-                    marker='o',
-                    s=100,
-                    color="r")
-                figInd.annotate(
-                    'Client ID:\n{}'.format(index_client), xy=(
-                        features, df[features].loc[index_client] + 0.1), xytext=(
-                        0, 40), textcoords='offset points', ha='center', va='bottom', bbox=dict(
-                        boxstyle="round", fc="w"), arrowprops=dict(
-                        arrowstyle="->"))
-                legend_handles, _= figInd.get_legend_handles_labels()
-                figInd.legend(legend_handles,['No','Yes'], title="LOAN DEFAULT")
-                st.pyplot(figInd.figure)
-                plt.close()
-
-            # For non binary features :
-            else:
-                figInd = sns.boxplot(
-                    data=df_reference,
-                    y=features,
-                    x='TARGET',
-                    showfliers=False,
-                    width=0.2)
-                plt.xlabel('LOAN DEFAULT')
-                figInd.set_xticklabels(["No", "Yes"])
-                                # Addition of the client data (+ box with client ID):
-                plt.scatter(y=df[features].loc[index_client],
-                            x=0.5, marker='o', s=100, color="r")
-
-                figInd.annotate(
-                    'Client ID:\n{}'.format(index_client), xy=(
-                        0.5, df[features].loc[index_client]), xytext=(
-                        0, 40), textcoords='offset points', ha='center', va='bottom', bbox=dict(
-                        boxstyle="round", fc="w"), arrowprops=dict(
-                        arrowstyle="->"))
-
-                # Addition of mean of each class + client:
-                figInd.axhline(y=df_reference[df_reference['TARGET'] == 0][features].mean(
-                ), zorder=0, linestyle='--', color="#1f77b4")
-                figInd.axhline(y=df_reference[df_reference['TARGET'] == 1][features].mean(
-                ), zorder=0, linestyle='--', color="#ff7f0e")
-
-                # Custom legend:
-                colors = ["#1f77b4", "#ff7f0e"]
-                lines = [
-                    Line2D(
-                        [0],
-                        [0],
-                        color=c,
-                        linewidth=1,
-                        linestyle='--') for c in colors]
-                labels = ["No Loan Default", "Loan Default"]
-                plt.legend(lines, labels, title="Mean value of clients:")
-                st.pyplot(figInd.figure)
-                plt.close()
-
-    # --- Analysis of unknown values ---
-
-
-def nan_values(df, index_client=0):
-    if np.isnan(df.loc[index_client]).any():
-
-        st.subheader('Warnings : Columns with unknown values')
-        nan_col = []
-        for features in list(df.columns):
-            if np.isnan(df.loc[index_client][features]):
-                nan_col.append(features)
-
+        # The figures are divided in two streamlit columns, with 3 plots per column
         col1, col2 = st.columns(2)
-        with col1:
-            st.table(
-                data=pd.DataFrame(
-                    nan_col,
-                    columns=['FEATURES WITH MISSING VALUES']))
-        with col2:
-            st.write('All the missing values has been replaced by 0.')
-    else:
-        st.subheader('There is no missing value')
+        for col, features_slice in zip([col1, col2], [list(shap_importance.index[:3]), list(shap_importance.index[3:6])]):
+            with col:
+                for features in features_slice:
+                    plt.figure(figsize=(5, 5))
+
+                    # For binary features :
+                    if df_reference[features].nunique() == 2:
+                        figInd = sns.barplot(df_reference[['TARGET', features]].fillna(0).groupby(
+                            'TARGET').value_counts(normalize=True).reset_index(), x=features, y=0, hue='TARGET')
+                        plt.ylabel('Freq of client')
+
+                        # Client data annotation
+                        plt.scatter(y=df[features].loc[index_client] + 0.1, x=features, marker='o', s=100, color="r")
+                        figInd.annotate(
+                            f'Client ID:\n{index_client}', xy=(features, df[features].loc[index_client] + 0.1), xytext=(0, 40), 
+                            textcoords='offset points', ha='center', va='bottom', bbox=dict(boxstyle="round", fc="w"), 
+                            arrowprops=dict(arrowstyle="->")
+                        )
+                        legend_handles, _ = figInd.get_legend_handles_labels()
+                        figInd.legend(legend_handles, ['No', 'Yes'], title="LOAN DEFAULT")
+                        st.pyplot(figInd.figure)
+                        plt.close()
+
+                    # For non-binary features :
+                    else:
+                        figInd = sns.boxplot(data=df_reference, y=features, x='TARGET', showfliers=False, width=0.2)
+                        plt.xlabel('LOAN DEFAULT')
+                        figInd.set_xticklabels(["No", "Yes"])
+
+                        plt.scatter(y=df[features].loc[index_client], x=0.5, marker='o', s=100, color="r")
+
+                        figInd.annotate(
+                            f'Client ID:\n{index_client}', xy=(0.5, df[features].loc[index_client]), xytext=(0, 40), 
+                            textcoords='offset points', ha='center', va='bottom', bbox=dict(boxstyle="round", fc="w"), 
+                            arrowprops=dict(arrowstyle="->")
+                        )
+
+                        # Mean value of each class + client:
+                        figInd.axhline(y=df_reference[df_reference['TARGET'] == 0][features].mean(), zorder=0, linestyle='--', color="#1f77b4")
+                        figInd.axhline(y=df_reference[df_reference['TARGET'] == 1][features].mean(), zorder=0, linestyle='--', color="#ff7f0e")
+
+                        # Custom legend:
+                        colors = ["#1f77b4", "#ff7f0e"]
+                        lines = [Line
