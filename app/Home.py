@@ -1,13 +1,3 @@
-import streamlit as st
-import pandas as pd
-import requests
-from io import StringIO
-import os
-import joblib
-import shap
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-
 # Configuration de la page
 st.set_page_config(layout='wide', initial_sidebar_state='expanded', page_title="Accueil")
 
@@ -40,36 +30,35 @@ def load_data():
 def stratified_sampling(df, target_column='TARGET', sample_size=0.1):
     df_sampled, _ = train_test_split(df, test_size=1-sample_size, stratify=df[target_column], random_state=42)
     return df_sampled
-    
-# --- Fonnction pour prédire et expliquer localement la prédiction evec explainer de Shap
-def predict_and_explain(client_data):
-    try:
-        # Effectuer la prédiction
-        prediction = model.predict(client_data)
 
-        # Calculer les valeurs SHAP pour cette prédiction
-        shap_values = explainer.shap_values(client_data)
-
-        # Afficher la prédiction
-        st.write('Prédiction pour le client:', prediction)
-
-        # Afficher les valeurs SHAP avec un plot (par exemple, un force plot)
-        shap.force_plot(explainer.expected_value, shap_values, client_data, matplotlib=True)
-
-    except Exception as e:
-        st.error(f"Erreur lors de la prédiction ou de l'explication : {e}")
-
-# La fonction pourrait être appelée comme ceci dans votre app Streamlit, par exemple via un bouton
-if st.button('Prédire et Expliquer'):
-    # client_data doit être défini ou récupéré ici, par exemple à partir d'une entrée utilisateur
-    predict_and_explain(client_data)
+# --- Chargement du modèle et de l'explainer ---
+def load_model_and_explainer(df_train):
+    model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
+    if os.path.exists(model_path):
+        try:
+            Credit_clf_final = joblib.load(model_path)
+            st.write("Modèle chargé avec succès.")
+            try:
+                # Réduction des échantillons de fond à 50 en utilisant KMeans
+                background_data = shap.kmeans(df_train.drop(columns="TARGET").fillna(0), K=50)
+                explainer = shap.TreeExplainer(Credit_clf_final, background_data)
+            except Exception as e:
+                st.write(f"TreeExplainer non compatible : {e}. Utilisation de KernelExplainer.")
+                explainer = shap.KernelExplainer(Credit_clf_final.predict, df_train.drop(columns="TARGET").fillna(0))
+            return Credit_clf_final, explainer
+        except Exception as e:
+            st.error(f"Erreur lors du chargement du modèle ou de l'explicateur : {e}")
+            return None, None
+    else:
+        st.error(f"Le fichier {model_path} n'existe pas.")
+        return None, None
 
 # --- Logique de chargement initial ---
 if not st.session_state.load_state:
     df_train, df_new = load_data()
     if df_train is not None and df_new is not None:
         df_train_sampled = stratified_sampling(df_train, sample_size=0.1)
-        Credit_clf_final, explainer = predict_and_explain(df_train_sampled)
+        Credit_clf_final, explainer = load_model_and_explainer(df_train_sampled)
         if Credit_clf_final and explainer:
             st.session_state.Credit_clf_final = Credit_clf_final
             st.session_state.explainer = explainer
@@ -104,55 +93,25 @@ def show_analysis_page():
 # --- Fonction pour afficher la page de prédiction ---
 def show_prediction_page():
     st.title("Prédiction")
-    
     sk_id_curr = st.text_input("Entrez l'ID du client pour obtenir la prédiction :")
-    
     if st.button("Obtenir la prédiction"):
         if sk_id_curr and st.session_state.get("Credit_clf_final") and st.session_state.get("explainer"):
             try:
                 client_id = int(sk_id_curr)
-                
                 if client_id in st.session_state.df_new.index:
-                    # Récupérer les données du client
                     df_client = st.session_state.df_new.loc[[client_id]]
                     X_client = df_client.fillna(0)
-
-                    # Prédiction pour ce client
-                    model = st.session_state.Credit_clf_final
-                    seuil = 0.4
-                    client_prob = model.predict_proba(X_client)[0][1]
-                    client_prediction = (client_prob >= seuil).astype(int)
-                    
-                    # Affichage de la prédiction et de la probabilité
-                    st.write(f"Probabilité de défaut pour le client {client_id}: {client_prob * 100:.2f}%")
-                    st.write(f"Prédiction : {'Oui' if client_prediction == 1 else 'Non'} (Seuil: {seuil})")
-
-                    # Calcul des valeurs SHAP pour ce client
-                    explainer = st.session_state.explainer
-                    shap_values_client = explainer.shap_values(X_client)
-
-                    # Si shap_values_client est une liste, obtenir les valeurs pour la classe positive
-                    if isinstance(shap_values_client, list):
-                        shap_values_client = shap_values_client[1]
-
-                    # Affichage du graphique waterfall SHAP
-                    st.write("Analyse locale des caractéristiques pour ce client:")
-                    shap.waterfall_plot(shap.Explanation(
-                        values=shap_values_client[0],
-                        base_values=explainer.expected_value[1],
-                        data=X_client.iloc[0, :],
-                        feature_names=X_client.columns
-                    ))
-                    st.pyplot()
-
-                    # Affichage du graphique force_plot SHAP
-                    st.write("Graphique force_plot:")
+                    prediction_proba = st.session_state.Credit_clf_final.predict_proba(X_client)[:, 1]
+                    prediction = st.session_state.Credit_clf_final.predict(X_client)
+                    st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
+                    st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
+                    shap_values = st.session_state.explainer.shap_values(X_client)
+                    st.write("Valeurs SHAP calculées.")
                     shap.initjs()
-                    st.pyplot(shap.force_plot(explainer.expected_value[1], shap_values_client[0], X_client, matplotlib=True))
-
+                    expected_value = st.session_state.explainer.expected_value[1] if isinstance(st.session_state.explainer.expected_value, list) else st.session_state.explainer.expected_value
+                    st.pyplot(shap.force_plot(expected_value, shap_values[1][0], X_client, matplotlib=True))
                 else:
                     st.error("Client ID non trouvé.")
-                    
             except Exception as e:
                 st.error(f"Erreur lors de la prédiction : {e}")
         else:
