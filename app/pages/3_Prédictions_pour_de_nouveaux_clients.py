@@ -52,7 +52,7 @@ with tab1:
             # Afficher les résultats SHAP
             st.write("Valeurs SHAP pour ce client :")
             shap.initjs()
-            expected_value = explainer.expected_value[1] if isinstance(explainer.expected_value, list) else explainer.expected_value
+            expected_value = explainer.expected_value[1]  # Classe 1 pour un modèle binaire
             st.pyplot(shap.force_plot(expected_value, shap_values[1][0], X_client, matplotlib=True))
             
             plot_client(
@@ -130,7 +130,7 @@ with tab2:
         # Afficher les résultats SHAP
         st.write("Valeurs SHAP pour ce client :")
         shap.initjs()
-        expected_value = explainer.expected_value[1] if isinstance(explainer.expected_value, list) else explainer.expected_value
+        expected_value = explainer.expected_value[1]  # Classe 1 pour un modèle binaire
         st.pyplot(shap.force_plot(expected_value, shap_values[1][0], data_client, matplotlib=True))
         
         plot_client(
