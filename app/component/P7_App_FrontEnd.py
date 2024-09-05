@@ -96,52 +96,73 @@ def execute_API(df):
         st.error(f"Erreur avec la requête API : {request.status_code}")
 
 
-
 def shap_plot(explainer, df, index_client=0):
-    """ This function generates a plot of the main shap value.
-    It helps to understand the prediction on loan default for a specific client.
-
-
-    input :
-    explainer > the shap explainer
-    df > pandas dataframe with the 62 features and their value
-    index_client > index of the client
-
-    output :
-    Bar plot of the shap values, integrated in a streamlit figure
     """
+    Cette fonction génère un graphique des valeurs SHAP principales.
+    Elle permet de comprendre la prédiction sur le risque de défaut de prêt pour un client spécifique.
 
-    # Plot shap values
-    # Default SHAP colors
-    default_pos_color = "#ff0051"
-    default_neg_color = "#008bfb"
+    Entrées :
+    explainer > l'explainer SHAP (TreeExplainer par exemple)
+    df > un DataFrame pandas avec les 62 caractéristiques et leurs valeurs
+    index_client > l'index du client dans le DataFrame
 
-    # Custom colors
-    negative_color = "#1f77b4"
-    positive_color = "#ff7f0e"
+    Sortie :
+    Un diagramme en barres des valeurs SHAP, intégré dans une figure Streamlit
+    """
+    
+    # Vérification que l'index du client existe bien dans le DataFrame
+    if index_client not in df.index:
+        st.error(f"L'index client {index_client} n'existe pas dans le DataFrame.")
+        return
 
-    fig_shap = shap.plots.bar(
-        explainer(
-            df.fillna(0).loc[index_client]),
-        show=False)
-    # Change the colormap of the artists
-    for fc in plt.gcf().get_children():
-        # Ignore last Rectangle
-        for fcc in fc.get_children()[:-1]:
-            if (isinstance(fcc, matplotlib.patches.Rectangle)):
-                if (matplotlib.colors.to_hex(
-                        fcc.get_facecolor()) == default_pos_color):
-                    fcc.set_facecolor(positive_color)
-                elif (matplotlib.colors.to_hex(fcc.get_facecolor()) == default_neg_color):
-                    fcc.set_color(negative_color)
-            elif (isinstance(fcc, plt.Text)):
-                if (matplotlib.colors.to_hex(
-                        fcc.get_color()) == default_pos_color):
-                    fcc.set_color(positive_color)
-                elif (matplotlib.colors.to_hex(fcc.get_color()) == default_neg_color):
-                    fcc.set_color(negative_color)
-    st.pyplot(fig_shap)
-    plt.clf()
+    # Sélection des données pour le client et gestion des valeurs manquantes
+    X = df.fillna(0).loc[[index_client]]  # Assurez-vous que X est sous forme de DataFrame
+    
+    # Affichage des informations pour le débogage
+    st.write(f"Type des données du client : {type(X)}")
+    st.write(f"Forme des données du client : {X.shape}")
+    
+    try:
+        # Appel de l'explainer SHAP avec les données du client
+        shap_values = explainer(X)
+        
+        # Valeurs SHAP : couleurs par défaut
+        default_pos_color = "#ff0051"  # Couleur pour les valeurs positives (par défaut SHAP)
+        default_neg_color = "#008bfb"  # Couleur pour les valeurs négatives (par défaut SHAP)
+
+        # Couleurs personnalisées
+        negative_color = "#1f77b4"  # Nouvelle couleur pour les valeurs négatives
+        positive_color = "#ff7f0e"  # Nouvelle couleur pour les valeurs positives
+
+        # Génération du graphique SHAP
+        fig_shap = shap.plots.bar(shap_values, show=False)
+
+        # Personnalisation du graphique (changement des couleurs)
+        for fc in plt.gcf().get_children():
+            # Ignorer le dernier rectangle
+            for fcc in fc.get_children()[:-1]:
+                if isinstance(fcc, matplotlib.patches.Rectangle):
+                    # Vérifier si la couleur est celle par défaut pour la positive ou négative
+                    if matplotlib.colors.to_hex(fcc.get_facecolor()) == default_pos_color:
+                        fcc.set_facecolor(positive_color)  # Appliquer la couleur personnalisée positive
+                    elif matplotlib.colors.to_hex(fcc.get_facecolor()) == default_neg_color:
+                        fcc.set_color(negative_color)  # Appliquer la couleur personnalisée négative
+                elif isinstance(fcc, plt.Text):
+                    # Vérifier les couleurs des textes associés
+                    if matplotlib.colors.to_hex(fcc.get_color()) == default_pos_color:
+                        fcc.set_color(positive_color)  # Appliquer la couleur personnalisée positive
+                    elif matplotlib.colors.to_hex(fcc.get_color()) == default_neg_color:
+                        fcc.set_color(negative_color)  # Appliquer la couleur personnalisée négative
+
+        # Affichage du graphique dans Streamlit
+        st.pyplot(fig_shap)
+        
+        # Nettoyage du graphique pour éviter les conflits dans les graphiques suivants
+        plt.clf()
+
+    except TypeError as e:
+        st.error(f"Une erreur est survenue lors de l'appel à l'explainer SHAP : {str(e)}")
+        st.error("Vérifiez que les données passées à l'explainer sont correctes (DataFrame ou NumPy array).")
 
 
 def plot_client(df, explainer, df_reference, index_client=0):
