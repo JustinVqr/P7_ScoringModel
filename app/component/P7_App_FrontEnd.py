@@ -191,4 +191,30 @@ def plot_client(df, explainer, df_reference, index_client=0):
 
                 # Ajouter les données du client
                 plt.scatter(y=df[feature].loc[index_client], x=0.5, marker='o', s=100, color="r")
-                figInd.annotate(f'ID Client:\n{index_client}', xy=(0.5, df[feature].loc[index_client]), xytext
+                figInd.annotate(f'ID Client:\n{index_client}', xy=(0.5, df[feature].loc[index_client]), xytext=(0, 40), textcoords='offset points', ha='center', va='bottom', bbox=dict(boxstyle="round", fc="w"), arrowprops=dict(arrowstyle="->"))
+
+                # Ajouter les moyennes de chaque classe
+                figInd.axhline(y=df_reference[df_reference['TARGET'] == 0][feature].mean(), zorder=0, linestyle='--', color="#1f77b4")
+                figInd.axhline(y=df_reference[df_reference['TARGET'] == 1][feature].mean(), zorder=0, linestyle='--', color="#ff7f0e")
+
+                # Légende personnalisée
+                colors = ["#1f77b4", "#ff7f0e"]
+                lines = [Line2D([0], [0], color=c, linewidth=1, linestyle='--') for c in colors]
+                labels = ["Aucun défaut", "Défaut"]
+                plt.legend(lines, labels, title="Valeurs moyennes des clients")
+                st.pyplot(figInd.figure)
+                plt.close()
+
+
+def nan_values(df, index_client=0):
+    if np.isnan(df.loc[index_client]).any():
+        st.subheader('Avertissement : Colonnes avec des valeurs manquantes')
+        nan_col = [feature for feature in df.columns if np.isnan(df.loc[index_client][feature])]
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.table(pd.DataFrame(nan_col, columns=['Colonnes avec valeurs manquantes']))
+        with col2:
+            st.write('Toutes les valeurs manquantes ont été remplacées par 0.')
+    else:
+        st.subheader('Aucune valeur manquante pour ce client')
