@@ -47,21 +47,40 @@ with tab1:
             
             # Calculer les valeurs SHAP pour ce client
             X_client = df_new.loc[[index_client]].fillna(0)
-            shap_values = explainer.shap_values(X_client)
+            shap_values_client = explainer.shap_values(X_client)
 
-            # Afficher les résultats SHAP
+            # Si shap_values_client est une liste, prendre la classe 1
+            if isinstance(shap_values_client, list):
+                shap_values_client = shap_values_client[1]
+
+            # Afficher les résultats SHAP avec un waterfall plot
             st.write("Valeurs SHAP pour ce client :")
             shap.initjs()
-            expected_value = explainer.expected_value[1]  # Classe 1 pour un modèle binaire
-            st.pyplot(shap.force_plot(expected_value, shap_values[1][0], X_client, matplotlib=True))
-            
+
+            # Waterfall plot
+            st.pyplot(shap.waterfall_plot(shap.Explanation(
+                values=shap_values_client[0],
+                base_values=explainer.expected_value,
+                data=X_client.iloc[0, :],
+                feature_names=X_client.columns
+            )))
+
+            # Force plot
+            st.pyplot(shap.force_plot(
+                explainer.expected_value,
+                shap_values_client[0],
+                X_client,
+                matplotlib=True
+            ))
+
+            # Autres visualisations (ex: plot_client)
             plot_client(
                 df_new,
                 explainer,
                 df_reference=df_train,
                 index_client=index_client
             )
-            
+
             nan_values(df_new, index_client=index_client)
         else:
             st.write("Client non trouvé dans la base de données")
@@ -125,19 +144,38 @@ with tab2:
         data_client = pd.DataFrame(data_client, index=[0])
         
         # Calculer les valeurs SHAP pour ce nouveau client
-        shap_values = explainer.shap_values(data_client)
+        shap_values_client = explainer.shap_values(data_client)
 
-        # Afficher les résultats SHAP
+        # Si shap_values_client est une liste, prendre la classe 1
+        if isinstance(shap_values_client, list):
+            shap_values_client = shap_values_client[1]
+
+        # Afficher les résultats SHAP avec un waterfall plot
         st.write("Valeurs SHAP pour ce client :")
         shap.initjs()
-        expected_value = explainer.expected_value[1]  # Classe 1 pour un modèle binaire
-        st.pyplot(shap.force_plot(expected_value, shap_values[1][0], data_client, matplotlib=True))
-        
+
+        # Waterfall plot
+        st.pyplot(shap.waterfall_plot(shap.Explanation(
+            values=shap_values_client[0],
+            base_values=explainer.expected_value,
+            data=data_client.iloc[0, :],
+            feature_names=data_client.columns
+        )))
+
+        # Force plot
+        st.pyplot(shap.force_plot(
+            explainer.expected_value,
+            shap_values_client[0],
+            data_client,
+            matplotlib=True
+        ))
+
+        # Autres visualisations (ex: plot_client)
         plot_client(
             data_client,
             explainer,
             df_reference=df_train,
             index_client=0  # Utilisation d'un index fictif (0) pour un nouveau client
         )
-        
+
         nan_values(data_client, index_client=0)
