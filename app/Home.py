@@ -41,13 +41,17 @@ def stratified_sampling(df, target_column='TARGET', sample_size=0.1):
     df_sampled, _ = train_test_split(df, test_size=1-sample_size, stratify=df[target_column], random_state=42)
     return df_sampled
 
-# --- Chargement du modèle ---
+# --- Chargement du modèle et initialisation de l'explicateur SHAP ---
 def load_model():
     model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
     if os.path.exists(model_path):
         try:
             Credit_clf_final = joblib.load(model_path)
-            st.write("Modèle chargé avec succès.")
+            # Initialisation de l'explicateur SHAP avec le modèle chargé
+            explainer = shap.TreeExplainer(Credit_clf_final)
+            st.session_state.Credit_clf_final = Credit_clf_final
+            st.session_state.explainer = explainer
+            st.write("Modèle et explainer SHAP chargés avec succès.")
             return Credit_clf_final
         except Exception as e:
             st.error(f"Erreur lors du chargement du modèle : {e}")
@@ -63,12 +67,11 @@ if not st.session_state.load_state:
         df_train_sampled = stratified_sampling(df_train, sample_size=0.1)
         Credit_clf_final = load_model()
         if Credit_clf_final:
-            st.session_state.Credit_clf_final = Credit_clf_final
             st.session_state.df_train = df_train_sampled
             st.session_state.df_new = df_new
             st.session_state.load_state = True
-            # Afficher "Application opérationnelle" sous l'image
-            st.write("Application opérationnelle", align="center")
+            # Afficher "Application opérationnelle" sous l'image, centré
+            st.markdown("<h4 style='text-align: center;'>Application opérationnelle</h4>", unsafe_allow_html=True)
 else:
     df_train = st.session_state.df_train
     df_new = st.session_state.df_new
@@ -86,13 +89,12 @@ def show_home_page():
     with col1:
         st.image("https://raw.githubusercontent.com/JustinVqr/P7_ScoringModel/main/app/images/logo.png")
     # Afficher le message "Application opérationnelle"
-    st.write("Application opérationnelle", align="center")
+    st.markdown("<h4 style='text-align: center;'>Application opérationnelle</h4>", unsafe_allow_html=True)
 
 # --- Fonction pour afficher la page d'analyse des clients ---
 def show_analysis_page():
     st.title("Analyse des clients")
     col1, col2 = st.columns(2)
-
     # Code pour l'analyse des clients
 
 # --- Fonction pour afficher la page de prédiction ---
@@ -109,11 +111,11 @@ def show_prediction_page():
                     # Prédiction du modèle
                     prediction_proba = st.session_state.Credit_clf_final.predict_proba(X_client)[:, 1]
                     prediction = st.session_state.Credit_clf_final.predict(X_client)
-                    st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
+                    st.write(f"Prédiction : {'Oui' si prediction[0] == 1 sinon 'Non'}")
                     st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
                     
-                    # Explication locale avec SHAP
-                    explainer = shap.TreeExplainer(st.session_state.Credit_clf_final)
+                    # Utilisation de l'explicateur SHAP stocké dans st.session_state
+                    explainer = st.session_state.explainer
                     shap_values_client = explainer.shap_values(X_client)
                     
                     # Vérification du type de shap_values_client
@@ -122,7 +124,7 @@ def show_prediction_page():
                     
                     # Visualisation des valeurs SHAP pour le client
                     shap.initjs()
-                    expected_value = explainer.expected_value[1] if isinstance(explainer.expected_value, list) else explainer.expected_value
+                    expected_value = explainer.expected_value[1] si isinstance(explainer.expected_value, list) sinon explainer.expected_value
                     st.pyplot(shap.force_plot(expected_value, shap_values_client[0], X_client, matplotlib=True))
                 else:
                     st.error("Client ID non trouvé.")
