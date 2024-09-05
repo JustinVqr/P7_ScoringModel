@@ -53,10 +53,20 @@ with tab1:
                 X_client = pd.DataFrame(X_client)
 
             # Vérification des colonnes attendues par le modèle
-            expected_columns = Credit_clf_final.get_booster().feature_name()
+            try:
+                if hasattr(Credit_clf_final, 'booster_'):  # Vérifiez si le modèle a un booster
+                    booster = Credit_clf_final.booster_
+                    expected_columns = booster.feature_name()
+                else:
+                    # Cas où le modèle est directement un booster
+                    expected_columns = Credit_clf_final.feature_name()
+            except AttributeError as e:
+                st.write(f"Erreur lors de la récupération des colonnes du modèle : {e}")
+
+            # Comparaison des colonnes attendues avec celles des données actuelles
             if set(expected_columns) != set(X_client.columns):
                 st.write("Erreur : Les colonnes ne correspondent pas aux colonnes attendues par le modèle.")
-
+            
             # Assurez-vous que toutes les valeurs manquantes sont remplies
             X_client = X_client.fillna(0)
 
