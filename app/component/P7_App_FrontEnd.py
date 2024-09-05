@@ -118,14 +118,15 @@ def shap_plot(explainer, df, index_client=0):
     # Sélection des données pour le client et gestion des valeurs manquantes
     X = df.fillna(0).loc[[index_client]]  # Sélection d'une seule ligne sous forme de DataFrame
     
-    # Conversion explicite en NumPy array si nécessaire
-    X_array = X.values  # Extraction des valeurs sous forme de tableau NumPy
+    # Conversion explicite en NumPy array
+    X_array = X.values.astype(np.float32)  # Conversion en float32
     
     # Affichage des informations pour le débogage
     st.write(f"Type des données du client : {type(X)}")
     st.write(f"Forme des données du client : {X.shape}")
     st.write(f"Type après conversion en array : {type(X_array)}")
     st.write(f"Forme après conversion : {X_array.shape}")
+    st.write(f"Type de données après conversion : {X_array.dtype}")
     
     try:
         # Appel de l'explainer SHAP avec les données converties en NumPy array
