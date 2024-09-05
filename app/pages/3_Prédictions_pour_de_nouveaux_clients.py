@@ -48,7 +48,7 @@ with tab1:
             # Calculer les valeurs SHAP pour ce client
             X_client = df_new.loc[[index_client]].fillna(0)
 
-            # Vérifiez que les données sont au bon format
+            # Vérifiez que les données sont au bon format (DataFrame)
             if not isinstance(X_client, pd.DataFrame):
                 X_client = pd.DataFrame(X_client)
 
