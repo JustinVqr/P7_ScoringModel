@@ -48,14 +48,17 @@ with tab1:
             # Calculer les valeurs SHAP pour ce client
             X_client = df_new.loc[[index_client]].fillna(0)
 
-            # Vérifiez et convertissez les données au bon format si nécessaire
+            # Vérifiez que les données sont au bon format
             if not isinstance(X_client, pd.DataFrame):
                 X_client = pd.DataFrame(X_client)
 
-            # Affichez des informations pour vérifier le type des données
-            st.write(f"Type de X_client: {type(X_client)}")
-            st.write(f"Colonnes de X_client: {X_client.columns}")
-            st.write(X_client.head())  # Visualisez les premières lignes du DataFrame
+            # Vérification des colonnes attendues par le modèle
+            expected_columns = Credit_clf_final.get_booster().feature_name()
+            if set(expected_columns) != set(X_client.columns):
+                st.write("Erreur : Les colonnes ne correspondent pas aux colonnes attendues par le modèle.")
+
+            # Assurez-vous que toutes les valeurs manquantes sont remplies
+            X_client = X_client.fillna(0)
 
             # Calcul des valeurs SHAP
             shap_values_client = explainer.shap_values(X_client)
@@ -135,7 +138,7 @@ with tab2:
 
     else:
         loader = st.file_uploader(" ")
-        if loader is not None:
+        if loader est non None:
             data_client = pd.read_csv(
                 loader,
                 sep=";",
