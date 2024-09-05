@@ -41,41 +41,34 @@ def stratified_sampling(df, target_column='TARGET', sample_size=0.1):
     df_sampled, _ = train_test_split(df, test_size=1-sample_size, stratify=df[target_column], random_state=42)
     return df_sampled
 
-# --- Chargement du modèle et de l'explainer ---
-def load_model_and_explainer(df_train):
+# --- Chargement du modèle ---
+def load_model():
     model_path = os.path.join(os.getcwd(), 'app', 'model', 'best_model.pkl')
     if os.path.exists(model_path):
         try:
             Credit_clf_final = joblib.load(model_path)
             st.write("Modèle chargé avec succès.")
-            try:
-                # Réduction des échantillons de fond à 50 en utilisant KMeans
-                background_data = shap.kmeans(df_train.drop(columns="TARGET").fillna(0), K=50)
-                explainer = shap.TreeExplainer(Credit_clf_final, background_data)
-            except Exception as e:
-                st.write(f"TreeExplainer non compatible : {e}. Utilisation de KernelExplainer.")
-                explainer = shap.KernelExplainer(Credit_clf_final.predict, df_train.drop(columns="TARGET").fillna(0))
-            return Credit_clf_final, explainer
+            return Credit_clf_final
         except Exception as e:
-            st.error(f"Erreur lors du chargement du modèle ou de l'explicateur : {e}")
-            return None, None
+            st.error(f"Erreur lors du chargement du modèle : {e}")
+            return None
     else:
         st.error(f"Le fichier {model_path} n'existe pas.")
-        return None, None
+        return None
 
 # --- Logique de chargement initial ---
 if not st.session_state.load_state:
     df_train, df_new = load_data()
     if df_train is not None and df_new is not None:
         df_train_sampled = stratified_sampling(df_train, sample_size=0.1)
-        Credit_clf_final, explainer = load_model_and_explainer(df_train_sampled)
-        if Credit_clf_final and explainer:
+        Credit_clf_final = load_model()
+        if Credit_clf_final:
             st.session_state.Credit_clf_final = Credit_clf_final
-            st.session_state.explainer = explainer
             st.session_state.df_train = df_train_sampled
             st.session_state.df_new = df_new
             st.session_state.load_state = True
-            st.success("Modèle et explicateur SHAP chargés avec succès.")
+            # Afficher "Application opérationnelle" sous l'image
+            st.write("Application opérationnelle", align="center")
 else:
     df_train = st.session_state.df_train
     df_new = st.session_state.df_new
@@ -89,9 +82,11 @@ def show_home_page():
      Pour plus de transparence, celle-ci fournit également des informations pour expliquer l'algorithme et les prédictions, selon les caractéristiques du client étudié.""")
     
     # --- Logo ---
-    col1, col2 = st.columns(2)  # Définition des colonnes
+    col1, col2 = st.columns(2)
     with col1:
         st.image("https://raw.githubusercontent.com/JustinVqr/P7_ScoringModel/main/app/images/logo.png")
+    # Afficher le message "Application opérationnelle"
+    st.write("Application opérationnelle", align="center")
 
 # --- Fonction pour afficher la page d'analyse des clients ---
 def show_analysis_page():
@@ -105,21 +100,30 @@ def show_prediction_page():
     st.title("Prédiction")
     sk_id_curr = st.text_input("Entrez l'ID du client pour obtenir la prédiction :")
     if st.button("Obtenir la prédiction"):
-        if sk_id_curr and st.session_state.get("Credit_clf_final") and st.session_state.get("explainer"):
+        if sk_id_curr and st.session_state.get("Credit_clf_final"):
             try:
                 client_id = int(sk_id_curr)
                 if client_id in st.session_state.df_new.index:
                     df_client = st.session_state.df_new.loc[[client_id]]
                     X_client = df_client.fillna(0)
+                    # Prédiction du modèle
                     prediction_proba = st.session_state.Credit_clf_final.predict_proba(X_client)[:, 1]
                     prediction = st.session_state.Credit_clf_final.predict(X_client)
-                    st.write(f"Prédiction : {'Oui' if prediction[0] == 1 else 'Non'}")
+                    st.write(f"Prédiction : {'Oui' if prediction[0] == 1 sinon 'Non'}")
                     st.write(f"Probabilité de défaut : {prediction_proba[0] * 100:.2f}%")
-                    shap_values = st.session_state.explainer.shap_values(X_client)
-                    st.write("Valeurs SHAP calculées.")
+                    
+                    # Explication locale avec SHAP
+                    explainer = shap.TreeExplainer(st.session_state.Credit_clf_final)
+                    shap_values_client = explainer.shap_values(X_client)
+                    
+                    # Vérification du type de shap_values_client
+                    if isinstance(shap_values_client, list):
+                        shap_values_client = shap_values_client[1]
+                    
+                    # Visualisation des valeurs SHAP pour le client
                     shap.initjs()
-                    expected_value = st.session_state.explainer.expected_value[1] if isinstance(st.session_state.explainer.expected_value, list) else st.session_state.explainer.expected_value
-                    st.pyplot(shap.force_plot(expected_value, shap_values[1][0], X_client, matplotlib=True))
+                    expected_value = explainer.expected_value[1] if isinstance(explainer.expected_value, list) else explainer.expected_value
+                    st.pyplot(shap.force_plot(expected_value, shap_values_client[0], X_client, matplotlib=True))
                 else:
                     st.error("Client ID non trouvé.")
             except Exception as e:
@@ -134,4 +138,3 @@ elif page == "Analyse des clients":
     show_analysis_page()
 elif page == "Prédiction":
     show_prediction_page()
-
