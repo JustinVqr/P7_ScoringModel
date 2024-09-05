@@ -109,22 +109,27 @@ def shap_plot(explainer, df, index_client=0):
     Sortie :
     Un diagramme en barres des valeurs SHAP, intégré dans une figure Streamlit
     """
-    
+
     # Vérification que l'index du client existe bien dans le DataFrame
     if index_client not in df.index:
         st.error(f"L'index client {index_client} n'existe pas dans le DataFrame.")
         return
 
     # Sélection des données pour le client et gestion des valeurs manquantes
-    X = df.fillna(0).loc[[index_client]]  # Assurez-vous que X est sous forme de DataFrame
+    X = df.fillna(0).loc[[index_client]]  # Sélection d'une seule ligne sous forme de DataFrame
+    
+    # Conversion explicite en NumPy array si nécessaire
+    X_array = X.values  # Extraction des valeurs sous forme de tableau NumPy
     
     # Affichage des informations pour le débogage
     st.write(f"Type des données du client : {type(X)}")
     st.write(f"Forme des données du client : {X.shape}")
+    st.write(f"Type après conversion en array : {type(X_array)}")
+    st.write(f"Forme après conversion : {X_array.shape}")
     
     try:
-        # Appel de l'explainer SHAP avec les données du client
-        shap_values = explainer(X)
+        # Appel de l'explainer SHAP avec les données converties en NumPy array
+        shap_values = explainer(X_array)
         
         # Valeurs SHAP : couleurs par défaut
         default_pos_color = "#ff0051"  # Couleur pour les valeurs positives (par défaut SHAP)
