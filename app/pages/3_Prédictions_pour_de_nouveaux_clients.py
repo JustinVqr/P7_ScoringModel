@@ -138,7 +138,7 @@ with tab2:
 
     else:
         loader = st.file_uploader(" ")
-        if loader est non None:
+        if loader is not None:
             data_client = pd.read_csv(
                 loader,
                 sep=";",
