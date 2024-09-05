@@ -124,7 +124,7 @@ def show_prediction_page():
                     
                     # Visualisation des valeurs SHAP pour le client
                     shap.initjs()
-                    expected_value = explainer.expected_value[1] si isinstance(explainer.expected_value, list) sinon explainer.expected_value
+                    expected_value = explainer.expected_value[1] if isinstance(explainer.expected_value, list) else explainer.expected_value
                     st.pyplot(shap.force_plot(expected_value, shap_values_client[0], X_client, matplotlib=True))
                 else:
                     st.error("Client ID non trouvé.")
