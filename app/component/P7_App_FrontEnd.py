@@ -113,12 +113,19 @@ def shap_plot(explainer, df, index_client=0):
         # Appel de l'explainer SHAP pour obtenir un objet Explanation
         shap_values = explainer(X)
 
-        # Génération du waterfall plot pour visualiser les valeurs SHAP
+        # Génération du waterfall plot pour visualiser les valeurs SHAP d'un client spécifique
         st.write("Valeurs SHAP pour ce client :")
         fig, ax = plt.subplots()
-        shap.waterfall_plot(shap_values[0], show=False)  # Affichage du premier graphique SHAP (client)
+        shap.waterfall_plot(shap_values[0], show=False)  # Waterfall plot
         
         # Affichage du graphique dans Streamlit
+        st.pyplot(fig)
+        plt.clf()
+
+        # --- Ajout du bar plot pour l'importance globale des features ---
+        st.write("Importance globale des caractéristiques :")
+        fig, ax = plt.subplots()
+        shap.plots.bar(shap_values, show=False)  # Bar plot pour l'importance globale des features
         st.pyplot(fig)
         plt.clf()
 
