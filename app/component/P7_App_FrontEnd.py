@@ -265,6 +265,6 @@ def nan_values(df, index_client=0):
         with col1:
             st.table(data=pd.DataFrame(nan_col, columns=['FEATURES WITH MISSING VALUES']))
         with col2:
-            st.write('All the missing values has been replaced by 0.')
+            st.write('Toutes les valeurs manquantes ont été remplacées par 0.')
     else:
-        st.subheader('There is no missing value')
+        st.subheader('Il n\'y a pas de valeurs manquantes dans la base de données concernant ce client')
