@@ -130,16 +130,14 @@ def shap_plot(explainer, df, index_client=0):
     
     try:
         # Appel de l'explainer SHAP avec les données converties en NumPy array
-        shap_values = explainer.shap_values(X_array)  # Vérifiez que cette méthode est correcte
-
-        # Vérification des valeurs SHAP
-        st.write(type(shap_values))
-        st.write(shap_values)
+        shap_values = explainer.shap_values(X_array)
         
-        # Création d'une nouvelle figure
+        # Si shap_values est une liste, prendre les valeurs pour la classe 1
+        if isinstance(shap_values, list):
+            shap_values = shap_values[1]
+        
+        # Génération du graphique SHAP avec les noms de *features* et couleur bleue
         fig, ax = plt.subplots()
-
-        # Génération du graphique SHAP avec les noms de features et couleur bleue
         shap.plots.bar(shap_values, show=False, max_display=10, color="#1f77b4", ax=ax)
 
         # Affichage du graphique dans Streamlit
@@ -151,7 +149,7 @@ def shap_plot(explainer, df, index_client=0):
     except TypeError as e:
         st.error(f"Une erreur est survenue lors de l'appel à l'explainer SHAP : {str(e)}")
         st.error("Vérifiez que les données passées à l'explainer sont correctes (DataFrame ou NumPy array).")
-
+        
 
 def plot_client(df, explainer, df_reference, index_client=0):
     """ This function generates all the different plots to understand the prediction of loan default for a specific client

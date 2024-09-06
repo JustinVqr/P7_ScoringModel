@@ -105,6 +105,9 @@ with tab1:
                 index_client=index_client
             )
 
+            # Ajout de la visualisation shap_plot
+            shap_plot(explainer, df_new, index_client)
+
             nan_values(df_new, index_client=index_client)
         else:
             st.write("Client non trouvé dans la base de données")
@@ -205,5 +208,8 @@ with tab2:
             df_reference=df_train,
             index_client=0  # Utilisation d'un index fictif (0) pour un nouveau client
         )
+
+        #Ajout de la visualisation shap_plot
+        shap_plot(explainer, df_new, index_client)
 
         nan_values(data_client, index_client=0)
