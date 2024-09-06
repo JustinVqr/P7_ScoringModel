@@ -98,90 +98,52 @@ def execute_API(df):
 
 def shap_plot(explainer, df, index_client=0):
     """
-    Cette fonction génère un graphique des valeurs SHAP principales.
-    Elle permet de comprendre la prédiction sur le risque de défaut de prêt pour un client spécifique.
-
-    Entrées :
-    explainer > l'explainer SHAP (TreeExplainer par exemple)
-    df > un DataFrame pandas avec les 62 caractéristiques et leurs valeurs
-    index_client > l'index du client dans le DataFrame
-
-    Sortie :
-    Un diagramme en barres des valeurs SHAP, intégré dans une figure Streamlit
+    Cette fonction génère un graphique des valeurs SHAP principales pour un client spécifique.
     """
 
-    # Vérification que l'index du client existe bien dans le DataFrame
+    # Vérification que l'index du client existe dans le DataFrame
     if index_client not in df.index:
         st.error(f"L'index client {index_client} n'existe pas dans le DataFrame.")
         return
 
-    # Sélection des données pour le client et gestion des valeurs manquantes
-    X = df.fillna(0).loc[[index_client]]  # Sélection d'une seule ligne sous forme de DataFrame
-    
-    # Conversion explicite en NumPy array (nécessaire pour LightGBM)
-    X_array = X.values.astype(np.float32)  # Conversion en float32
-    
-    # Affichage des informations pour le débogage
-    st.write(f"Type des données du client : {type(X)}")
-    st.write(f"Forme des données du client : {X.shape}")
-    st.write(f"Type après conversion en array : {type(X_array)}")
-    st.write(f"Forme après conversion : {X_array.shape}")
-    st.write(f"Type de données après conversion : {X_array.dtype}")
-    
+    # Sélection des données pour le client
+    X = df.fillna(0).loc[[index_client]]
+
     try:
-        # Appel de l'explainer SHAP avec les données converties en NumPy array
-        shap_values = explainer.shap_values(X_array)
-        
-        # Si shap_values est une liste, prendre les valeurs pour la classe 1
-        if isinstance(shap_values, list):
-            shap_values = shap_values[1]
-        
-        # Génération du graphique SHAP avec les noms de *features*
+        # Appel de l'explainer SHAP pour obtenir un objet Explanation
+        shap_values = explainer(X)
+
+        # Génération du graphique SHAP
         fig, ax = plt.subplots()
         shap.plots.bar(shap_values, show=False, max_display=10, ax=ax)
 
         # Affichage du graphique dans Streamlit
         st.pyplot(fig)
-        
-        # Nettoyage du graphique pour éviter les conflits dans les graphiques suivants
         plt.clf()
 
-    except TypeError as e:
+    except Exception as e:
         st.error(f"Une erreur est survenue lors de l'appel à l'explainer SHAP : {str(e)}")
-        st.error("Vérifiez que les données passées à l'explainer sont correctes (DataFrame ou NumPy array).")
-
+        st.error("Vérifiez que les données passées à l'explainer sont correctes.")
+        
 
 def plot_client(df, explainer, df_reference, index_client=0):
     """ 
     Cette fonction génère différentes visualisations pour comprendre la prédiction du défaut de prêt pour un client spécifique.
     Elle appelle d'abord la fonction shap_plot pour générer l'explication via SHAP, puis elle génère 6 graphiques pour les 6 caractéristiques les plus discriminantes.
-    
-    - Pour les caractéristiques binaires (0/1), le graphique est un barplot montrant la fréquence de la caractéristique dans chaque classe (TARGET).
-    - Pour les autres caractéristiques, elle génère des boxplots avec la valeur du client (point rouge) et les lignes pointillées verticales montrant la moyenne de chaque classe (TARGET).
-
-    Entrées :
-    - df : DataFrame pandas contenant les 70 caractéristiques et leurs valeurs
-    - explainer : explainer SHAP
-    - df_reference : jeu de données d'entraînement utilisé comme référence pour les graphiques
-    - index_client : index du client dans le DataFrame
-    
-    Sorties :
-    - Graphique des valeurs SHAP
-    - 6 graphiques pour les 6 caractéristiques les plus discriminantes
     """
     
     # --- Graphique SHAP pour un client spécifique ---
     shap_plot(explainer, df, index_client)
 
     # --- Calcul de l'importance SHAP ---
-    shap_values = explainer.shap_values(df.fillna(0).loc[[index_client]])
+    shap_values = explainer(df.fillna(0).loc[[index_client]])  # Remplacer shap_values() par explainer()
 
-    # Si shap_values est une liste (pour un modèle binaire), on prend les valeurs pour la classe 1
+    # Extraire les valeurs SHAP pour la classe 1
     if isinstance(shap_values, list):
         shap_values = shap_values[1]  # Classe 1 = défaut de paiement
 
-    # Aplatir les shap_values pour s'assurer qu'il s'agit d'une seule dimension
-    shap_values = shap_values.flatten()
+    # Récupérer uniquement les valeurs SHAP
+    shap_values = shap_values.values.flatten()
 
     # Création de la série shap_importance avec l'index des colonnes du DataFrame
     shap_importance = pd.Series(shap_values, index=df.columns).abs().sort_values(ascending=False)
@@ -198,58 +160,10 @@ def plot_client(df, explainer, df_reference, index_client=0):
 
             # Pour les caractéristiques binaires :
             if df_reference[feature].nunique() == 2:
-                # Barplot de la fréquence par classe :
                 figInd = sns.barplot(df_reference[['TARGET', feature]].fillna(0).groupby(
                     'TARGET').value_counts(normalize=True).reset_index(), x=feature, y=0, hue='TARGET')
                 plt.ylabel('Fréquence des clients')
 
-                # Ajout des données du client :
-                plt.scatter(y=df[feature].loc[index_client] + 0.1, x=feature, marker='o', s=100, color="r")
-                figInd.annotate('Client ID:\n{}'.format(index_client), xy=(feature, df[feature].loc[index_client] + 0.1),
-                                xytext=(0, 40), textcoords='offset points', ha='center', va='bottom',
-                                bbox=dict(boxstyle="round", fc="w"), arrowprops=dict(arrowstyle="->"))
-
-                # Personnalisation de la légende
-                legend_handles, _ = figInd.get_legend_handles_labels()
-                figInd.legend(legend_handles, ['Non', 'Oui'], title="Défaut de prêt")
-                st.pyplot(figInd.figure)
-                plt.close()
-
-            # Pour les caractéristiques non binaires :
-            else:
-                figInd = sns.boxplot(data=df_reference, y=feature, x='TARGET', showfliers=False, width=0.2)
-                plt.xlabel('Défaut de prêt')
-                figInd.set_xticklabels(["Non", "Oui"])
-
-                # Ajout des données du client :
-                plt.scatter(y=df[feature].loc[index_client], x=0.5, marker='o', s=100, color="r")
-                figInd.annotate('Client ID:\n{}'.format(index_client), xy=(0.5, df[feature].loc[index_client]),
-                                xytext=(0, 40), textcoords='offset points', ha='center', va='bottom',
-                                bbox=dict(boxstyle="round", fc="w"), arrowprops=dict(arrowstyle="->"))
-
-                # Ajout des moyennes de chaque classe :
-                figInd.axhline(y=df_reference[df_reference['TARGET'] == 0][feature].mean(), linestyle='--', color="#1f77b4")
-                figInd.axhline(y=df_reference[df_reference['TARGET'] == 1][feature].mean(), linestyle='--', color="#ff7f0e")
-
-                # Légende personnalisée :
-                colors = ["#1f77b4", "#ff7f0e"]
-                lines = [Line2D([0], [0], color=c, linewidth=1, linestyle='--') for c in colors]
-                labels = ["Moyenne Sans Défaut", "Moyenne Avec Défaut"]
-                plt.legend(lines, labels, title="Moyenne des clients :")
-                st.pyplot(figInd.figure)
-                plt.close()
-
-    with col2:
-        for feature in list(shap_importance.index[:6])[3:]:
-            plt.figure(figsize=(5, 5))
-
-            # Pour les caractéristiques binaires :
-            if df_reference[feature].nunique() == 2:
-                figInd = sns.barplot(df_reference[['TARGET', feature]].fillna(0).groupby(
-                    'TARGET').value_counts(normalize=True).reset_index(), x=feature, y=0, hue='TARGET')
-                plt.ylabel('Fréquence des clients')
-
-                # Ajout des données du client :
                 plt.scatter(y=df[feature].loc[index_client] + 0.1, x=feature, marker='o', s=100, color="r")
                 figInd.annotate('Client ID:\n{}'.format(index_client), xy=(feature, df[feature].loc[index_client] + 0.1),
                                 xytext=(0, 40), textcoords='offset points', ha='center', va='bottom',
@@ -260,19 +174,16 @@ def plot_client(df, explainer, df_reference, index_client=0):
                 st.pyplot(figInd.figure)
                 plt.close()
 
-            # Pour les caractéristiques non binaires :
             else:
                 figInd = sns.boxplot(data=df_reference, y=feature, x='TARGET', showfliers=False, width=0.2)
                 plt.xlabel('Défaut de prêt')
                 figInd.set_xticklabels(["Non", "Oui"])
 
-                # Ajout des données du client :
                 plt.scatter(y=df[feature].loc[index_client], x=0.5, marker='o', s=100, color="r")
                 figInd.annotate('Client ID:\n{}'.format(index_client), xy=(0.5, df[feature].loc[index_client]),
                                 xytext=(0, 40), textcoords='offset points', ha='center', va='bottom',
                                 bbox=dict(boxstyle="round", fc="w"), arrowprops=dict(arrowstyle="->"))
 
-                # Ajout des moyennes de chaque classe :
                 figInd.axhline(y=df_reference[df_reference['TARGET'] == 0][feature].mean(), linestyle='--', color="#1f77b4")
                 figInd.axhline(y=df_reference[df_reference['TARGET'] == 1][feature].mean(), linestyle='--', color="#ff7f0e")
 
