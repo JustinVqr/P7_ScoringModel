@@ -4,7 +4,7 @@ from io import StringIO
 from unittest.mock import patch, MagicMock
 from unittest import mock
 import streamlit as st
-from app.Home import load_data, stratified_sampling, load_model_and_explainer
+from app.Home import load_data, stratified_sampling, load_model
 
 # Test pour la fonction load_data
 @patch('requests.get')
@@ -36,38 +36,34 @@ def test_stratified_sampling():
     assert len(df_sampled) == 2, "Le dataframe échantillonné devrait contenir 2 lignes"
     assert df_sampled['TARGET'].value_counts().sum() == 2, "Le dataframe échantillonné doit avoir deux entrées"
 
-from unittest.mock import patch, MagicMock
-import pandas as pd
-import shap
-
-# Test pour la fonction load_model_and_explainer
+# Test pour la fonction load_model
 @patch('joblib.load')
 @patch('os.path.exists')
-@patch('shap.kmeans')
-@patch('shap.TreeExplainer')
-@patch('shap.KernelExplainer')
-def test_load_model_and_explainer(mock_kernel_explainer, mock_tree_explainer, mock_kmeans, mock_exists, mock_load):
+def test_load_model(mock_exists, mock_load):
+    # Simuler l'existence du fichier de modèle
     mock_exists.return_value = True
     
+    # Simuler le chargement du modèle avec joblib
     mock_model = MagicMock()
     mock_load.return_value = mock_model
     
-    mock_background_data = MagicMock()
-    mock_kmeans.return_value = mock_background_data
-    
-    mock_tree_exp = MagicMock()
-    mock_tree_explainer.return_value = mock_tree_exp
-    
-    data = {'SK_ID_CURR': [100001, 100002, 100003, 100004], 'TARGET': [1, 0, 1, 0]}
-    df_train = pd.DataFrame(data)
-    
-    model, explainer = load_model_and_explainer(df_train)
-    
-    assert model is not None, "Le modèle ne doit pas être None"
-    assert explainer is not None, "L'explicateur ne doit pas être None"
+    with patch('shap.TreeExplainer') as mock_explainer:
+        # Simuler l'explainer SHAP
+        mock_explainer_instance = MagicMock()
+        mock_explainer.return_value = mock_explainer_instance
+        
+        model = load_model()
+        
+        # Vérifier que le modèle a été chargé correctement
+        assert model is not None, "Le modèle ne doit pas être None"
+        
+        # Vérifier que l'explicateur SHAP a été correctement initialisé
+        assert 'explainer' in st.session_state, "L'explicateur SHAP doit être dans l'état de session"
+        assert 'Credit_clf_final' in st.session_state, "Le modèle doit être dans l'état de session"
+        assert st.session_state.Credit_clf_final == mock_model, "Le modèle dans l'état de session doit correspondre au modèle chargé"
+        assert st.session_state.explainer == mock_explainer_instance, "L'explicateur dans l'état de session doit correspondre à l'explicateur initialisé"
 
-
-## --- Initialisation de l'état de session --- 
+# Test pour vérifier l'état initial de session
 def test_initial_session_state():
     # Simuler un état de session vide
     with mock.patch.dict(st.session_state, {}, clear=True):
@@ -75,4 +71,3 @@ def test_initial_session_state():
             st.session_state.load_state = False
 
         assert st.session_state.load_state == False, "L'état initial de load_state doit être False"
-
