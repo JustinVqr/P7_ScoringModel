@@ -102,13 +102,17 @@ def shap_plot(explainer, df, index_client=0):
     Elle permet de comprendre la prédiction sur le risque de défaut de prêt pour un client spécifique.
 
     Entrées :
-    explainer > l'explainer SHAP (TreeExplainer par exemple)
-    df > un DataFrame pandas avec les 62 caractéristiques et leurs valeurs
+    explainer > l'explainer SHAP (par exemple, un objet TreeExplainer)
+    df > un DataFrame pandas avec les caractéristiques et leurs valeurs
     index_client > l'index du client dans le DataFrame
 
     Sortie :
     Un diagramme en barres des valeurs SHAP, intégré dans une figure Streamlit
     """
+
+    import matplotlib.pyplot as plt
+    import shap
+    import streamlit as st
 
     # Vérification que l'index du client existe bien dans le DataFrame
     if index_client not in df.index:
@@ -117,61 +121,27 @@ def shap_plot(explainer, df, index_client=0):
 
     # Sélection des données pour le client et gestion des valeurs manquantes
     X = df.fillna(0).loc[[index_client]]  # Sélection d'une seule ligne sous forme de DataFrame
-    
-    # Conversion explicite en NumPy array
-    X_array = X.values.astype(np.float32)  # Conversion en float32
-    
-    # Affichage des informations pour le débogage
-    st.write(f"Type des données du client : {type(X)}")
-    st.write(f"Forme des données du client : {X.shape}")
-    st.write(f"Type après conversion en array : {type(X_array)}")
-    st.write(f"Forme après conversion : {X_array.shape}")
-    st.write(f"Type de données après conversion : {X_array.dtype}")
-    
-    try:
-        # Appel de l'explainer SHAP avec les données converties en NumPy array
-        shap_values = explainer(X_array)
-        
-        # Valeurs SHAP : couleurs par défaut
-        default_pos_color = "#ff0051"  # Couleur pour les valeurs positives (par défaut SHAP)
-        default_neg_color = "#008bfb"  # Couleur pour les valeurs négatives (par défaut SHAP)
 
-        # Couleurs personnalisées
-        negative_color = "#1f77b4"  # Nouvelle couleur pour les valeurs négatives
-        positive_color = "#ff7f0e"  # Nouvelle couleur pour les valeurs positives
+    # Appel de l'explainer SHAP avec les données du client
+    shap_values = explainer(X)
 
-        # Création d'une nouvelle figure
-        fig, ax = plt.subplots()
+    # Création d'une nouvelle figure
+    fig, ax = plt.subplots()
 
-        # Génération du graphique SHAP (utilisation d'axes existants)
-        shap.plots.bar(shap_values, show=False, ax=ax)  # Passez `ax` pour contrôler l'axe
-        
-        # Personnalisation du graphique (changement des couleurs)
-        for fc in plt.gcf().get_children():
-            # Ignorer le dernier rectangle
-            for fcc in fc.get_children()[:-1]:
-                if isinstance(fcc, matplotlib.patches.Rectangle):
-                    # Vérifier si la couleur est celle par défaut pour la positive ou négative
-                    if matplotlib.colors.to_hex(fcc.get_facecolor()) == default_pos_color:
-                        fcc.set_facecolor(positive_color)  # Appliquer la couleur personnalisée positive
-                    elif matplotlib.colors.to_hex(fcc.get_facecolor()) == default_neg_color:
-                        fcc.set_color(negative_color)  # Appliquer la couleur personnalisée négative
-                elif isinstance(fcc, plt.Text):
-                    # Vérifier les couleurs des textes associés
-                    if matplotlib.colors.to_hex(fcc.get_color()) == default_pos_color:
-                        fcc.set_color(positive_color)  # Appliquer la couleur personnalisée positive
-                    elif matplotlib.colors.to_hex(fcc.get_color()) == default_neg_color:
-                        fcc.set_color(negative_color)  # Appliquer la couleur personnalisée négative
+    # Génération du graphique SHAP avec les noms des features et couleur bleue
+    shap.plots.bar(
+        shap_values[0],        # SHAP values pour le client
+        max_display=10,        # Nombre de features à afficher
+        show=False,            # Ne pas afficher tout de suite
+        color="#1f77b4",       # Couleur bleue
+        ax=ax                  # Axes sur lesquels dessiner
+    )
 
-        # Affichage du graphique dans Streamlit
-        st.pyplot(fig)
-        
-        # Nettoyage du graphique pour éviter les conflits dans les graphiques suivants
-        plt.clf()
+    # Affichage du graphique dans Streamlit
+    st.pyplot(fig)
 
-    except TypeError as e:
-        st.error(f"Une erreur est survenue lors de l'appel à l'explainer SHAP : {str(e)}")
-        st.error("Vérifiez que les données passées à l'explainer sont correctes (DataFrame ou NumPy array).")
+    # Nettoyage du graphique pour éviter les conflits dans les graphiques suivants
+    plt.clf()
 
 
 def plot_client(df, explainer, df_reference, index_client=0):
