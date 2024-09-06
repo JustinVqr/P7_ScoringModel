@@ -12,7 +12,7 @@ st.set_page_config(page_title="3) Prédiction pour de nouveaux clients")
 # Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from app.component.P7_App_FrontEnd import execute_API, plot_client, nan_values
+from app.component.P7_App_FrontEnd import execute_API, plot_client, shap_plot, nan_values
 
 # --- Récupération des données depuis la page d'accueil ---
 df_train = st.session_state.df_train  # DataFrame principal contenant les données d'entraînement
