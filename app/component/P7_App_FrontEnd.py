@@ -176,6 +176,7 @@ def plot_client(df, explainer, df_reference, index_client=0):
 
     # --- Calcul of the shap_importance ---
     shap_values = explainer.shap_values(df.fillna(0).loc[[index_client]])
+    shap_importance = pd.Series(shap_values.flatten(), index=df.columns).abs().sort_values(ascending=False)
     shap_importance = pd.Series(
         shap_values,
         df.columns).abs().sort_values(
