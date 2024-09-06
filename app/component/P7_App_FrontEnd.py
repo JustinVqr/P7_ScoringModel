@@ -118,7 +118,7 @@ def shap_plot(explainer, df, index_client=0):
     # Sélection des données pour le client et gestion des valeurs manquantes
     X = df.fillna(0).loc[[index_client]]  # Sélection d'une seule ligne sous forme de DataFrame
     
-    # Conversion explicite en NumPy array
+    # Conversion explicite en NumPy array (nécessaire pour LightGBM)
     X_array = X.values.astype(np.float32)  # Conversion en float32
     
     # Affichage des informations pour le débogage
@@ -136,9 +136,9 @@ def shap_plot(explainer, df, index_client=0):
         if isinstance(shap_values, list):
             shap_values = shap_values[1]
         
-        # Génération du graphique SHAP avec les noms de *features* et couleur bleue
+        # Génération du graphique SHAP avec les noms de *features*
         fig, ax = plt.subplots()
-        shap.plots.bar(shap_values, show=False, max_display=10, color="#1f77b4", ax=ax)
+        shap.plots.bar(shap_values, show=False, max_display=10, ax=ax)
 
         # Affichage du graphique dans Streamlit
         st.pyplot(fig)
@@ -149,7 +149,7 @@ def shap_plot(explainer, df, index_client=0):
     except TypeError as e:
         st.error(f"Une erreur est survenue lors de l'appel à l'explainer SHAP : {str(e)}")
         st.error("Vérifiez que les données passées à l'explainer sont correctes (DataFrame ou NumPy array).")
-        
+
 
 def plot_client(df, explainer, df_reference, index_client=0):
     """ This function generates all the different plots to understand the prediction of loan default for a specific client
@@ -175,7 +175,7 @@ def plot_client(df, explainer, df_reference, index_client=0):
     shap_plot(explainer, df, index_client)
 
     # --- Calcul of the shap_importance ---
-    shap_values = explainer.shap_values(df.fillna(0).loc[index_client])
+    shap_values = explainer.shap_values(df.fillna(0).loc[[index_client]])
     shap_importance = pd.Series(
         shap_values,
         df.columns).abs().sort_values(
