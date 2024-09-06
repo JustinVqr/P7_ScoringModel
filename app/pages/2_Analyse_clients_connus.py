@@ -12,7 +12,7 @@ st.set_page_config(
 # Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from app.component.P7_App_FrontEnd import execute_noAPI, plot_client, nan_values
+from app.component.P7_App_FrontEnd import execute_noAPI, plot_client, nan_values, shap_plot
 
 # Vérification que les données sont disponibles dans le session state
 if 'df_train' not in st.session_state or 'Credit_clf_final' not in st.session_state or 'explainer' not in st.session_state:
@@ -48,6 +48,11 @@ if run_btn:
         # Appel des fonctions de traitement du client
         try:
             execute_noAPI(df_train, index_client, Credit_clf_final)
+            
+            # Appel de la fonction pour afficher les graphiques SHAP avant les autres graphiques
+            shap_plot(explainer, df_train.drop(columns='TARGET').fillna(0), index_client=index_client)
+
+            # Appel des autres graphiques après les graphiques SHAP
             plot_client(
                 df_train.drop(columns='TARGET').fillna(0),  # Gestion des NaN
                 explainer,
