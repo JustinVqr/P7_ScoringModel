@@ -140,9 +140,12 @@ def shap_plot(explainer, df, index_client=0):
         negative_color = "#1f77b4"  # Nouvelle couleur pour les valeurs négatives
         positive_color = "#ff7f0e"  # Nouvelle couleur pour les valeurs positives
 
-        # Génération du graphique SHAP
-        fig_shap = shap.plots.bar(shap_values, show=False)
+        # Création d'une nouvelle figure
+        fig, ax = plt.subplots()
 
+        # Génération du graphique SHAP (utilisation d'axes existants)
+        shap.plots.bar(shap_values, show=False, ax=ax)  # Passez `ax` pour contrôler l'axe
+        
         # Personnalisation du graphique (changement des couleurs)
         for fc in plt.gcf().get_children():
             # Ignorer le dernier rectangle
@@ -161,7 +164,7 @@ def shap_plot(explainer, df, index_client=0):
                         fcc.set_color(negative_color)  # Appliquer la couleur personnalisée négative
 
         # Affichage du graphique dans Streamlit
-        st.pyplot(fig_shap)
+        st.pyplot(fig)
         
         # Nettoyage du graphique pour éviter les conflits dans les graphiques suivants
         plt.clf()
