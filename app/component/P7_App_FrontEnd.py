@@ -127,16 +127,12 @@ def shap_plot(explainer, df, index_client=0):
         st.error("Vérifiez que les données passées à l'explainer sont correctes.")
 
 
-
 def plot_client(df, explainer, df_reference, index_client=0):
     """ 
     Cette fonction génère différentes visualisations pour comprendre la prédiction du défaut de prêt pour un client spécifique.
-    Elle appelle d'abord la fonction shap_plot pour générer l'explication via SHAP, puis elle génère 6 graphiques pour les 6 caractéristiques les plus discriminantes.
+    Elle génère 6 graphiques pour les 6 caractéristiques les plus discriminantes.
     """
     
-    # --- Graphique SHAP pour un client spécifique ---
-    shap_plot(explainer, df, index_client)
-
     # --- Calcul de l'importance SHAP ---
     try:
         shap_values = explainer(df.fillna(0).loc[[index_client]])  # Utilisation de explainer() au lieu de shap_values()
@@ -251,7 +247,6 @@ def plot_client(df, explainer, df_reference, index_client=0):
 
 
     # --- Analysis des valeurs manquantes ---
-
 
 def nan_values(df, index_client=0):
     # Utiliser pd.isna() 
