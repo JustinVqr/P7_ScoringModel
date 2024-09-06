@@ -57,7 +57,7 @@ def load_model():
         return None
 
 # --- Logique de chargement initial ---
-if not st.session_state.load_state:
+if 'df_train' not in st.session_state or 'df_new' not in st.session_state:
     df_train, df_new = load_data()
     if df_train is not None and df_new is not None:
         df_train_sampled = stratified_sampling(df_train, sample_size=0.1)
@@ -68,6 +68,8 @@ if not st.session_state.load_state:
             st.session_state.load_state = True
             # Afficher "Application opérationnelle" sous l'image, centré
             st.markdown("<h4 style='text-align: center;'>Application opérationnelle</h4>", unsafe_allow_html=True)
+    else:
+        st.error("Erreur lors du chargement des données.")
 else:
     df_train = st.session_state.df_train
     df_new = st.session_state.df_new
@@ -130,8 +132,9 @@ def show_prediction_page():
             st.error("Modèle non chargé ou ID client invalide.")
 
 # Sélection de la page à afficher
-# Tu peux gérer cette partie via les URL ou directement à travers les fichiers `pages`.
-page = st.experimental_get_query_params().get("page", ["Accueil"])[0]
+query_params = st.query_params 
+page = query_params.get("page", ["Accueil"])[0]
+
 if page == "Accueil":
     show_home_page()
 elif page == "Analyse des clients":
