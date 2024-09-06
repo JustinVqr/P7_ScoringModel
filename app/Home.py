@@ -57,7 +57,7 @@ def load_model():
         return None
 
 # --- Logique de chargement initial ---
-if 'df_train' not in st.session_state or 'df_new' not in st.session_state:
+if not st.session_state.load_state:
     df_train, df_new = load_data()
     if df_train is not None and df_new is not None:
         df_train_sampled = stratified_sampling(df_train, sample_size=0.1)
@@ -68,8 +68,6 @@ if 'df_train' not in st.session_state or 'df_new' not in st.session_state:
             st.session_state.load_state = True
             # Afficher "Application opérationnelle" sous l'image, centré
             st.markdown("<h4 style='text-align: center;'>Application opérationnelle</h4>", unsafe_allow_html=True)
-    else:
-        st.error("Erreur lors du chargement des données.")
 else:
     df_train = st.session_state.df_train
     df_new = st.session_state.df_new
