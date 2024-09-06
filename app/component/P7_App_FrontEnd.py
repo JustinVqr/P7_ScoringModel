@@ -98,7 +98,7 @@ def execute_API(df):
 
 def shap_plot(explainer, df, index_client=0):
     """
-    Cette fonction génère un graphique des valeurs SHAP principales pour un client spécifique.
+    Cette fonction génère un graphique waterfall des valeurs SHAP pour un client spécifique.
     """
 
     # Vérification que l'index du client existe dans le DataFrame
@@ -113,10 +113,11 @@ def shap_plot(explainer, df, index_client=0):
         # Appel de l'explainer SHAP pour obtenir un objet Explanation
         shap_values = explainer(X)
 
-        # Génération du graphique SHAP
+        # Génération du waterfall plot pour visualiser les valeurs SHAP
+        st.write("Valeurs SHAP pour ce client :")
         fig, ax = plt.subplots()
-        shap.plots.bar(shap_values, show=False, max_display=10, ax=ax)
-
+        shap.waterfall_plot(shap_values[0], show=False)  # Affichage du premier graphique SHAP (client)
+        
         # Affichage du graphique dans Streamlit
         st.pyplot(fig)
         plt.clf()
@@ -124,6 +125,7 @@ def shap_plot(explainer, df, index_client=0):
     except Exception as e:
         st.error(f"Une erreur est survenue lors de l'appel à l'explainer SHAP : {str(e)}")
         st.error("Vérifiez que les données passées à l'explainer sont correctes.")
+
 
 
 def plot_client(df, explainer, df_reference, index_client=0):
