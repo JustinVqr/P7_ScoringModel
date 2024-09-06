@@ -24,39 +24,38 @@ df_train = st.session_state.df_train
 Credit_clf_final = st.session_state.Credit_clf_final
 explainer = st.session_state.explainer
 
-# Créer des onglets pour basculer entre différentes méthodes de saisie
-tabs = st.tabs(["ID client", "Information manuelle"])
+# Affichage de l'en-tête principal
+st.header("Analyse du défaut de paiement des clients connus")
 
-with tabs[0]:
-    st.subheader("Prédiction pour un client avec ID")
-    
-    # Boîte de saisie pour l'ID du client
-    index_client = st.number_input(
-        "Entrez l'ID du client (ex : 1, 2, 3, 5)",
-        format="%d",
-        value=1
-    )
+# Configuration de la barre latérale
+st.sidebar.header('Tableau de bord')
+st.sidebar.subheader('Sélection de l\'ID du client')
 
-    # Bouton de prédiction
-    if st.button('Prédire', key="predire_id"):
-        # Vérification de la présence de l'ID dans df_train
-        if index_client in df_train.index:
-            # Appel des fonctions de traitement du client
-            try:
-                execute_noAPI(df_train, index_client, Credit_clf_final)
-                plot_client(
-                    df_train.drop(columns='TARGET').fillna(0),  # Gestion des NaN
-                    explainer,
-                    df_reference=df_train,
-                    index_client=index_client
-                )
-                nan_values(df_train.drop(columns='TARGET'), index_client=index_client)
-            except Exception as e:
-                st.error(f"Une erreur s'est produite lors de l'affichage des données du client : {e}")
-        else:
-            st.error("Client non présent dans la base de données")
+# Boîte de saisie pour l'ID du client
+index_client = st.sidebar.number_input(
+    "Entrer l'ID du client (ex : 100002)",
+    format="%d",
+    value=100002
+)
 
-with tabs[1]:
-    st.subheader("Saisie manuelle d'informations")
-    # Vous pouvez ajouter ici des champs pour saisir manuellement les informations nécessaires
-    st.text("Formulaire de saisie manuelle en construction")
+# Bouton d'exécution
+run_btn = st.sidebar.button('Voir les données du client')
+
+# Action déclenchée par le bouton
+if run_btn:
+    # Vérification de la présence de l'ID dans df_train
+    if index_client in df_train.index:
+        # Appel des fonctions de traitement du client
+        try:
+            execute_noAPI(df_train, index_client, Credit_clf_final)
+            plot_client(
+                df_train.drop(columns='TARGET').fillna(0),  # Gestion des NaN
+                explainer,
+                df_reference=df_train,
+                index_client=index_client
+            )
+            nan_values(df_train.drop(columns='TARGET'), index_client=index_client)
+        except Exception as e:
+            st.error(f"Une erreur s'est produite lors de l'affichage des données du client : {e}")
+    else:
+        st.sidebar.error("Client non présent dans la base de données")
