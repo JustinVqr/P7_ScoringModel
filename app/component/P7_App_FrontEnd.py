@@ -248,24 +248,22 @@ def plot_client(df, explainer, df_reference, index_client=0):
                 st.error(f"Erreur lors de la génération du graphique pour la caractéristique {feature} : {e}")
 
 
-    # --- Analysis of unknown values ---
+    # --- Analysis des valeurs manquantes ---
 
 
 def nan_values(df, index_client=0):
-    if np.isnan(df.loc[index_client]).any():
-
+    # Utiliser pd.isna() 
+    if df.loc[index_client].isna().any():
         st.subheader('Warnings : Columns with unknown values')
         nan_col = []
-        for features in list(df.columns):
-            if np.isnan(df.loc[index_client][features]):
-                nan_col.append(features)
+        for feature in df.columns:
+            # Vérifier les valeurs manquantes pour chaque caractéristique
+            if pd.isna(df.loc[index_client, feature]):
+                nan_col.append(feature)
 
         col1, col2 = st.columns(2)
         with col1:
-            st.table(
-                data=pd.DataFrame(
-                    nan_col,
-                    columns=['FEATURES WITH MISSING VALUES']))
+            st.table(data=pd.DataFrame(nan_col, columns=['FEATURES WITH MISSING VALUES']))
         with col2:
             st.write('All the missing values has been replaced by 0.')
     else:
