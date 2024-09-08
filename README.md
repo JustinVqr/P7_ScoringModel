@@ -1,8 +1,9 @@
 # P7_ScoringModel
 **Répertoire dédié à l'application de scoring dans le cadre du projet n°7, d'OpenClassRoom**
+
 Projet MLops de Scoring avec LightGBM
 
-Description du projet
+Description du projet :
 Ce projet vise à développer un pipeline de machine learning (ML) complet pour un modèle de scoring, utilisant LightGBM (LGBM) pour la modélisation. En plus de la partie machine learning, une interface utilisateur (UI) a été développée avec une application web avec une API, "FAST API", pour faciliter l'accès et l'utilisation du modèle de scoring par des utilisateurs non techniques, en l'occurence les chargés de clientèle de la banque Prêt-à-dépenser.
 
 Le projet suit une approche MLops pour assurer une intégration et une livraison continues (CI/CD), des tests automatisés, la gestion des données, et le suivi des performances du modèle.
