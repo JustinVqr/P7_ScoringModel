@@ -29,3 +29,7 @@ Le repository est structuré de la manière suivante :
 - **setup.sh** : Script de configuration pour préparer l'environnement de développement.
 
 - **Procfile** : Fichier de configuration pour le déploiement sur des plateformes comme Heroku.
+
+**Lien pour accéder à l'url de l'api sur Heroku :** https://app-scoring-p7-b4207842daea.herokuapp.com/
+
+**Lien pour accéder à l'interface utilisateur Streamlit :** https://p7-scoringmodel-ocr.streamlit.app/
