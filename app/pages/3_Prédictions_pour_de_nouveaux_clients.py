@@ -137,7 +137,7 @@ with tab2:
 
     else:
         loader = st.file_uploader(" ")
-        if loader est not None:
+        if loader is not None:
             data_client = pd.read_csv(loader, sep=";", index_col=0, header=None).squeeze(1).to_dict()
 
     run_btn2 = st.button(
