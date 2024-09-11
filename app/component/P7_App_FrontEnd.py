@@ -269,8 +269,7 @@ def nan_values(df, index_client=0):
         st.subheader('Il n\'y a pas de valeurs manquantes dans la base de données concernant ce client')
 
 
-
-# --- Création d'une jauge pour simplifier la lecture des résultats ---
+      # --- Création d'une jauge pour simplifier la lecture des résultats ---
 def plot_gauge(pred_prob, threshold=0.4, title="Prédiction de la probabilité du client", xlabel="Probabilité"):
     fig, ax = plt.subplots(figsize=(8, 4))
 
@@ -288,6 +287,9 @@ def plot_gauge(pred_prob, threshold=0.4, title="Prédiction de la probabilité d
 
     # Position de l'aiguille
     ax.plot([pred_prob, pred_prob], [-0.5, 0.5], color='black', lw=6)
+
+    # Ajouter la ligne pointillée pour le seuil
+    ax.plot([threshold, threshold], [-0.5, 0.5], color='blue', lw=2, linestyle='--')
 
     # Ajouter des annotations pour indiquer la probabilité prédite
     ax.text(pred_prob, 0.55, f'{pred_prob:.2f}', horizontalalignment='center', fontsize=16, color='black', fontweight='bold')
@@ -310,4 +312,4 @@ def plot_gauge(pred_prob, threshold=0.4, title="Prédiction de la probabilité d
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.15)
     
-    st.pyplot(fig)  # Utilisation de st.pyplot pour afficher la figure dans Streamlit
+    st.pyplot(fig)
