@@ -48,14 +48,16 @@ with tab1:
             # Préparation des données pour SHAP et autres analyses
             X_client = df_new.loc[[index_client]].fillna(0)
 
+            # Assurez-vous que toutes les valeurs manquantes sont remplies
+            X_client = X_client.fillna(0)
+
             # Affichage de la jauge avant les graphiques SHAP
             pred_prob = Credit_clf_final.predict_proba(X_client)[0][1]  # Exemple pour obtenir la probabilité prédite
             plot_gauge(pred_prob)
 
-            # Afficher les caractéristiques du client et permettre la modification
-            st.write("### Caractéristiques du client")
-            modified_values = {}
-            with st.form(key='edit_form'):
+            # --- Ajout d'un volet réductible pour voir et modifier les caractéristiques du client ---
+            with st.expander("Cliquez pour afficher et modifier les caractéristiques du client"):
+                modified_values = {}
                 for feature, value in data_client.items():
                     if isinstance(value, (int, float)):
                         modified_values[feature] = st.number_input(
@@ -67,30 +69,42 @@ with tab1:
                             label=feature,
                             value=str(value)
                         )
-                
-                submit_changes = st.form_submit_button("Mettre à jour les caractéristiques et prédire à nouveau")
+
+                submit_changes = st.button("Mettre à jour les caractéristiques et prédire à nouveau")
             
             if submit_changes:
-                # Convert the updated values back to the dataframe format
+                # Convertir les valeurs modifiées en DataFrame pour relancer la prédiction
                 updated_client = pd.DataFrame([modified_values])
-                
-                # Relancer la prédiction avec les valeurs modifiées
+
+                # Relancer la prédiction avec les nouvelles valeurs
                 pred_prob_updated = Credit_clf_final.predict_proba(updated_client)[0][1]
                 plot_gauge(pred_prob_updated)
-                
-                # Utilisation de la fonction SHAP avec les nouvelles valeurs
-                shap_plot(explainer, updated_client, 0)  # Index fictif utilisé ici
-                
-                # Autres visualisations (ex: plot_client)
+
+                # Afficher les graphiques SHAP avec les nouvelles valeurs
+                shap_plot(explainer, updated_client, 0)
+
+                # Autres visualisations avec les nouvelles valeurs
                 plot_client(
                     updated_client,
                     explainer,
                     df_reference=df_train,
-                    index_client=0  # Index fictif
+                    index_client=0  # Utilisation d'un index fictif pour un client modifié
                 )
+                nan_values(updated_client, index_client=0)
+            else:
+                # Afficher les graphiques SHAP avec les valeurs originales
+                shap_plot(explainer, df_new, index_client)
+
+                # Autres visualisations (ex: plot_client)
+                plot_client(
+                    df_new,
+                    explainer,
+                    df_reference=df_train,
+                    index_client=index_client
+                )
+                nan_values(df_new, index_client=index_client)
         else:
             st.write("Client non trouvé dans la base de données")
-
 
 # --- Onglet 2 : Prédiction pour un nouveau client sans ID ---
 with tab2:
@@ -123,7 +137,7 @@ with tab2:
 
     else:
         loader = st.file_uploader(" ")
-        if loader is not None:
+        if loader est not None:
             data_client = pd.read_csv(loader, sep=";", index_col=0, header=None).squeeze(1).to_dict()
 
     run_btn2 = st.button(
