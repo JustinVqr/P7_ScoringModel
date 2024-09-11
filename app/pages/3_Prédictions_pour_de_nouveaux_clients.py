@@ -51,6 +51,10 @@ with tab1:
             # Assurez-vous que toutes les valeurs manquantes sont remplies
             X_client = X_client.fillna(0)
 
+            # Affichage de la jauge avant les graphiques SHAP
+            pred_prob = Credit_clf_final.predict_proba(X_client)[0][1]  # Exemple pour obtenir la probabilité prédite
+            plot_gauge(pred_prob)
+
             # Utilisation de la fonction personnalisée pour la visualisation SHAP
             shap_plot(explainer, df_new, index_client)
 

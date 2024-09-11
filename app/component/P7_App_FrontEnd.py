@@ -267,3 +267,47 @@ def nan_values(df, index_client=0):
             st.write('Toutes les valeurs manquantes ont été remplacées par 0.')
     else:
         st.subheader('Il n\'y a pas de valeurs manquantes dans la base de données concernant ce client')
+
+
+
+# --- Création d'une jauge pour simplifier la lecture des résultats ---
+def plot_gauge(pred_prob, threshold=0.4, title="Prédiction de la probabilité du client", xlabel="Probabilité"):
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    # Définir les limites de la jauge
+    ax.set_xlim(0, 1)
+    ax.set_ylim(-0.5, 0.5)
+    
+    # Définir un gradient de couleurs
+    gradient = np.linspace(0, 1, 256)
+    gradient = np.vstack((gradient, gradient))
+    cmap = plt.get_cmap('RdYlGn_r')
+
+    # Afficher le gradient
+    ax.imshow(gradient, aspect='auto', cmap=cmap, extent=[0, 1, -0.5, 0.5])
+
+    # Position de l'aiguille
+    ax.plot([pred_prob, pred_prob], [-0.5, 0.5], color='black', lw=6)
+
+    # Ajouter des annotations pour indiquer la probabilité prédite
+    ax.text(pred_prob, 0.55, f'{pred_prob:.2f}', horizontalalignment='center', fontsize=16, color='black', fontweight='bold')
+
+    # Ajuster la position du seuil légèrement plus bas
+    plt.figtext(0.5, 0.03, f'Seuil ({threshold})', ha='center', fontsize=14, color='blue', fontweight='bold')
+
+    # Ajouter des graduations de probabilité
+    for i in np.linspace(0, 1, 11):
+        ax.text(i, -0.6, f'{i:.1f}', horizontalalignment='center', fontsize=12, color='gray')
+
+    # Retirer les axes inutiles
+    ax.set_xticks([])
+    ax.set_yticks([])
+    
+    # Ajuster la position du titre
+    plt.title(title, fontsize=16, fontweight='bold', pad=40)
+
+    plt.box(False)
+    plt.tight_layout()
+    plt.subplots_adjust(bottom=0.15)
+    
+    st.pyplot(fig)  # Utilisation de st.pyplot pour afficher la figure dans Streamlit
