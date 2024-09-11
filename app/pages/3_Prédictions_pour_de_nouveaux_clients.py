@@ -40,50 +40,53 @@ with tab1:
         key='predict_btn1'
     )
     
-    if run_btn:
+    if run_btn or "updated_client" in st.session_state:
         if index_client in set(df_new.index):
-            data_client = df_new.loc[index_client].fillna(0).to_dict()
-            execute_API(data_client)
+            if run_btn:
+                # Stocker les données originales du client
+                data_client = df_new.loc[index_client].fillna(0).to_dict()
+                st.session_state['updated_client'] = data_client
+            else:
+                data_client = st.session_state['updated_client']
             
             # Préparation des données pour SHAP et autres analyses
-            X_client = df_new.loc[[index_client]].fillna(0)
-
-            # Assurez-vous que toutes les valeurs manquantes sont remplies
-            X_client = X_client.fillna(0)
+            X_client = pd.DataFrame([data_client]).fillna(0)
 
             # Affichage de la jauge avant les graphiques SHAP
-            pred_prob = Credit_clf_final.predict_proba(X_client)[0][1]  # Exemple pour obtenir la probabilité prédite
+            pred_prob = Credit_clf_final.predict_proba(X_client)[0][1]
             plot_gauge(pred_prob)
 
-            # --- Ajout d'un volet réductible pour voir et modifier les caractéristiques du client ---
+            # --- Volet réductible pour voir et modifier les caractéristiques du client ---
             with st.expander("Cliquez pour afficher et modifier les caractéristiques du client"):
-                modified_values = {}
                 for feature, value in data_client.items():
                     if isinstance(value, (int, float)):
-                        modified_values[feature] = st.number_input(
+                        data_client[feature] = st.number_input(
                             label=feature,
-                            value=float(value)
+                            value=float(value),
+                            key=f"input_{feature}"
                         )
                     else:
-                        modified_values[feature] = st.text_input(
+                        data_client[feature] = st.text_input(
                             label=feature,
-                            value=str(value)
+                            value=str(value),
+                            key=f"input_{feature}"
                         )
 
                 submit_changes = st.button("Mettre à jour les caractéristiques et prédire à nouveau")
             
             if submit_changes:
-                # Convertir les valeurs modifiées en DataFrame pour relancer la prédiction
-                updated_client = pd.DataFrame([modified_values])
+                # Mettre à jour les nouvelles données dans session_state
+                st.session_state['updated_client'] = data_client
 
                 # Relancer la prédiction avec les nouvelles valeurs
+                updated_client = pd.DataFrame([data_client])
                 pred_prob_updated = Credit_clf_final.predict_proba(updated_client)[0][1]
                 plot_gauge(pred_prob_updated)
 
                 # Afficher les graphiques SHAP avec les nouvelles valeurs
                 shap_plot(explainer, updated_client, 0)
 
-                # Autres visualisations avec les nouvelles valeurs
+                # Autres visualisations
                 plot_client(
                     updated_client,
                     explainer,
@@ -95,7 +98,7 @@ with tab1:
                 # Afficher les graphiques SHAP avec les valeurs originales
                 shap_plot(explainer, df_new, index_client)
 
-                # Autres visualisations (ex: plot_client)
+                # Autres visualisations
                 plot_client(
                     df_new,
                     explainer,
@@ -152,7 +155,7 @@ with tab2:
         data_client = pd.DataFrame(data_client, index=[0])
 
         # Utilisation de la fonction personnalisée pour la visualisation SHAP pour un nouveau client
-        shap_plot(explainer, df_new, 0)  # L'index 0 est utilisé comme fictif pour les nouveaux clients
+        shap_plot(explainer, df_new, 0)
 
         # Autres visualisations et fonctionnalités
         plot_client(
