@@ -7,6 +7,11 @@ import seaborn as sns
 # Configuration de la page (titre de l'application)
 st.set_page_config(page_title="1) Présentation des données")
 
+# Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+from app.component.P7_App_FrontEnd import scatter_plot_interactif
+
 # --- Vérification et récupération des données depuis la session ---
 if "df_train" not in st.session_state or "Credit_clf_final" not in st.session_state or "explainer" not in st.session_state:
     st.error("Les données nécessaires ne sont pas disponibles dans la session. Veuillez vous assurer que le modèle et les données sont chargés depuis la page d'accueil.")
@@ -55,6 +60,10 @@ with tab1:
         1) Les variables avec plus de 80% de valeurs manquantes ont été supprimées.
         2) Toutes les valeurs manquantes restantes ont été remplacées par 0.
         """)
+
+    # Ajout du scatter plot interactif en bas de l'onglet Data
+    st.subheader("Analyse bivariée avec un nuage de points")
+    scatter_plot_interactif(df_train)
 
 # --- Onglet 2 : Présentation des caractéristiques ---
 with tab2:

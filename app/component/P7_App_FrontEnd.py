@@ -203,7 +203,7 @@ def plot_client(df, explainer, df_reference, index_client=0):
     with col2:
         for feature in list(shap_importance.index[:6])[3:]:
             try:
-                plt.figure(figsize=(9, 5))
+                plt.figure(figsize=(5, 5))
                 sns.set_style("whitegrid")
 
                 if df_reference[feature].nunique() == 2:
@@ -313,3 +313,25 @@ def plot_gauge(pred_prob, threshold=0.4, title="Prédiction de la probabilité d
     plt.subplots_adjust(bottom=0.15)
     
     st.pyplot(fig)
+
+
+#---------- Création d'une fonction scatterplot interactive--------
+
+# Fonction pour afficher un scatter plot interactif
+def scatter_plot_interactif(df):
+    st.title("Scatter Plot Interactif")
+
+    # Sélection des colonnes pour les axes
+    colonnes = df.columns.tolist()
+    x_colonne = st.selectbox("Sélectionnez la colonne pour l'axe X", colonnes)
+    y_colonne = st.selectbox("Sélectionnez la colonne pour l'axe Y", colonnes)
+
+    # Créer le scatter plot si les colonnes sont sélectionnées
+    if x_colonne and y_colonne:
+        fig, ax = plt.subplots()
+        ax.scatter(df[x_colonne], df[y_colonne])
+        ax.set_xlabel(x_colonne)
+        ax.set_ylabel(y_colonne)
+        ax.set_title(f"Scatter Plot : {x_colonne} vs {y_colonne}")
+        
+        st.pyplot(fig)
