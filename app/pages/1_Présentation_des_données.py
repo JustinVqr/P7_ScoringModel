@@ -64,11 +64,11 @@ with tab1:
         """)
 
     # Ajout de l'analyse univariée
-    st.subheader("Analyse univariée")
+    st.subheader("Analyse univariée: distribution des variables")
     univariate_analysis(df_train)
 
     # Ajout du scatter plot interactif en bas de l'onglet Data
-    st.subheader("Analyse bivariée avec un nuage de points")
+    st.subheader("Analyse bivariée: nuage de points")
     scatter_plot_interactif(df_train)
 
 # --- Onglet 2 : Présentation des caractéristiques ---
