@@ -253,7 +253,7 @@ def plot_client(df, explainer, df_reference, index_client=0):
 def nan_values(df, index_client=0):
     # Utiliser pd.isna() 
     if df.loc[index_client].isna().any():
-        st.subheader('Warnings : Columns with unknown values')
+        st.subheader('Attention : colonnes avec des valeurs manquantes')
         nan_col = []
         for feature in df.columns:
             # Vérifier les valeurs manquantes pour chaque caractéristique

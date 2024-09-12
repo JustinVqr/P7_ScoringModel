@@ -58,20 +58,17 @@ if run_btn:
             with st.expander("Voir les graphiques SHAP"):
                 shap_plot(explainer, df_train.drop(columns='TARGET').fillna(0), index_client=index_client)
             
-            # --- Organisation des autres graphiques dans deux colonnes ---
-            col1, col2 = st.columns([2, 1])
-
-            with col1:
-                plot_client(
-                    df_train.drop(columns='TARGET').fillna(0),  # Gestion des NaN
-                    explainer,
-                    df_reference=df_train,
-                    index_client=index_client
-                )
+            # --- Organisation des autres graphiques dans une colonne ---
+            plot_client(
+                df_train.drop(columns='TARGET').fillna(0),  # Gestion des NaN
+                explainer,
+                df_reference=df_train,
+                index_client=index_client
+            )
             
-            with col2:
-                nan_values(df_train.drop(columns='TARGET'), index_client=index_client)
-                
+            # --- Affichage du message des valeurs manquantes en dessous des graphiques ---
+            nan_values(df_train.drop(columns='TARGET'), index_client=index_client)
+
         except Exception as e:
             st.error(f"Une erreur s'est produite lors de l'affichage des données du client : {e}")
     else:
