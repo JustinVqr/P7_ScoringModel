@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 # Configuration de la page Streamlit
 st.set_page_config(
-    layout='wide',
+    layout='centered',
     initial_sidebar_state='expanded',
     page_title="2) Analyse clients connus"
 )
