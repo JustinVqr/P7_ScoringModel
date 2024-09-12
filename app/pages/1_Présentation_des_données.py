@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import missingno as msno
 import seaborn as sns
+import sys
+import os
 
 # Configuration de la page (titre de l'application)
 st.set_page_config(page_title="1) Présentation des données")
