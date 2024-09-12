@@ -319,7 +319,7 @@ def plot_gauge(pred_prob, threshold=0.4, title="Prédiction de la probabilité d
 
 # Fonction pour afficher un scatter plot interactif
 def scatter_plot_interactif(df):
-    st.title("Scatter Plot Interactif")
+    st.title("Analyse bivariée : Nuage de points")
 
     # Sélection des colonnes pour les axes
     colonnes = df.columns.tolist()
@@ -328,10 +328,57 @@ def scatter_plot_interactif(df):
 
     # Créer le scatter plot si les colonnes sont sélectionnées
     if x_colonne and y_colonne:
-        fig, ax = plt.subplots()
-        ax.scatter(df[x_colonne], df[y_colonne])
-        ax.set_xlabel(x_colonne)
-        ax.set_ylabel(y_colonne)
-        ax.set_title(f"Scatter Plot : {x_colonne} vs {y_colonne}")
-        
+        # Choisir un style esthétique avec Seaborn
+        sns.set(style="whitegrid")
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        # Création du scatter plot avec personnalisation
+        sc = ax.scatter(df[x_colonne], df[y_colonne], 
+                        c=df[x_colonne], cmap='viridis', 
+                        s=100, edgecolor='white', alpha=0.7)
+
+        ax.set_xlabel(x_colonne, fontsize=12)
+        ax.set_ylabel(y_colonne, fontsize=12)
+        ax.set_title(f"Scatter Plot : {x_colonne} vs {y_colonne}", fontsize=16, weight='bold')
+
+        # Ajout d'une grille pour une meilleure lisibilité
+        ax.grid(True, linestyle='--', alpha=0.7)
+
+        # Ajout de la barre de couleur pour représenter les valeurs sur l'axe X
+        cbar = plt.colorbar(sc, ax=ax)
+        cbar.set_label(x_colonne, rotation=270, labelpad=15)
+
+        # Afficher le graphique dans Streamlit
         st.pyplot(fig)
+
+# --------- fonction pour afficher la distribution de la feature selon son type
+
+def univariate_analysis(df):
+    st.title("Analyse univariée : Distribution des données")
+
+    # Sélection d'une colonne pour l'analyse
+    colonnes = df.columns.tolist()
+    colonne = st.selectbox("Sélectionnez la colonne à analyser", colonnes)
+
+    # Vérification du type de colonne (numérique ou catégorielle)
+    if colonne:
+        if df[colonne].dtype == 'object':
+            # Analyse pour des variables catégorielles (ex : un graphique à barres)
+            distribution = df[colonne].value_counts()
+            fig, ax = plt.subplots()
+            ax.bar(distribution.index, distribution.values)
+            ax.set_xlabel(colonne)
+            ax.set_ylabel("Fréquence")
+            ax.set_title(f"Distribution des catégories pour {colonne}")
+            plt.xticks(rotation=90)  # Pour éviter que les étiquettes ne se chevauchent
+            st.pyplot(fig)
+        
+        else:
+            # Analyse pour des variables numériques (ex : histogramme)
+            fig, ax = plt.subplots()
+            ax.hist(df[colonne], bins=30)
+            ax.set_xlabel(colonne)
+            ax.set_ylabel("Fréquence")
+            ax.set_title(f"Distribution des valeurs pour {colonne}")
+            st.pyplot(fig)

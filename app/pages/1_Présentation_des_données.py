@@ -12,7 +12,7 @@ st.set_page_config(page_title="1) Présentation des données")
 # Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from app.component.P7_App_FrontEnd import scatter_plot_interactif
+from app.component.P7_App_FrontEnd import scatter_plot_interactif, univariate_analysis
 
 # --- Vérification et récupération des données depuis la session ---
 if "df_train" not in st.session_state or "Credit_clf_final" not in st.session_state or "explainer" not in st.session_state:
@@ -62,6 +62,10 @@ with tab1:
         1) Les variables avec plus de 80% de valeurs manquantes ont été supprimées.
         2) Toutes les valeurs manquantes restantes ont été remplacées par 0.
         """)
+
+    # Ajout de l'analyse univariée
+    st.subheader("Analyse univariée")
+    univariate_analysis(df_train)
 
     # Ajout du scatter plot interactif en bas de l'onglet Data
     st.subheader("Analyse bivariée avec un nuage de points")
