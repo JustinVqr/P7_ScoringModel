@@ -203,7 +203,7 @@ def plot_client(df, explainer, df_reference, index_client=0):
     with col2:
         for feature in list(shap_importance.index[:6])[3:]:
             try:
-                plt.figure(figsize=(5, 5))
+                plt.figure(figsize=(9, 5))
                 sns.set_style("whitegrid")
 
                 if df_reference[feature].nunique() == 2:
