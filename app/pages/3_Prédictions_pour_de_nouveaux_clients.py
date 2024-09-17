@@ -147,8 +147,9 @@ with tab1:
         else:
             st.write("Client non trouvé dans la base de données")
 
+
 # --- Onglet 2 : Prédiction pour un nouveau client sans ID ---
-with tab2:
+with st.container():  # Utilisez st.container pour encapsuler le contenu
     st.header("Prédiction pour un nouveau client")
 
     # Explication de la section
@@ -163,56 +164,82 @@ with tab2:
         ('Manuel', 'Texte', 'Fichier CSV')
     )
 
+    data_client = None
+
+    # Cas d'entrée manuel
     if option == 'Manuel':
         with st.expander("Cliquez pour entrer les données manuellement"):
             data_client = {}
-            for feature in list(df_new.columns):
+            for feature in df_new.columns:  # df_new : dataframe avec les nouvelles données du client
                 if df_train[feature].dtype == np.int64:
                     min_values = df_train[feature].min().astype('int')
                     max_values = df_train[feature].max().astype('int')
                     data_client[feature] = st.number_input(
-                        str(feature), min_value=min_values, max_value=max_values, step=1)
+                        str(feature), min_value=min_values, max_value=max_values, step=1
+                    )
                 else:
                     min_values = df_train[feature].min().astype('float')
                     max_values = df_train[feature].max().astype('float')
                     data_client[feature] = st.number_input(
-                        str(feature), min_value=min_values, max_value=max_values, step=0.1)
+                        str(feature), min_value=min_values, max_value=max_values, step=0.1
+                    )
 
+    # Cas d'entrée texte
     elif option == 'Texte':
         with st.expander("Cliquez pour entrer les données sous forme de texte"):
-            data_client = st.text_area('Entrez les données sous forme de dictionnaire', '''{"FLAG_OWN_CAR": 0, ... }''')
-            data_client = json.loads(data_client)
+            texte_client = st.text_area('Entrez les données sous forme de dictionnaire', '''{"FLAG_OWN_CAR": 0, ... }''')
+            if texte_client:
+                try:
+                    data_client = json.loads(texte_client)  # Convertir le texte en dictionnaire
+                except json.JSONDecodeError:
+                    st.error("Le format du texte n'est pas valide. Veuillez entrer un dictionnaire valide.")
 
-    else:
-        loader = st.file_uploader(" ")
+    # Cas d'entrée via un fichier CSV
+    elif option == 'Fichier CSV':
+        loader = st.file_uploader("Chargez le fichier CSV")
         if loader is not None:
-            data_client = pd.read_csv(loader, sep=";", index_col="SK_ID_CURR", header=None).squeeze(1).to_dict()
+            try:
+                data_client = pd.read_csv(loader, sep=";", index_col="SK_ID_CURR")  # Assurez-vous que SK_ID_CURR est présent
+            except Exception as e:
+                st.error(f"Erreur lors de la lecture du fichier CSV : {e}")
 
-    run_btn2 = st.button(
-        'Prédire',
-        on_click=None,
-        type="primary",
-        key='predict_btn2'
-    )
-    
-    if run_btn2:
-        execute_API(data_client)
-        data_client = pd.DataFrame(data_client, index=[0])
-
-        # --- Volet rétractable pour les graphiques SHAP pour un nouveau client ---
-        with st.expander("Voir les graphiques SHAP"):
-            shap_plot(explainer, df_new, 0)
-            st.markdown("""
-            **Interprétation des résultats pour le nouveau client :**  
-            Les graphiques ci-dessous vous permettent de voir les principales caractéristiques qui influencent la prédiction de défaut de paiement pour ce nouveau client.
-            """)
-
-        # Autres visualisations et fonctionnalités
-        plot_client(
-            data_client,
-            explainer,
-            df_reference=df_train,
-            index_client=0  # Utilisation d'un index fictif (0) pour un nouveau client
+    # Si les données client ont été correctement récupérées, proposer la prédiction
+    if data_client is not None:
+        run_btn2 = st.button(
+            'Prédire',
+            on_click=None,
+            type="primary",
+            key='predict_btn2'
         )
 
-        nan_values(data_client, index_client=0)
+        if run_btn2:
+            if isinstance(data_client, dict):  # Si les données sont au format dict (manuel ou texte)
+                data_client_df = pd.DataFrame([data_client])  # Convertir en dataframe
+            elif isinstance(data_client, pd.DataFrame):  # Si c'est déjà un dataframe (fichier CSV)
+                data_client_df = data_client
+            else:
+                st.error("Format des données incorrect.")
+                data_client_df = None
+
+            if data_client_df is not None:
+                # Appeler la fonction de prédiction et autres visualisations
+                execute_API(data_client_df)
+                
+                # --- Volet rétractable pour les graphiques SHAP pour un nouveau client ---
+                with st.expander("Voir les graphiques SHAP"):
+                    shap_plot(explainer, df_new, 0)
+                    st.markdown("""
+                    **Interprétation des résultats pour le nouveau client :**  
+                    Les graphiques ci-dessous vous permettent de voir les principales caractéristiques qui influencent la prédiction de défaut de paiement pour ce nouveau client.
+                    """)
+
+                # Autres visualisations et fonctionnalités
+                plot_client(
+                    data_client_df,
+                    explainer,
+                    df_reference=df_train,
+                    index_client=0  # Utilisation d'un index fictif (0) pour un nouveau client
+                )
+
+                # Gestion des valeurs manquantes (nan)
+                nan_values(data_client_df, index_client=0)
