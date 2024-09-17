@@ -191,7 +191,7 @@ with tab2:  # Utilisation du second onglet créé
     # Cas d'entrée texte
     elif option == 'Texte':
         with st.expander("Cliquez pour entrer les données sous forme de texte"):
-            texte_client = st.text_area('Entrez les données sous forme de dictionnaire', '''{"FLAG_OWN_CAR": 0, ... }''')
+            texte_client = st.text_area('Entrez les données sous forme de dictionnaire', '''{"Taux_Paiement": 0.03, ... }''')
             if texte_client:
                 try:
                     data_client = json.loads(texte_client)  # Convertir le texte en dictionnaire
@@ -239,24 +239,34 @@ with tab2:  # Utilisation du second onglet créé
                 data_client_df = None
 
             if data_client_df is not None:
-                # Appeler la fonction de prédiction et autres visualisations
-                execute_API(data_client_df)
-                
-                # --- Volet rétractable pour les graphiques SHAP pour un nouveau client ---
-                with st.expander("Voir les graphiques SHAP"):
-                    shap_plot(explainer, df_new, 0)
-                    st.markdown("""
-                    **Interprétation des résultats pour le nouveau client :**  
-                    Les graphiques ci-dessous vous permettent de voir les principales caractéristiques qui influencent la prédiction de défaut de paiement pour ce nouveau client.
-                    """)
+                # Conversion explicite des types de données pour éviter les erreurs de sérialisation
+                data_client_df_cleaned = data_client_df.astype(object).where(pd.notnull(data_client_df), None)
 
-                # Autres visualisations et fonctionnalités
-                plot_client(
-                    data_client_df,
-                    explainer,
-                    df_reference=df_train,
-                    index_client=0  # Utilisation d'un index fictif (0) pour un nouveau client
-                )
+                try:
+                    # Convertir le DataFrame en une liste de dictionnaires
+                    json_data = json.dumps(data_client_df_cleaned.to_dict(orient='records'))
 
-                # Gestion des valeurs manquantes (nan)
-                nan_values(data_client_df, index_client=0)
+                    # Appeler la fonction de prédiction et autres visualisations avec les données en JSON
+                    execute_API(json_data)
+
+                    # --- Volet rétractable pour les graphiques SHAP pour un nouveau client ---
+                    with st.expander("Voir les graphiques SHAP"):
+                        shap_plot(explainer, df_new, 0)
+                        st.markdown("""
+                        **Interprétation des résultats pour le nouveau client :**  
+                        Les graphiques ci-dessous vous permettent de voir les principales caractéristiques qui influencent la prédiction de défaut de paiement pour ce nouveau client.
+                        """)
+
+                    # Autres visualisations et fonctionnalités
+                    plot_client(
+                        data_client_df_cleaned,
+                        explainer,
+                        df_reference=df_train,
+                        index_client=0  # Utilisation d'un index fictif (0) pour un nouveau client
+                    )
+
+                    # Gestion des valeurs manquantes (nan)
+                    nan_values(data_client_df_cleaned, index_client=0)
+
+                except Exception as e:
+                    st.error(f"Erreur lors de la conversion des données en JSON : {e}")
