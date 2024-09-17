@@ -143,6 +143,10 @@ with tab1:
                     df_reference=df_train,
                     index_client=index_client
                 )
+                st.markdown("""
+            **Analyse du profil du client :**  
+            Le graphique ci-dessus compare les caractéristiques du client à celles d'autres clients dans la base de données. Cela permet de comprendre où se situe le client par rapport à la population.
+            """)
                 nan_values(df_new, index_client=index_client)
         else:
             st.write("Client non trouvé dans la base de données")

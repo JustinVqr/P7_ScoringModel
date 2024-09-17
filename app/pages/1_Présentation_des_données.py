@@ -6,8 +6,12 @@ import seaborn as sns
 import sys
 import os
 
-# Configuration de la page (titre de l'application)
-st.set_page_config(page_title="1) Présentation des données")
+# Configuration de la page Streamlit
+st.set_page_config(
+    layout='centered',
+    initial_sidebar_state='collapsed',
+    page_title="1) Présentation des données"
+)
 
 # Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -25,19 +29,26 @@ Credit_clf_final = st.session_state.Credit_clf_final
 explainer = st.session_state.explainer
 
 # --- Création de la mise en page de la page (3 onglets) ---
-tab1, tab2, tab3 = st.tabs(["Data", "Indicators", "Model"])
+tab1, tab2, tab3 = st.tabs(["Dataset", "Analyse", "Modèle"])
 
 # --- Onglet 1 : Présentation du dataframe ---
 with tab1:
-    st.header("Aperçu du Dataframe")
-    st.subheader("Contenu du dataframe")
+    st.header("Aperçu du Dataset")
+    st.subheader("Informations générales")
+    st.write("""
+        Cet onglet vous permet de consulter un aperçu du dataset utilisé pour l'entraînement du modèle.
+        Vous pouvez voir ici le nombre total de clients enregistrés ainsi que les caractéristiques disponibles pour chaque client.
+    """)
 
     col1, col2 = st.columns(2)
     col1.metric("Nombre de clients enregistrés", df_train.shape[0])
     col2.metric("Nombre de caractéristiques des clients", df_train.drop(columns='TARGET').shape[1])
 
     # Analyse de la cible : Diagramme en anneau
-    st.subheader("Analyse de la cible")
+    st.subheader("Répartition de la cible")
+    st.write("""
+        Ce graphique montre la répartition des clients ayant des difficultés (1) ou non (0) à rembourser le prêt.
+    """)
     fig1, ax = plt.subplots()
     ax.pie(df_train.TARGET.value_counts(normalize=True),
            labels=["0", "1"],
@@ -54,62 +65,37 @@ with tab1:
 
     # Analyse des valeurs manquantes
     st.subheader("Analyse des valeurs manquantes")
+    st.write("""
+        Le graphique ci-dessous vous permet de visualiser la répartition des valeurs manquantes dans le dataset.
+        Notez que les variables avec plus de 80% de valeurs manquantes ont été supprimées et toutes les autres valeurs manquantes ont été remplacées par 0.
+    """)
     with st.spinner('Chargement du graphique...'):
         figNAN = msno.matrix(df_train.drop(columns='TARGET'), labels=True, sort="ascending")
         st.pyplot(figNAN.figure)
-        st.markdown("""
-        **Informations sur les valeurs manquantes :**
-        1) Les variables avec plus de 80% de valeurs manquantes ont été supprimées.
-        2) Toutes les valeurs manquantes restantes ont été remplacées par 0.
-        """)
+
+# --- Onglet 2 : Analyse des caractéristiques ---
+with tab2:
+    st.header("Analyse univariée et bivariée")
+    st.write("""
+        Cet onglet regroupe l'analyse univariée (distribution des variables) et l'analyse bivariée (relation entre deux variables).
+        Vous pouvez explorer la distribution des caractéristiques et voir comment elles sont réparties en fonction de la cible.
+    """)
 
     # Ajout de l'analyse univariée
-    st.subheader("Analyse univariée: distribution des variables")
+    st.subheader("Analyse univariée : distribution des variables")
     univariate_analysis(df_train)
 
-    # Ajout du scatter plot interactif en bas de l'onglet Data
-    st.subheader("Analyse bivariée: nuage de points")
+    # Ajout du scatter plot interactif
+    st.subheader("Analyse bivariée : nuage de points")
     scatter_plot_interactif(df_train)
-
-# --- Onglet 2 : Présentation des caractéristiques ---
-with tab2:
-    st.subheader("Présentation des caractéristiques")
-    
-    cola, colb = st.columns(2)
-    
-# Affichage des 31 premières caractéristiques dans la première colonne
-with cola:
-    for features in list(df_train.drop(columns='TARGET').columns)[:31]:
-        if df_train[features].nunique() == 2:
-            figInd = sns.barplot(df_train[['TARGET', features]].fillna(0).groupby('TARGET').value_counts(normalize=True).reset_index(),
-                                 x=features, y=0, hue="TARGET")
-            figInd.set_xticks([0, 1])
-            figInd.set_xticklabels(["Non", "Oui"])
-            plt.close()
-            st.pyplot(figInd.figure)
-        else:
-            figInd = sns.boxplot(data=df_train, y=features, x='TARGET', showfliers=False)
-            plt.close()
-            st.pyplot(figInd.figure)
-
-# Affichage des caractéristiques suivantes dans la deuxième colonne
-with colb:
-    for features in list(df_train.drop(columns='TARGET').columns)[31:]:
-        if df_train[features].nunique() == 2:
-            figInd = sns.barplot(df_train[['TARGET', features]].fillna(0).groupby('TARGET').value_counts(normalize=True).reset_index(),
-                                 x=features, y=0, hue="TARGET")
-            figInd.set_xticks([0, 1])
-            figInd.set_xticklabels(["Non", "Oui"])
-            plt.close()
-            st.pyplot(figInd.figure)
-        else:
-            figInd = sns.boxplot(data=df_train, y=features, x='TARGET', showfliers=False)
-            plt.close()
-            st.pyplot(figInd.figure)
 
 # --- Onglet 3 : Présentation du modèle ---
 with tab3:
-    st.header("Description du modèle")
+    st.header("Présentation du modèle LightGBM")
+    st.write("""
+        Cet onglet présente le modèle utilisé pour la classification des clients. Vous y trouverez les caractéristiques importantes,
+        les paramètres optimisés, ainsi que les scores obtenus lors de la validation croisée.
+    """)
 
     # Importance des caractéristiques
     st.subheader("Importance des caractéristiques du modèle LightGBM")
