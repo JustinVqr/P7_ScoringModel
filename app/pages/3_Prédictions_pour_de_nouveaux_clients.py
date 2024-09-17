@@ -149,7 +149,7 @@ with tab1:
 
 
 # --- Onglet 2 : Prédiction pour un nouveau client sans ID ---
-with st.container():  # Utilisez st.container pour encapsuler le contenu
+with tab2:  # Utilisation du second onglet créé
     st.header("Prédiction pour un nouveau client")
 
     # Explication de la section
@@ -199,7 +199,20 @@ with st.container():  # Utilisez st.container pour encapsuler le contenu
         loader = st.file_uploader("Chargez le fichier CSV")
         if loader is not None:
             try:
-                data_client = pd.read_csv(loader, sep=";", index_col="SK_ID_CURR")  # Assurez-vous que SK_ID_CURR est présent
+                # Charger le fichier CSV
+                data_client = pd.read_csv(loader, sep=";", index_col="SK_ID_CURR")
+
+                # Forcer la conversion des colonnes numériques
+                for column in data_client.columns:
+                    data_client[column] = pd.to_numeric(data_client[column], errors='coerce')
+
+                # Afficher un avertissement si des colonnes sont encore non-numériques
+                non_numeric_columns = data_client.select_dtypes(include=['object']).columns
+                if len(non_numeric_columns) > 0:
+                    st.warning(f"Colonnes contenant des valeurs non-numériques : {list(non_numeric_columns)}")
+
+                st.write("Données après conversion :", data_client)
+
             except Exception as e:
                 st.error(f"Erreur lors de la lecture du fichier CSV : {e}")
 
