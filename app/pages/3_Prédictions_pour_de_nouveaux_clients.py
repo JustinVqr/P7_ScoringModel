@@ -111,12 +111,13 @@ with tab1:
                 Après avoir modifié les caractéristiques du client, la jauge reflète maintenant la nouvelle probabilité de défaut de paiement. Vous pouvez observer si le risque a augmenté ou diminué.
                 """)
 
-                # Afficher les graphiques SHAP avec les nouvelles valeurs
-                shap_plot(explainer, updated_client, 0)
-                st.markdown("""
-                **Interprétation des graphiques SHAP :**  
-                Ces graphiques SHAP montrent les variables les plus influentes sur la décision du modèle. Pour le premier graphique les barres positives, en rouge, augmentent la probabilité de défaut de paiement, et les barres négatives, en bleu, la réduisent. Le second graphique quand à lui donne une lecture globale, où nous voyons la contribution des features que ce soit pour réduire ou augmenter le score-crédit obtenu.
-                """)
+                # --- Volet rétractable pour les graphiques SHAP ---
+                with st.expander("Voir les graphiques SHAP"):
+                    shap_plot(explainer, updated_client, 0)
+                    st.markdown("""
+                    **Interprétation des graphiques SHAP :**  
+                    Ces graphiques SHAP montrent les variables les plus influentes sur la décision du modèle. Pour le premier graphique les barres positives, en rouge, augmentent la probabilité de défaut de paiement, et les barres négatives, en bleu, la réduisent. Le second graphique quand à lui donne une lecture globale, où nous voyons la contribution des features que ce soit pour réduire ou augmenter le score-crédit obtenu.
+                    """)
 
                 # Autres visualisations
                 plot_client(
@@ -127,12 +128,13 @@ with tab1:
                 )
                 nan_values(updated_client, index_client=0)
             else:
-                # Afficher les graphiques SHAP avec les valeurs originales
-                shap_plot(explainer, df_new, index_client)
-                st.markdown("""
-                **Analyse des résultats originaux :**  
-                Les graphiques ci-dessous montrent l'impact des caractéristiques actuelles du client sur la probabilité de défaut de paiement. Utilisez ces informations pour mieux comprendre le profil du client.
-                """)
+                # --- Volet rétractable pour les graphiques SHAP avec les valeurs originales ---
+                with st.expander("Voir les graphiques SHAP"):
+                    shap_plot(explainer, df_new, index_client)
+                    st.markdown("""
+                    **Analyse des résultats originaux :**  
+                    Les graphiques ci-dessous montrent l'impact des caractéristiques actuelles du client sur la probabilité de défaut de paiement. Utilisez ces informations pour mieux comprendre le profil du client.
+                    """)
 
                 # Autres visualisations
                 plot_client(
@@ -197,12 +199,13 @@ with tab2:
         execute_API(data_client)
         data_client = pd.DataFrame(data_client, index=[0])
 
-        # Utilisation de la fonction personnalisée pour la visualisation SHAP pour un nouveau client
-        shap_plot(explainer, df_new, 0)
-        st.markdown("""
-        **Interprétation des résultats pour le nouveau client :**  
-        Les graphiques ci-dessous vous permettent de voir les principales caractéristiques qui influencent la prédiction de défaut de paiement pour ce nouveau client.
-        """)
+        # --- Volet rétractable pour les graphiques SHAP pour un nouveau client ---
+        with st.expander("Voir les graphiques SHAP"):
+            shap_plot(explainer, df_new, 0)
+            st.markdown("""
+            **Interprétation des résultats pour le nouveau client :**  
+            Les graphiques ci-dessous vous permettent de voir les principales caractéristiques qui influencent la prédiction de défaut de paiement pour ce nouveau client.
+            """)
 
         # Autres visualisations et fonctionnalités
         plot_client(
