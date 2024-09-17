@@ -69,7 +69,7 @@ if run_btn:
             """)
 
             # --- Volet rétractable pour les graphiques SHAP ---
-            with st.expander("Voir les graphiques SHAP"):
+            with st.expander("Voir l'explication de la prédiction pour le client"):
                 shap_plot(explainer, df_train.drop(columns='TARGET').fillna(0), index_client=index_client)
                 st.markdown("""
                 **Analyse des graphiques SHAP :**  

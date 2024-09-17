@@ -112,7 +112,7 @@ with tab1:
                 """)
 
                 # --- Volet rétractable pour les graphiques SHAP ---
-                with st.expander("Voir les graphiques SHAP"):
+                with st.expander("Voir l'explication de la prédiction pour le client"):
                     shap_plot(explainer, updated_client, 0)
                     st.markdown("""
                     **Interprétation des graphiques SHAP :**  
@@ -129,7 +129,7 @@ with tab1:
                 nan_values(updated_client, index_client=0)
             else:
                 # --- Volet rétractable pour les graphiques SHAP avec les valeurs originales ---
-                with st.expander("Voir les graphiques SHAP"):
+                with st.expander("Voir l'explication de la prédiction pour le client"):
                     shap_plot(explainer, df_new, index_client)
                     st.markdown("""
                     **Analyse des résultats originaux :**  
