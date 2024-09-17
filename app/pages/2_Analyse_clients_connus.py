@@ -2,12 +2,13 @@ import streamlit as st
 import sys
 import os
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 # Configuration de la page Streamlit
 st.set_page_config(
     layout='centered',
-    initial_sidebar_state='expanded',
+    initial_sidebar_state='collapsed',  # Retire le bandeau latéral
     page_title="2) Analyse clients connus"
 )
 
@@ -29,15 +30,22 @@ explainer = st.session_state.explainer
 # Affichage de l'en-tête principal
 st.header("Analyse du défaut de paiement des clients connus")
 
-# Boîte de saisie pour l'ID du client
-index_client = st.sidebar.number_input(
-    "Entrer l'ID du client (ex : 100002)",
+# Explication de la section pour l'utilisateur
+st.markdown("""
+    **Instructions :**  
+    Utilisez cette page pour entrer l'ID d'un client connu. Le modèle prédira la probabilité de défaut de paiement 
+    et affichera les graphiques explicatifs pour mieux comprendre le profil du client.
+""")
+
+# Boîte de saisie pour l'ID du client (centrée sur la page)
+index_client = st.number_input(
+    "Entrez l'ID du client (ex : 100002)",
     format="%d",
     value=100002
 )
 
-# Bouton d'exécution
-run_btn = st.sidebar.button('Voir les données du client')
+# Bouton d'exécution (centré sur la page)
+run_btn = st.button('Voir les données du client')
 
 # Action déclenchée par le bouton
 if run_btn:
@@ -54,10 +62,20 @@ if run_btn:
             # Affichage de la jauge avant les graphiques SHAP
             plot_gauge(pred_prob)
 
+            # Commentaire sur la jauge
+            st.markdown("""
+            **Interprétation de la jauge :**  
+            Cette jauge représente la probabilité de défaut de paiement du client. Une probabilité proche de 1 indique un risque élevé, tandis qu'une valeur proche de 0 indique un risque faible.
+            """)
+
             # --- Volet rétractable pour les graphiques SHAP ---
             with st.expander("Voir les graphiques SHAP"):
                 shap_plot(explainer, df_train.drop(columns='TARGET').fillna(0), index_client=index_client)
-            
+                st.markdown("""
+                **Analyse des graphiques SHAP :**  
+                Ces graphiques SHAP montrent les variables les plus influentes sur la décision du modèle. Les barres positives, en rouge, augmentent la probabilité de défaut de paiement, et les barres négatives, en bleu, la réduisent.
+                """)
+
             # --- Organisation des autres graphiques dans une colonne ---
             plot_client(
                 df_train.drop(columns='TARGET').fillna(0),  # Gestion des NaN
@@ -65,11 +83,19 @@ if run_btn:
                 df_reference=df_train,
                 index_client=index_client
             )
-            
+            st.markdown("""
+            **Analyse du profil du client :**  
+            Le graphique ci-dessus compare les caractéristiques du client à celles d'autres clients dans la base de données. Cela permet de comprendre où se situe le client par rapport à la population.
+            """)
+
             # --- Affichage du message des valeurs manquantes en dessous des graphiques ---
             nan_values(df_train.drop(columns='TARGET'), index_client=index_client)
+            st.markdown("""
+            **Valeurs manquantes :**  
+            Si certaines données du client sont manquantes, elles seront listées ici. Cela peut avoir un impact sur la précision des prédictions.
+            """)
 
         except Exception as e:
             st.error(f"Une erreur s'est produite lors de l'affichage des données du client : {e}")
     else:
-        st.sidebar.error("Client non présent dans la base de données")
+        st.error("Client non présent dans la base de données")

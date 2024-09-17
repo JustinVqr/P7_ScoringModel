@@ -111,7 +111,7 @@ with tab1:
                 shap_plot(explainer, updated_client, 0)
                 st.markdown("""
                 **Interprétation des graphiques SHAP :**  
-                Les graphiques SHAP montrent l'influence de chaque caractéristique sur la prédiction. Une valeur positive signifie une augmentation du risque, tandis qu'une valeur négative signifie une réduction du risque.
+                Les graphiques SHAP montrent l'influence de chaque caractéristique sur la prédiction. Une valeur positive, en rouge, signifie une augmentation du risque, tandis qu'une valeur négative, en bleu, signifie une réduction du risque.
                 """)
 
                 # Autres visualisations
