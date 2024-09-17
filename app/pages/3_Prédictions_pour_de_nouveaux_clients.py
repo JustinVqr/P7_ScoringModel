@@ -27,6 +27,13 @@ tab1, tab2 = st.tabs(["ID client", "Information manuelle"])
 with tab1:
     st.header("Prédiction pour un client avec ID")
     
+    # Explication générale de la section
+    st.markdown("""
+    **Instructions :**  
+    Utilisez cet onglet pour entrer l'ID d'un client spécifique. Le modèle prédira la probabilité de défaut de paiement 
+    et affichera les graphiques explicatifs pour mieux comprendre le profil du client.
+    """)
+
     index_client = st.number_input(
         "Entrez l'ID du client (ex : 1, 2, 3, 5)",
         format="%d",
@@ -56,8 +63,19 @@ with tab1:
             pred_prob = Credit_clf_final.predict_proba(X_client)[0][1]
             plot_gauge(pred_prob)
 
+            # Commentaire pour la jauge
+            st.markdown("""
+            **Interprétation de la jauge :**  
+            La jauge ci-dessus indique la probabilité de défaut de paiement du client. Une valeur proche de 1 signifie un risque élevé, tandis qu'une valeur proche de 0 signifie un faible risque.
+            """)
+
             # --- Volet réductible pour voir et modifier les caractéristiques du client ---
             with st.expander("Cliquez pour afficher et modifier les caractéristiques du client"):
+                st.markdown("""
+                **Conseil :**  
+                Vous pouvez ajuster manuellement les caractéristiques du client pour observer comment ces modifications influencent la prédiction.
+                """)
+                
                 for feature, value in data_client.items():
                     if isinstance(value, (int, float)):
                         data_client[feature] = st.number_input(
@@ -83,8 +101,18 @@ with tab1:
                 pred_prob_updated = Credit_clf_final.predict_proba(updated_client)[0][1]
                 plot_gauge(pred_prob_updated)
 
+                # Commentaire pour la jauge après modification
+                st.markdown("""
+                **Analyse des modifications :**  
+                Après avoir modifié les caractéristiques du client, la jauge reflète maintenant la nouvelle probabilité de défaut de paiement. Vous pouvez observer si le risque a augmenté ou diminué.
+                """)
+
                 # Afficher les graphiques SHAP avec les nouvelles valeurs
                 shap_plot(explainer, updated_client, 0)
+                st.markdown("""
+                **Interprétation des graphiques SHAP :**  
+                Les graphiques SHAP montrent l'influence de chaque caractéristique sur la prédiction. Une valeur positive signifie une augmentation du risque, tandis qu'une valeur négative signifie une réduction du risque.
+                """)
 
                 # Autres visualisations
                 plot_client(
@@ -97,6 +125,10 @@ with tab1:
             else:
                 # Afficher les graphiques SHAP avec les valeurs originales
                 shap_plot(explainer, df_new, index_client)
+                st.markdown("""
+                **Analyse des résultats originaux :**  
+                Les graphiques ci-dessous montrent l'impact des caractéristiques actuelles du client sur la probabilité de défaut de paiement. Utilisez ces informations pour mieux comprendre le profil du client.
+                """)
 
                 # Autres visualisations
                 plot_client(
@@ -112,6 +144,13 @@ with tab1:
 # --- Onglet 2 : Prédiction pour un nouveau client sans ID ---
 with tab2:
     st.header("Prédiction pour un nouveau client")
+
+    # Explication de la section
+    st.markdown("""
+    **Instructions :**  
+    Dans cet onglet, vous pouvez entrer les caractéristiques d'un nouveau client manuellement, via un texte ou un fichier CSV. 
+    Le modèle prédira la probabilité de défaut de paiement et affichera les graphiques explicatifs correspondants.
+    """)
 
     option = st.selectbox(
         'Comment souhaitez-vous entrer les données ?',
@@ -156,6 +195,10 @@ with tab2:
 
         # Utilisation de la fonction personnalisée pour la visualisation SHAP pour un nouveau client
         shap_plot(explainer, df_new, 0)
+        st.markdown("""
+        **Interprétation des résultats pour le nouveau client :**  
+        Les graphiques ci-dessous vous permettent de voir les principales caractéristiques qui influencent la prédiction de défaut de paiement pour ce nouveau client.
+        """)
 
         # Autres visualisations et fonctionnalités
         plot_client(

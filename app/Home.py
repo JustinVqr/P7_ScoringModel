@@ -85,7 +85,7 @@ def show_home_page():
     with col1:
         st.image("https://raw.githubusercontent.com/JustinVqr/P7_ScoringModel/main/app/images/logo.png")
     # Afficher le message "Application opérationnelle"
-    st.markdown("<h4 style='text-align: center;'>Application opérationnelle</h4>", unsafe_allow_html=True)
+#    st.markdown("<h4 style='text-align: center;'>Application opérationnelle</h4>", unsafe_allow_html=True)
 
 # --- Fonction pour afficher la page d'analyse des clients ---
 def show_analysis_page():
