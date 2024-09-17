@@ -73,28 +73,75 @@ with tab1:
             La jauge ci-dessus indique la probabilité de défaut de paiement du client. Une valeur proche de 1 signifie un risque élevé, tandis qu'une valeur proche de 0 signifie un faible risque.
             """)
 
-            # --- Volet rétractable pour les graphiques SHAP ---
-            with st.expander("Voir les graphiques SHAP"):
-                shap_plot(explainer, df_new, index_client)
+            # --- Volet rétractable pour voir et modifier les caractéristiques du client ---
+            with st.expander("Cliquez pour afficher et modifier les caractéristiques du client"):
                 st.markdown("""
-                **Analyse des graphiques SHAP :**  
-                Ces graphiques SHAP montrent l'influence des différentes caractéristiques du client sur la prédiction. Les caractéristiques qui augmentent le risque de défaut de paiement sont affichées en rouge (positif), tandis que celles qui le diminuent sont en bleu (négatif).
+                **Conseil :**  
+                Vous pouvez ajuster manuellement les caractéristiques du client pour observer comment ces modifications influencent la prédiction.
+                """)
+                
+                for feature, value in data_client.items():
+                    if isinstance(value, (int, float)):
+                        data_client[feature] = st.number_input(
+                            label=feature,
+                            value=float(value),
+                            key=f"input_{feature}"
+                        )
+                    else:
+                        data_client[feature] = st.text_input(
+                            label=feature,
+                            value=str(value),
+                            key=f"input_{feature}"
+                        )
+
+                submit_changes = st.button("Mettre à jour les caractéristiques et prédire à nouveau")
+            
+            if submit_changes:
+                # Mettre à jour les nouvelles données dans session_state
+                st.session_state['updated_client'] = data_client
+
+                # Relancer la prédiction avec les nouvelles valeurs
+                updated_client = pd.DataFrame([data_client])
+                pred_prob_updated = Credit_clf_final.predict_proba(updated_client)[0][1]
+                plot_gauge(pred_prob_updated)
+
+                # Commentaire pour la jauge après modification
+                st.markdown("""
+                **Analyse des modifications :**  
+                Après avoir modifié les caractéristiques du client, la jauge reflète maintenant la nouvelle probabilité de défaut de paiement. Vous pouvez observer si le risque a augmenté ou diminué.
                 """)
 
-            # --- Autres visualisations ---
-            plot_client(
-                df_new,
-                explainer,
-                df_reference=df_train,
-                index_client=index_client
-            )
-            nan_values(df_new, index_client=index_client)
+                # Afficher les graphiques SHAP avec les nouvelles valeurs
+                shap_plot(explainer, updated_client, 0)
+                st.markdown("""
+                **Interprétation des graphiques SHAP :**  
+                Ces graphiques SHAP montrent les variables les plus influentes sur la décision du modèle. Pour le premier graphique les barres positives, en rouge, augmentent la probabilité de défaut de paiement, et les barres négatives, en bleu, la réduisent. Le second graphique quand à lui donne une lecture globale, où nous voyons la contribution des features que ce soit pour réduire ou augmenter le score-crédit obtenu.
+                """)
 
-            st.markdown("""
-            **Analyse des autres graphiques :**  
-            Les graphiques ci-dessus montrent les informations supplémentaires sur le client par rapport à l'ensemble de données de référence. Vous pouvez voir comment le client se compare à d'autres clients en fonction de plusieurs variables importantes.
-            """)
+                # Autres visualisations
+                plot_client(
+                    updated_client,
+                    explainer,
+                    df_reference=df_train,
+                    index_client=0  # Utilisation d'un index fictif pour un client modifié
+                )
+                nan_values(updated_client, index_client=0)
+            else:
+                # Afficher les graphiques SHAP avec les valeurs originales
+                shap_plot(explainer, df_new, index_client)
+                st.markdown("""
+                **Analyse des résultats originaux :**  
+                Les graphiques ci-dessous montrent l'impact des caractéristiques actuelles du client sur la probabilité de défaut de paiement. Utilisez ces informations pour mieux comprendre le profil du client.
+                """)
 
+                # Autres visualisations
+                plot_client(
+                    df_new,
+                    explainer,
+                    df_reference=df_train,
+                    index_client=index_client
+                )
+                nan_values(df_new, index_client=index_client)
         else:
             st.write("Client non trouvé dans la base de données")
 

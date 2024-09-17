@@ -73,7 +73,7 @@ if run_btn:
                 shap_plot(explainer, df_train.drop(columns='TARGET').fillna(0), index_client=index_client)
                 st.markdown("""
                 **Analyse des graphiques SHAP :**  
-                Ces graphiques SHAP montrent les variables les plus influentes sur la décision du modèle. Les barres positives, en rouge, augmentent la probabilité de défaut de paiement, et les barres négatives, en bleu, la réduisent.
+                Ces graphiques SHAP montrent les variables les plus influentes sur la décision du modèle. Pour le premier graphique les barres positives, en rouge, augmentent la probabilité de défaut de paiement, et les barres négatives, en bleu, la réduisent. Le second graphique quand à lui donne une lecture globale, où nous voyons la contribution des features que ce soit pour réduire ou augmenter le score-crédit obtenu.
                 """)
 
             # --- Organisation des autres graphiques dans une colonne ---
