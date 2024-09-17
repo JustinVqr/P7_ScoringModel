@@ -7,7 +7,11 @@ import shap
 import json
 
 # Configuration de la page Streamlit
-st.set_page_config(page_title="3) Prédiction pour de nouveaux clients")
+st.set_page_config(
+    layout='centered',
+    initial_sidebar_state='collapsed',
+    page_title="3) Prédictions sur de nouveaux clients"
+)
 
 # Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))

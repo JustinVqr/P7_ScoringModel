@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # Configuration de la page Streamlit
 st.set_page_config(
     layout='centered',
-    initial_sidebar_state='collapsed',  # Retire le bandeau latéral
+    initial_sidebar_state='collapsed',
     page_title="2) Analyse clients connus"
 )
 
@@ -39,9 +39,9 @@ st.markdown("""
 
 # Boîte de saisie pour l'ID du client (centrée sur la page)
 index_client = st.number_input(
-    "Entrez l'ID du client (ex : 100002)",
+    "Entrez l'ID du client (ex : 1, 2, 3, 5)",
     format="%d",
-    value=100002
+    value=1
 )
 
 # Bouton d'exécution (centré sur la page)
