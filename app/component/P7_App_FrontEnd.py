@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches
 import matplotlib.colors
 from math import pi
+from sklearn.preprocessing import MinMaxScaler
 
 # Fonction sans API pour afficher la prédiction et les probabilités de défaut de paiement pour un client spécifique
 def execute_noAPI(df, index_client, model):
@@ -401,10 +402,11 @@ def univariate_analysis(df):
 
 
 
-# Fonction pour créer un radar plot
+# Fonction pour créer un radar plot avec normalisation
 def radar_plot(df, client_id, axes_options):
     """
-    Fonction pour créer un radar plot comparant un client avec la moyenne de tous les clients.
+    Fonction pour créer un radar plot comparant un client avec la moyenne de tous les clients,
+    en appliquant une normalisation min-max pour éviter les problèmes d'échelle.
     
     Paramètres:
     df : DataFrame
@@ -431,12 +433,17 @@ def radar_plot(df, client_id, axes_options):
     if client_data.empty:
         st.warning(f"Aucun client trouvé avec l'ID {client_id}.")
         return
+    
+    # Normalisation des données avec Min-Max Scaler
+    scaler = MinMaxScaler()
+    df_normalized = pd.DataFrame(scaler.fit_transform(df[selected_axes]), columns=selected_axes)
+    client_data_normalized = pd.DataFrame(scaler.transform(client_data[selected_axes]), columns=selected_axes)
+    
+    # Moyenne des clients normalisée
+    mean_values = df_normalized.mean()
 
-    # Moyenne des clients
-    mean_values = df[selected_axes].mean()
-
-    # Valeurs du client
-    client_values = client_data[selected_axes].values.flatten()
+    # Valeurs du client normalisées
+    client_values = client_data_normalized.values.flatten()
 
     # Préparation des données pour le radar plot
     categories = selected_axes
