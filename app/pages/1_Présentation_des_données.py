@@ -17,8 +17,7 @@ st.set_page_config(
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 # Importation des fonctions
-from app.component.P7_App_FrontEnd import scatter_plot_interactif, univariate_analysis
-from app.component.radar_functions import radar_plot  # Assurez-vous que radar_plot est bien importé
+from app.component.P7_App_FrontEnd import scatter_plot_interactif, univariate_analysis, radar_plot
 
 # --- Vérification et récupération des données depuis la session ---
 if "df_train" not in st.session_state or "Credit_clf_final" not in st.session_state or "explainer" not in st.session_state:
