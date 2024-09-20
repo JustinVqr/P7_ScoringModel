@@ -10,6 +10,7 @@ from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 import matplotlib.patches
 import matplotlib.colors
+from math import pi
 
 # Fonction sans API pour afficher la prédiction et les probabilités de défaut de paiement pour un client spécifique
 def execute_noAPI(df, index_client, model):
@@ -397,3 +398,73 @@ def univariate_analysis(df):
                         int(n[i]), ha='center', va='bottom')
 
             st.pyplot(fig)
+
+
+
+# Fonction pour créer un radar plot
+def radar_plot(df, client_id, axes_options):
+    """
+    Fonction pour créer un radar plot comparant un client avec la moyenne de tous les clients.
+    
+    Paramètres:
+    df : DataFrame
+        Le dataframe contenant les données des clients, incluant une colonne 'SK_ID_CURR' et les colonnes des axes à étudier.
+    client_id : int
+        L'ID du client à comparer.
+    axes_options : list
+        La liste des colonnes correspondant aux axes disponibles pour le radar plot.
+    """
+    
+    # Sélection des axes d'intérêt
+    selected_axes = st.multiselect("Choisissez les axes à étudier", axes_options, default=axes_options[:8])
+    
+    if len(selected_axes) < 3:
+        st.warning("Veuillez sélectionner au moins 3 axes pour le radar plot.")
+        return
+
+    # Filtrer les données du client
+    client_data = df[df['SK_ID_CURR'] == client_id]
+    
+    if client_data.empty:
+        st.warning(f"Aucun client trouvé avec l'ID {client_id}.")
+        return
+
+    # Moyenne des clients
+    mean_values = df[selected_axes].mean()
+
+    # Valeurs du client
+    client_values = client_data[selected_axes].values.flatten()
+
+    # Préparation des données pour le radar plot
+    categories = selected_axes
+    num_vars = len(categories)
+
+    # Créer des angles pour chaque axe
+    angles = [n / float(num_vars) * 2 * pi for n in range(num_vars)]
+    angles += angles[:1]
+
+    # Créer le radar plot
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+
+    # Afficher la moyenne de tous les clients
+    mean_values = mean_values.tolist()
+    mean_values += mean_values[:1]
+    ax.fill(angles, mean_values, color='blue', alpha=0.1)
+    ax.plot(angles, mean_values, color='blue', linewidth=2, linestyle='solid', label="Moyenne des clients")
+
+    # Afficher les valeurs du client
+    client_values = client_values.tolist()
+    client_values += client_values[:1]
+    ax.fill(angles, client_values, color='red', alpha=0.3)
+    ax.plot(angles, client_values, color='red', linewidth=2, linestyle='solid', label=f"Client {client_id}")
+
+    # Ajouter les étiquettes des axes
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(categories)
+
+    # Légende
+    ax.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1))
+
+    # Afficher le radar plot dans Streamlit
+    st.pyplot(fig)
+

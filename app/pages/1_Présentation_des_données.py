@@ -16,7 +16,9 @@ st.set_page_config(
 # Ajoutez le chemin du répertoire racine au sys.path pour que Python trouve les modules dans 'app'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
+# Importation des fonctions
 from app.component.P7_App_FrontEnd import scatter_plot_interactif, univariate_analysis
+from app.component.radar_functions import radar_plot  # Assurez-vous que radar_plot est bien importé
 
 # --- Vérification et récupération des données depuis la session ---
 if "df_train" not in st.session_state or "Credit_clf_final" not in st.session_state or "explainer" not in st.session_state:
@@ -80,6 +82,11 @@ with tab2:
         Cet onglet regroupe l'analyse univariée (distribution des variables) et l'analyse bivariée (relation entre deux variables).
         Vous pouvez explorer la distribution des caractéristiques et voir comment elles sont réparties en fonction de la cible.
     """)
+
+    # Ajout du radar plot pour la comparaison client vs moyenne
+    st.subheader("Comparaison radar plot : Client vs Moyenne des clients")
+    client_id = st.selectbox("Sélectionnez un ID client", df_train['SK_ID_CURR'].unique())
+    radar_plot(df_train, client_id, df_train.columns.drop(['SK_ID_CURR', 'TARGET']))
 
     # Ajout de l'analyse univariée
     st.subheader("Analyse univariée : distribution des variables")
