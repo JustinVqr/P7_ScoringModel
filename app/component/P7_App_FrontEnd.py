@@ -415,15 +415,18 @@ def radar_plot(df, client_id, axes_options):
         La liste des colonnes correspondant aux axes disponibles pour le radar plot.
     """
     
+    # Limiter la sélection par défaut aux axes disponibles
+    default_axes = axes_options[:8] if len(axes_options) >= 8 else axes_options
+    
     # Sélection des axes d'intérêt
-    selected_axes = st.multiselect("Choisissez les axes à étudier", axes_options, default=axes_options[:8])
+    selected_axes = st.multiselect("Choisissez les axes à étudier", axes_options, default=default_axes)
     
     if len(selected_axes) < 3:
         st.warning("Veuillez sélectionner au moins 3 axes pour le radar plot.")
         return
 
     # Filtrer les données du client
-    client_data = df[df['SK_ID_CURR'] == client_id]
+    client_data = df[df.index == client_id]
     
     if client_data.empty:
         st.warning(f"Aucun client trouvé avec l'ID {client_id}.")
@@ -467,4 +470,3 @@ def radar_plot(df, client_id, axes_options):
 
     # Afficher le radar plot dans Streamlit
     st.pyplot(fig)
-
