@@ -84,7 +84,11 @@ with tab2:
 
     # Ajout du radar plot pour la comparaison client vs moyenne
     st.subheader("Comparaison radar plot : Client vs Moyenne des clients")
-    client_id = st.selectbox("Sélectionnez un ID client", df_train.index.unique())
+    
+    # Utilisation de l'index SK_ID_CURR pour la sélection
+    client_id = st.selectbox("Sélectionnez un ID client", df_train.index)
+    
+    # Appel de la fonction radar_plot avec l'ID du client
     radar_plot(df_train, client_id, df_train.columns.drop(['TARGET']))
 
     # Ajout de l'analyse univariée
