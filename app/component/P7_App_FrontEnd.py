@@ -416,7 +416,7 @@ def radar_plot(df, client_id, axes_options):
     """
     
     # Limiter la sélection par défaut aux axes disponibles
-    default_axes = axes_options[:8] if len(axes_options) >= 8 else axes_options
+    default_axes = [axis for axis in axes_options if axis in df.columns][:8]
     
     # Sélection des axes d'intérêt
     selected_axes = st.multiselect("Choisissez les axes à étudier", axes_options, default=default_axes)
