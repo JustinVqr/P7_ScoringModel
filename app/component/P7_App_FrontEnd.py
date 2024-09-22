@@ -160,6 +160,11 @@ def plot_client(df, explainer, df_reference, index_client=0):
     contrast_colors = ["#0072B2", "#D55E00"]  # Couleurs avec bon contraste
     annot_box_style = dict(boxstyle="round,pad=0.3", fc="lightyellow", ec="black")
 
+    # Vérifier si la colonne 'TARGET' existe dans df_reference
+    if 'TARGET' not in df_reference.columns:
+        st.error("La colonne 'TARGET' est manquante dans les données de référence.")
+        return
+
     with col1:
         for feature in list(shap_importance.index[:6])[:3]:
             try:
@@ -260,6 +265,7 @@ def plot_client(df, explainer, df_reference, index_client=0):
 
             except Exception as e:
                 st.error(f"Erreur lors de la génération du graphique pour la caractéristique {feature} : {e}")
+
 
 
     # --- Analysis des valeurs manquantes ---
